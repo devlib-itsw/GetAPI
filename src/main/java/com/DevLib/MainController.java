@@ -9,4 +9,9 @@ public class MainController {
 	public String index() {
 		return "index";
 	}
+	
+	@GetMapping("/taejun")
+	public String taejun() {
+		return "taejun";
+	}
 }
