@@ -10,9 +10,16 @@ public class MainController {
 		return "index";
 	}
 	
+
 	@GetMapping("/yemin")
 	public String yemin() {
 		return "yemin";
 	}
 	
+
+	@GetMapping("/taejun")
+	public String taejun() {
+		return "taejun";
+	}
+
 }
