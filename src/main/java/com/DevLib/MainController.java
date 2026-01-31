@@ -9,4 +9,10 @@ public class MainController {
 	public String index() {
 		return "index";
 	}
+	
+	@GetMapping("/yemin")
+	public String yemin() {
+		return "yemin";
+	}
+	
 }
