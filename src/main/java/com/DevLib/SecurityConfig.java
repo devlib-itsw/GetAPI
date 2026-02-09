@@ -33,7 +33,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/login**", "/error**", "/oauth2/**", "/login/oauth2/**").permitAll()
                 .anyRequest().authenticated()
-            )
+            ) 
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oAuth2SuccessHandler)  // JWT 생성 핸들러
             )

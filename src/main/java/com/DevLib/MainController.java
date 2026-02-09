@@ -36,7 +36,7 @@ public class MainController {
         
         return "index";
     }
-
+ 
     private String getJwtFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {

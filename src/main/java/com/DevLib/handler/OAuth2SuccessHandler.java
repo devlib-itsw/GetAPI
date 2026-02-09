@@ -30,7 +30,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
-        String picture = oAuth2User.getAttribute("picture");
+        String picture = oAuth2User.getAttribute("picture"); 
 
         // JWT 토큰 생성
         String token = jwtUtil.generateToken(email, name, picture);
