@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorate="~{common/layout}">
+
+<head>
+    <title layout:fragment="title">Community - GetAPI</title>
+    <th:block layout:fragment="metatags">
+        <meta name="description" content="GetAPI 커뮤니티">
+    </th:block>
+    <th:block layout:fragment="style">
+    </th:block>
+</head>
+
+<body>
+    <!-- MAIN -->
+    <th:block layout:fragment="content">
+        <main class="main-content bg-muted-30">
+            <div class="container py-8">
+                <div class="mb-8 flex flex-wrap gap-4 items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-foreground">Community</h1>
+                        <p class="mt-2 text-muted">API 홍보, 외주 요청, 개발자 네트워킹 공간</p>
+                    </div>
+                    <a href="community-write.html" class="btn btn-primary gap-2">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z" />
+                        </svg>
+                        글쓰기
+                    </a>
+                </div>
+
+                <!-- Search -->
+                <div class="mb-6 flex flex-wrap gap-4 items-center justify-between">
+                    <div class="flex flex-1 items-center gap-2" style="max-width:36rem">
+                        <div style="position:relative; flex:1">
+                            <svg style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%)"
+                                class="icon text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="m21 21-4.3-4.3" />
+                            </svg>
+                            <input class="input" type="text" placeholder="검색어를 입력하세요..." style="padding-left:2.5rem">
+                        </div>
+                        <div class="search-filter-wrapper">
+                            <button class="search-filter-btn" id="community-filter-btn" type="button">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                                </svg>
+                                필터
+                                <span class="search-filter-count" id="community-filter-count">5</span>
+                                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                            </button>
+                            <div class="search-filter-dropdown" id="community-filter-dropdown">
+                                <label class="filter-check-item checked" data-filter="all"><svg class="cs-check"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg><span>전체</span><input type="checkbox" name="community-search" value="all"
+                                        checked hidden></label>
+                                <label class="filter-check-item checked" data-filter="title"><svg class="cs-check"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg><span>제목</span><input type="checkbox" name="community-search" value="title"
+                                        checked hidden></label>
+                                <label class="filter-check-item checked" data-filter="content"><svg class="cs-check"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg><span>본문</span><input type="checkbox" name="community-search" value="content"
+                                        checked hidden></label>
+                                <label class="filter-check-item checked" data-filter="user"><svg class="cs-check"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg><span>사용자</span><input type="checkbox" name="community-search" value="user"
+                                        checked hidden></label>
+                                <label class="filter-check-item checked" data-filter="hashtag"><svg class="cs-check"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg><span>해시태그</span><input type="checkbox" name="community-search"
+                                        value="hashtag" checked hidden></label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary">검색</button>
+                    </div>
+                    <div class="custom-select" style="width:9rem">
+                        <button type="button" class="custom-select-trigger">
+                            <span class="cs-value">최신순</span>
+                            <svg class="cs-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </button>
+                        <div class="custom-select-popover align-right">
+                            <div class="custom-select-item selected" data-value="latest"><svg class="cs-check"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span class="cs-label">최신순</span></div>
+                            <div class="custom-select-item" data-value="views"><svg class="cs-check" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span class="cs-label">조회수순</span></div>
+                            <div class="custom-select-item" data-value="likes"><svg class="cs-check" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span class="cs-label">좋아요순</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post List -->
+                <div class="space-y-3">
+                    <a href="community-view.html" class="post-item">
+                        <h3 class="post-title">Translation API 100개 언어 지원, 무료 체험 가능</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="badge badge-secondary text-xs">#번역</span>
+                            <span class="badge badge-secondary text-xs">#NLP</span>
+                            <span class="badge badge-secondary text-xs">#출시</span>
+                        </div>
+                        <div class="post-meta">
+                            <span class="post-meta-item">
+                                <div class="avatar avatar-sm">김</div>
+                                김개발
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M8 2v4" />
+                                    <path d="M16 2v4" />
+                                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                                    <path d="M3 10h18" />
+                                </svg>
+                                2026-02-05
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                1,234
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M7 10v12" />
+                                    <path
+                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                </svg>
+                                56
+                            </span>
+                        </div>
+                    </a>
+
+                    <a href="community-view.html" class="post-item">
+                        <h3 class="post-title">[외주] 이미지 분류 API 개발 의뢰합니다</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="badge badge-secondary text-xs">#외주</span>
+                            <span class="badge badge-secondary text-xs">#이미지</span>
+                            <span class="badge badge-secondary text-xs">#AI</span>
+                        </div>
+                        <div class="post-meta">
+                            <span class="post-meta-item">
+                                <div class="avatar avatar-sm">이</div>
+                                이코딩
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M8 2v4" />
+                                    <path d="M16 2v4" />
+                                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                                    <path d="M3 10h18" />
+                                </svg>
+                                2026-02-04
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                876
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M7 10v12" />
+                                    <path
+                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                </svg>
+                                23
+                            </span>
+                        </div>
+                    </a>
+
+                    <a href="community-view.html" class="post-item">
+                        <h3 class="post-title">API 응답 속도 개선 방법 문의드립니다</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="badge badge-secondary text-xs">#질문</span>
+                            <span class="badge badge-secondary text-xs">#성능</span>
+                            <span class="badge badge-secondary text-xs">#최적화</span>
+                        </div>
+                        <div class="post-meta">
+                            <span class="post-meta-item">
+                                <div class="avatar avatar-sm">박</div>
+                                박프론트
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M8 2v4" />
+                                    <path d="M16 2v4" />
+                                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                                    <path d="M3 10h18" />
+                                </svg>
+                                2026-02-03
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                543
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M7 10v12" />
+                                    <path
+                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                </svg>
+                                12
+                            </span>
+                        </div>
+                    </a>
+
+                    <a href="community-view.html" class="post-item">
+                        <h3 class="post-title">2026년 API 트렌드 분석 - AI, 실시간 데이터가 대세</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="badge badge-secondary text-xs">#트렌드</span>
+                            <span class="badge badge-secondary text-xs">#AI</span>
+                            <span class="badge badge-secondary text-xs">#분석</span>
+                        </div>
+                        <div class="post-meta">
+                            <span class="post-meta-item">
+                                <div class="avatar avatar-sm">최</div>
+                                최백엔드
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M8 2v4" />
+                                    <path d="M16 2v4" />
+                                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                                    <path d="M3 10h18" />
+                                </svg>
+                                2026-02-02
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                2,105
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M7 10v12" />
+                                    <path
+                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                </svg>
+                                89
+                            </span>
+                        </div>
+                    </a>
+
+                    <a href="community-view.html" class="post-item">
+                        <h3 class="post-title">OCR API 업데이트 - 한글 인식률 98% 달성</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="badge badge-secondary text-xs">#OCR</span>
+                            <span class="badge badge-secondary text-xs">#업데이트</span>
+                            <span class="badge badge-secondary text-xs">#한글</span>
+                        </div>
+                        <div class="post-meta">
+                            <span class="post-meta-item">
+                                <div class="avatar avatar-sm">한</div>
+                                한인식
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M8 2v4" />
+                                    <path d="M16 2v4" />
+                                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                                    <path d="M3 10h18" />
+                                </svg>
+                                2026-02-01
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                1,678
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M7 10v12" />
+                                    <path
+                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                </svg>
+                                45
+                            </span>
+                        </div>
+                    </a>
+
+                    <a href="community-view.html" class="post-item">
+                        <h3 class="post-title">개발자 모임 후기 - API 생태계의 미래</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="badge badge-secondary text-xs">#모임</span>
+                            <span class="badge badge-secondary text-xs">#후기</span>
+                            <span class="badge badge-secondary text-xs">#네트워킹</span>
+                        </div>
+                        <div class="post-meta">
+                            <span class="post-meta-item">
+                                <div class="avatar avatar-sm">정</div>
+                                정네트워크
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M8 2v4" />
+                                    <path d="M16 2v4" />
+                                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                                    <path d="M3 10h18" />
+                                </svg>
+                                2026-01-30
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                934
+                            </span>
+                            <span class="post-meta-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M7 10v12" />
+                                    <path
+                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                </svg>
+                                31
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="btn btn-outline btn-icon btn-sm" disabled><svg class="icon" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m15 18-6-6 6-6" />
+                        </svg></button>
+                    <button class="btn btn-primary btn-icon btn-sm">1</button>
+                    <button class="btn btn-outline btn-icon btn-sm">2</button>
+                    <button class="btn btn-outline btn-icon btn-sm">3</button>
+                    <button class="btn btn-outline btn-icon btn-sm"><svg class="icon" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="m9 18 6-6-6-6" />
+                        </svg></button>
+                </div>
+            </div>
+        </main>
+    </th:block>
+    <th:block layout:fragment="script">
+        <script>
+            (function () {
+                var btn = document.getElementById('community-filter-btn');
+                var dropdown = document.getElementById('community-filter-dropdown');
+                var countEl = document.getElementById('community-filter-count');
+                var items = dropdown.querySelectorAll('.filter-check-item');
+                var allItem = dropdown.querySelector('[data-filter="all"]');
+
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('open');
+                    btn.classList.toggle('active');
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                        dropdown.classList.remove('open');
+                        btn.classList.remove('active');
+                    }
+                });
+
+                function updateCount() {
+                    var count = dropdown.querySelectorAll('.filter-check-item.checked').length;
+                    countEl.textContent = count;
+                    countEl.style.display = count > 0 ? '' : 'none';
+                }
+
+                items.forEach(function (item) {
+                    item.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var isAll = this.getAttribute('data-filter') === 'all';
+                        if (isAll) {
+                            var setTo = !this.classList.contains('checked');
+                            items.forEach(function (i) {
+                                i.classList.toggle('checked', setTo);
+                                i.querySelector('input').checked = setTo;
+                            });
+                        } else {
+                            this.classList.toggle('checked');
+                            this.querySelector('input').checked = this.classList.contains('checked');
+                            var others = dropdown.querySelectorAll('.filter-check-item:not([data-filter="all"])');
+                            var allChecked = Array.prototype.every.call(others, function (i) { return i.classList.contains('checked'); });
+                            allItem.classList.toggle('checked', allChecked);
+                            allItem.querySelector('input').checked = allChecked;
+                        }
+                        updateCount();
+                    });
+                });
+
+                updateCount();
+            })();
+        </script>
+    </th:block>
+</body>
+
+</html>

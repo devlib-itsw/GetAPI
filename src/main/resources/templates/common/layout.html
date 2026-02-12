@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:fragment="title">GET Api</title>
+    <th:block layout:fragment="metatags">
+        <meta name="description" content="스프링 스터디 기본 설명입니다.">
+    </th:block>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <th:block layout:fragment="style"></th:block>
+</head>
+
+<body>
+    <div class="page-wrapper">
+
+        <!-- HEADER -->
+        <header class="site-header">
+            <div class="header-inner">
+                <div class="flex items-center gap-8">
+                    <a href="index.html" class="logo">
+                        <div class="logo-icon"><span>API</span></div>
+                        <span class="logo-text">GetAPI</span>
+                    </a>
+                    <nav class="nav-links">
+                        <a href="library.html" class="nav-link">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m16 6 4 14" />
+                                <path d="M12 6v14" />
+                                <path d="M8 8v12" />
+                                <path d="M4 4v16" />
+                            </svg>
+                            Library
+                        </a>
+                        <a href="community.html" class="nav-link">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            Community
+                        </a>
+                        <a href="dashboard.html" class="nav-link">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="7" height="9" x="3" y="3" rx="1" />
+                                <rect width="7" height="5" x="14" y="3" rx="1" />
+                                <rect width="7" height="9" x="14" y="12" rx="1" />
+                                <rect width="7" height="5" x="3" y="16" rx="1" />
+                            </svg>
+                            Dashboard
+                        </a>
+                        <a href="admin.html" class="nav-link">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            Admin
+                        </a>
+                        <a href="guide.html" class="nav-link">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+                            </svg>
+                            Guide
+                        </a>
+                    </nav>
+                </div>
+                <div class="header-right">
+                    <!-- 비로그인 -->
+                    <a href="/oauth2/authorization/google" class="btn btn-primary gap-2" th:if="${!loggedIn}">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path fill="currentColor"
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path fill="currentColor"
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                            <path fill="currentColor"
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                        </svg>
+                        Google로 시작하기
+                    </a>
+                    <!-- 로그인됨 -->
+                    <div class="profile-wrapper" th:if="${loggedIn}">
+                        <button class="profile-btn" id="profile-btn" aria-label="프로필 메뉴">
+                            <img class="profile-avatar" th:src="${picture}" alt="프로필">
+                        </button>
+                        <div class="profile-dropdown" id="profile-dropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="profile-dropdown-name" th:text="${name}"></div>
+                                <div class="profile-dropdown-email" th:text="${email}"></div>
+                            </div>
+                            <a href="mypage.html" class="profile-dropdown-item">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                마이페이지
+                            </a>
+                            <div class="profile-dropdown-divider"></div>
+                            <form action="/logout" method="post">
+                                <button class="profile-dropdown-item danger">
+                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                        <polyline points="16 17 21 12 16 7" />
+                                        <line x1="21" x2="9" y1="12" y2="12" />
+                                    </svg>
+                                    로그아웃
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="메뉴 열기">
+                    <svg id="icon-menu-open" class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" x2="20" y1="12" y2="12" />
+                        <line x1="4" x2="20" y1="6" y2="6" />
+                        <line x1="4" x2="20" y1="18" y2="18" />
+                    </svg>
+                    <svg id="icon-menu-close" class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mobile-menu" id="mobile-menu">
+                <a href="library.html" class="mobile-nav-link">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m16 6 4 14" />
+                        <path d="M12 6v14" />
+                        <path d="M8 8v12" />
+                        <path d="M4 4v16" />
+                    </svg>
+                    Library
+                </a>
+                <a href="community.html" class="mobile-nav-link">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    Community
+                </a>
+                <a href="dashboard.html" class="mobile-nav-link">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="7" height="9" x="3" y="3" rx="1" />
+                        <rect width="7" height="5" x="14" y="3" rx="1" />
+                        <rect width="7" height="9" x="14" y="12" rx="1" />
+                        <rect width="7" height="5" x="3" y="16" rx="1" />
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="guide.html" class="mobile-nav-link active">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+                    </svg>
+                    Guide
+                </a>
+                <!-- 모바일: 비로그인 -->
+                <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border)"
+                    data-auth="logged-out">
+                    <a href="/oauth2/authorization/google" class="btn btn-primary gap-2">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path fill="currentColor"
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path fill="currentColor"
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                            <path fill="currentColor"
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                        </svg>
+                        Google로 시작하기
+                    </a>
+                </div>
+                <!-- 모바일: 로그인됨 -->
+                <div class="mobile-profile-section" style="display:none">
+                    <div class="mobile-profile-info">
+                        <img class="mobile-profile-avatar" data-profile-img src="" alt="프로필">
+                        <div>
+                            <div class="mobile-profile-name" data-profile-name></div>
+                            <div class="mobile-profile-email" data-profile-email></div>
+                        </div>
+                    </div>
+                    <div class="mobile-profile-links">
+                        <a href="mypage.html" class="mobile-nav-link">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                            마이페이지
+                        </a>
+                        <button class="mobile-nav-link" data-action="logout"
+                            style="width:100%; border:none; background:transparent; cursor:pointer; font-family:inherit; font-size:0.875rem; color:#ef4444">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" x2="9" y1="12" y2="12" />
+                            </svg>
+                            로그아웃
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <th:block layout:fragment="content"></th:block>
+
+        <!-- FOOTER -->
+        <footer class="site-footer">
+            <div class="footer-inner">
+                <div class="footer-grid">
+                    <div class="footer-brand"><a href="index.html" class="logo">
+                            <div class="logo-icon"><span>API</span></div><span class="logo-text">APIHub</span>
+                        </a>
+                        <p>개발자를 위한 API 마켓플레이스.</p>
+                    </div>
+                    <div class="footer-section">
+                        <h3>서비스</h3>
+                        <ul>
+                            <li><a href="library.html">Library</a></li>
+                            <li><a href="community.html">Community</a></li>
+                            <li><a href="dashboard.html">Dashboard</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h3>지원</h3>
+                        <ul>
+                            <li><a href="#">문서</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h3>법적 고지</h3>
+                        <ul>
+                            <li><a href="#">이용약관</a></li>
+                            <li><a href="#">개인정보처리방침</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 APIHub. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script th:src="@{/js/icons.js}"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <th:block layout:fragment="script"></th:block>
+</body>
+
+</html>

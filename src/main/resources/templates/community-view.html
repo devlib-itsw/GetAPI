@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorate="~{common/layout}">
+
+<head>
+    <title layout:fragment="title">번역 API 출시! - Community - GetAPI</title>
+    <th:block layout:fragment="metatags">
+        <meta name="description" content="GetAPI 커뮤니티 글 상세 페이지">
+    </th:block>
+    <th:block layout:fragment="style">
+    </th:block>
+</head>
+
+<body>
+    <!-- MAIN -->
+    <th:block layout:fragment="content">
+        <main class="main-content bg-muted-30">
+            <div class="container-md" style="max-width:56rem; margin:0 auto; padding:2rem 1rem">
+                <a href="community.html"
+                    class="inline-flex items-center gap-2 text-sm text-muted mb-6 hover\:text-primary"
+                    style="display:inline-flex">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m12 19-7-7 7-7" />
+                        <path d="M19 12H5" />
+                    </svg>
+                    목록으로 돌아가기
+                </a>
+
+                <!-- Post Card -->
+                <div class="card mb-6">
+                    <div class="card-content p-6">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="badge badge-secondary text-xs">#번역</span>
+                            <span class="badge badge-secondary text-xs">#NLP</span>
+                            <span class="badge badge-secondary text-xs">#출시</span>
+                            <span class="badge badge-secondary text-xs">#무료체험</span>
+                        </div>
+                        <h1 class="text-2xl font-bold text-foreground mb-4">번역 API 출시! 100개 언어 지원, 무료 체험 가능</h1>
+
+                        <div class="flex flex-wrap items-center gap-4 border-b pb-4 text-sm text-muted mb-6">
+                            <a href="profile.html" class="flex items-center gap-2 hover\:text-primary">
+                                <div class="avatar avatar-sm">김</div>
+                                <span class="font-medium text-foreground">김개발</span>
+                            </a>
+                            <span class="flex items-center gap-1"><svg class="icon" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M8 2v4" />
+                                    <path d="M16 2v4" />
+                                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                                    <path d="M3 10h18" />
+                                </svg> 2026-02-05</span>
+                            <span class="flex items-center gap-1"><svg class="icon" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg> 1,234</span>
+                        </div>
+
+                        <!-- Post Content -->
+                        <div class="space-y-4" style="color:var(--foreground)">
+                            <p class="leading-relaxed">안녕하세요, 개발자 여러분!</p>
+                            <p class="leading-relaxed">오랜 시간 준비한 번역 API를 드디어 출시하게 되었습니다.</p>
+                            <h2 class="text-lg font-semibold mt-6 mb-3">주요 기능</h2>
+                            <p class="mb-2"><strong>100개 이상의 언어 지원</strong>: 한국어, 영어, 일본어, 중국어 등 주요 언어는 물론 다양한 언어를
+                                지원합니다.</p>
+                            <p class="mb-2"><strong>딥러닝 기반 번역</strong>: 자연스러운 번역 결과를 제공합니다.</p>
+                            <p class="mb-2"><strong>빠른 응답 속도</strong>: 평균 200ms 이내의 응답 속도를 보장합니다.</p>
+                            <p class="mb-2"><strong>합리적인 가격</strong>: 호출당 1포인트로 부담 없이 사용하실 수 있습니다.</p>
+                            <h2 class="text-lg font-semibold mt-6 mb-3">무료 체험</h2>
+                            <p class="leading-relaxed">신규 가입자 분들께 1,000 포인트를 무료로 드립니다!</p>
+                            <p class="leading-relaxed">지금 바로 GetAPI에서 번역 API를 체험해보세요.</p>
+                            <p class="leading-relaxed">궁금한 점이 있으시면 댓글로 남겨주세요. 빠르게 답변 드리겠습니다.</p>
+                            <p class="leading-relaxed">감사합니다!</p>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex flex-wrap items-center gap-3 border-t pt-4 mt-8">
+                            <button class="btn btn-outline btn-sm gap-2" data-like>
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M7 10v12" />
+                                    <path
+                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                </svg>
+                                좋아요 56
+                            </button>
+                            <button class="btn btn-outline btn-sm gap-2" data-share>
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="18" cy="5" r="3" />
+                                    <circle cx="6" cy="12" r="3" />
+                                    <circle cx="18" cy="19" r="3" />
+                                    <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" />
+                                    <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
+                                </svg>
+                                공유
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div class="mb-6">
+                    <h2 class="flex items-center gap-2 text-lg font-semibold text-foreground mb-4">
+                        <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        댓글 3
+                    </h2>
+
+                    <div class="card mb-6">
+                        <div class="card-content p-4">
+                            <textarea class="textarea mb-3" placeholder="댓글을 작성하세요..." rows="3"></textarea>
+                            <div class="flex justify-end"><button class="btn btn-primary btn-sm">댓글 작성</button></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="card">
+                            <div class="card-content p-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="avatar avatar-md">이</div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1"><a href="profile.html"
+                                                class="font-medium text-foreground hover\:text-primary">이코딩</a><span
+                                                class="text-xs text-muted">2026-02-05 14:30</span></div>
+                                        <p class="text-sm leading-relaxed text-muted">와 번역 품질 진짜 좋네요! 테스트해봤는데 기대 이상입니다.
+                                        </p>
+                                        <div class="flex items-center gap-1 mt-2"><button class="btn btn-ghost btn-sm"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
+                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M7 10v12" />
+                                                    <path
+                                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                                </svg> 8</button><button class="btn btn-ghost btn-sm"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
+                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path
+                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                                </svg> 수정</button><button class="btn btn-ghost btn-sm"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
+                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M3 6h18" />
+                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                                </svg> 삭제</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content p-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="avatar avatar-md">박</div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1"><a href="profile.html"
+                                                class="font-medium text-foreground hover\:text-primary">박프론트</a><span
+                                                class="text-xs text-muted">2026-02-05 16:45</span></div>
+                                        <p class="text-sm leading-relaxed text-muted">가격도 합리적이고 좋네요. 다음 프로젝트에서 사용해볼게요!
+                                        </p>
+                                        <div class="flex items-center gap-1 mt-2"><button class="btn btn-ghost btn-sm"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
+                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M7 10v12" />
+                                                    <path
+                                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                                </svg> 5</button><button class="btn btn-ghost btn-sm"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
+                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path
+                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                                </svg> 수정</button><button class="btn btn-ghost btn-sm"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
+                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M3 6h18" />
+                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                                </svg> 삭제</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content p-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="avatar avatar-md">최</div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1"><a href="profile.html"
+                                                class="font-medium text-foreground hover\:text-primary">최백엔드</a><span
+                                                class="text-xs text-muted">2026-02-05 18:10</span></div>
+                                        <p class="text-sm leading-relaxed text-muted">일본어 번역도 괜찮나요? 한일 번역이 필요한 프로젝트가
+                                            있어서요.</p>
+                                        <div class="flex items-center gap-1 mt-2"><button class="btn btn-ghost btn-sm"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
+                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M7 10v12" />
+                                                    <path
+                                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+                                                </svg> 2</button><button class="btn btn-ghost btn-sm"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
+                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path
+                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                                </svg> 수정</button><button class="btn btn-ghost btn-sm"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
+                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M3 6h18" />
+                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                                </svg> 삭제</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </th:block>
+    <th:block layout:fragment="script">
+    </th:block>
+</body>
+
+</html>
