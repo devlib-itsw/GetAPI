@@ -51,7 +51,7 @@ public class Api {
 	
 	private Long view_count=0L;
 	
-	private Long star_count=0L;
+//	private Long star_count=0L;
 	
 	private String status; // pending -challenge-> active / blocked
 	

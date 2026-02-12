@@ -57,7 +57,7 @@ public class Users {
 	private String secret_key;
 	
 	@Column(nullable=false)
-	private String rotate_token;
+	private String rotation_token;
 	
 	@Column(nullable=false)
 	private LocalDateTime profile_created_at;
