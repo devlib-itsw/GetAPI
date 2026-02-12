@@ -1,6 +1,9 @@
 package com.DevLib.handler;
 
+import com.DevLib.service.SmsAuthService;
 import com.DevLib.util.JwtUtil;
+import com.DevLib.util.SecureUtil;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,9 +19,11 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
+    private final SmsAuthService smsAuthService;
 
-    public OAuth2SuccessHandler(JwtUtil jwtUtil) {
+    public OAuth2SuccessHandler(JwtUtil jwtUtil, SmsAuthService smsAuthService) {
         this.jwtUtil = jwtUtil;
+		this.smsAuthService = smsAuthService;
     }
 
     @Override
@@ -31,18 +36,23 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
         String picture = oAuth2User.getAttribute("picture"); 
+        String SecureToken = SecureUtil.generate64Token();
 
-        // JWT 토큰 생성
-        String token = jwtUtil.generateToken(email, name, picture);
+        if (smsAuthService.existsByEmail(email)) {
+        	// 기존 유저: 바로 JWT 로그인
+        	String token = jwtUtil.generateToken(email, name, picture);
 
-        // 쿠키에 JWT 저장
-        Cookie cookie = new Cookie("JWT-TOKEN", token);
-        cookie.setHttpOnly(true);  // JavaScript에서 접근 불가 (보안)
-        cookie.setPath("/");
-        cookie.setMaxAge(86400);   // 24시간
-        response.addCookie(cookie);
+        	Cookie cookie = new Cookie("JWT-TOKEN", token);
+        	cookie.setHttpOnly(true);
+        	cookie.setPath("/");
+        	cookie.setMaxAge(86400);
+        	response.addCookie(cookie);
 
-        // 홈으로 리디렉션
-        getRedirectStrategy().sendRedirect(request, response, "/");
+        	getRedirectStrategy().sendRedirect(request, response, "/");
+        } else {
+        	// 신규 유저: 번호인증 진행
+        	smsAuthService.saveToken(SecureToken, email, name, picture);
+        	getRedirectStrategy().sendRedirect(request, response, "/smsVerify?token=" + SecureToken);
+        }
     }
 }

@@ -2,10 +2,518 @@
 <html lang="ko" layout:decorate="~{common/layout}">
 
 <head>
-    <title layout:fragment="title">GetAPI - API Marketplace</title>
+    <title layout:fragment="title">서비스 가이드 - GetAPI</title>
     <th:block layout:fragment="metatags">
-        <meta name="description" content="API 홍보 및 판매 커뮤니티 플랫폼. 개발자를 위한 API 마켓플레이스.">
+        <meta name="description" content="GetAPI 서비스 이용 가이드. API 서명, 프록시 설정, 키 관리 방법을 안내합니다.">
     </th:block>
+    <th:block layout:fragment="style">
+        <style>
+            /* Guide-specific layout */
+            .guide-layout {
+                display: grid;
+                grid-template-columns: 15rem 1fr;
+                gap: 2rem;
+                align-items: start;
+            }
+
+            @media (max-width: 768px) {
+                .guide-layout {
+                    grid-template-columns: 1fr;
+                }
+
+                .guide-sidebar {
+                    display: none;
+                }
+
+                .guide-mobile-toc {
+                    display: block;
+                }
+            }
+
+            /* Sidebar TOC */
+            .guide-sidebar {
+                position: sticky;
+                top: 5rem;
+            }
+
+            .toc-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 0.125rem;
+            }
+
+            .toc-item {
+                display: block;
+                padding: 0.5rem 0.75rem;
+                border-radius: var(--radius);
+                font-size: 0.8125rem;
+                color: var(--muted-foreground);
+                transition: all 0.15s;
+                border-left: 2px solid transparent;
+            }
+
+            .toc-item:not(.toc-sub) {
+                font-weight: 600;
+                color: var(--foreground);
+            }
+
+            /* 대분류 사이 여백 (하위항목 직전 제외) */
+            .toc-list li:has(> .toc-item:not(.toc-sub))+li:has(> .toc-item:not(.toc-sub)) {
+                margin-top: 0.375rem;
+                padding-top: 0.375rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .toc-item:hover {
+                color: var(--foreground);
+                background: color-mix(in srgb, var(--muted) 50%, transparent);
+            }
+
+            .toc-item.active {
+                color: var(--primary);
+                border-left-color: var(--primary);
+                background: color-mix(in srgb, var(--primary) 5%, transparent);
+            }
+
+            .toc-sub.active {
+                border-left-color: transparent;
+                background: color-mix(in srgb, var(--primary) 8%, transparent);
+            }
+
+            .toc-sub.active::before {
+                background: var(--primary);
+            }
+
+            .toc-sub {
+                padding-left: 1.75rem;
+                font-size: 0.75rem;
+                position: relative;
+            }
+
+            .toc-sub::before {
+                content: '';
+                position: absolute;
+                left: 0.75rem;
+                top: 50%;
+                width: 0.5rem;
+                height: 1px;
+                background: var(--border);
+            }
+
+            /* Mobile TOC */
+            .guide-mobile-toc {
+                display: none;
+                margin-bottom: 1.5rem;
+            }
+
+            /* Guide sections */
+            .guide-section {
+                scroll-margin-top: 5rem;
+                padding-bottom: 2rem;
+                border-bottom: 1px solid var(--border);
+                margin-bottom: 2rem;
+            }
+
+            .guide-section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+            .guide-section h2 {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--foreground);
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            /* 하위 섹션(2-1 등) 본문 스타일 */
+            .guide-section-sub {
+                border-left: 3px solid var(--primary);
+                padding-left: 1.25rem;
+                margin-left: 0.25rem;
+            }
+
+            .guide-section-sub h2 {
+                font-size: 1.125rem;
+                font-weight: 600;
+                color: var(--primary);
+            }
+
+            .guide-section h3 {
+                font-size: 1rem;
+                font-weight: 600;
+                color: var(--foreground);
+                margin: 1.5rem 0 0.75rem;
+            }
+
+            .guide-section p {
+                font-size: 0.875rem;
+                color: var(--muted-foreground);
+                line-height: 1.7;
+                margin-bottom: 0.75rem;
+            }
+
+            .guide-section ol,
+            .guide-section ul {
+                padding-left: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                color: var(--muted-foreground);
+                line-height: 1.7;
+                margin-bottom: 1rem;
+            }
+
+            .guide-section ol {
+                list-style: decimal;
+            }
+
+            .guide-section ul {
+                list-style: disc;
+            }
+
+            .guide-code {
+                display: block;
+                border-radius: var(--radius-lg);
+                background: var(--muted);
+                padding: 1rem;
+                font-size: 0.8125rem;
+                font-family: var(--font-mono);
+                overflow-x: auto;
+                white-space: pre-wrap;
+                color: var(--muted-foreground);
+                margin-bottom: 1rem;
+                border: 1px solid var(--border);
+            }
+
+            .guide-callout {
+                border-radius: var(--radius-lg);
+                padding: 1rem;
+                font-size: 0.8125rem;
+                margin-bottom: 1rem;
+                display: flex;
+                gap: 0.75rem;
+                align-items: flex-start;
+            }
+
+            .guide-callout-info {
+                background: color-mix(in srgb, var(--primary) 8%, transparent);
+                border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+                color: var(--muted-foreground);
+            }
+
+            .guide-callout-warning {
+                background: hsla(38, 92%, 50%, 0.08);
+                border: 1px solid hsla(38, 92%, 50%, 0.25);
+                color: var(--muted-foreground);
+            }
+
+            .guide-callout-icon {
+                flex-shrink: 0;
+                width: 1.25rem;
+                height: 1.25rem;
+                margin-top: 0.1rem;
+            }
+
+            .inline-code {
+                background: var(--muted);
+                padding: 0.125rem 0.375rem;
+                border-radius: var(--radius);
+                font-family: var(--font-mono);
+                font-size: 0.8125rem;
+                color: var(--primary);
+            }
+
+            .header-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.8125rem;
+                margin-bottom: 1rem;
+            }
+
+            .header-table th,
+            .header-table td {
+                text-align: left;
+                padding: 0.625rem 0.75rem;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .header-table th {
+                color: var(--foreground);
+                font-weight: 600;
+                background: color-mix(in srgb, var(--muted) 50%, transparent);
+            }
+
+            .header-table td {
+                color: var(--muted-foreground);
+            }
+
+            .header-table code {
+                color: var(--primary);
+                font-family: var(--font-mono);
+                font-size: 0.8125rem;
+            }
+        </style>
+    </th:block>
+    <style>
+        /* Guide-specific layout */
+        .guide-layout {
+            display: grid;
+            grid-template-columns: 15rem 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .guide-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .guide-sidebar {
+                display: none;
+            }
+
+            .guide-mobile-toc {
+                display: block;
+            }
+        }
+
+        /* Sidebar TOC */
+        .guide-sidebar {
+            position: sticky;
+            top: 5rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+        }
+
+        .toc-item {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.8125rem;
+            color: var(--muted-foreground);
+            transition: all 0.15s;
+            border-left: 2px solid transparent;
+        }
+
+        .toc-item:not(.toc-sub) {
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        /* 대분류 사이 여백 (하위항목 직전 제외) */
+        .toc-list li:has(> .toc-item:not(.toc-sub))+li:has(> .toc-item:not(.toc-sub)) {
+            margin-top: 0.375rem;
+            padding-top: 0.375rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .toc-item:hover {
+            color: var(--foreground);
+            background: color-mix(in srgb, var(--muted) 50%, transparent);
+        }
+
+        .toc-item.active {
+            color: var(--primary);
+            border-left-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 5%, transparent);
+        }
+
+        .toc-sub.active {
+            border-left-color: transparent;
+            background: color-mix(in srgb, var(--primary) 8%, transparent);
+        }
+
+        .toc-sub.active::before {
+            background: var(--primary);
+        }
+
+        .toc-sub {
+            padding-left: 1.75rem;
+            font-size: 0.75rem;
+            position: relative;
+        }
+
+        .toc-sub::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            width: 0.5rem;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Mobile TOC */
+        .guide-mobile-toc {
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Guide sections */
+        .guide-section {
+            scroll-margin-top: 5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .guide-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .guide-section h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--foreground);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 하위 섹션(2-1 등) 본문 스타일 */
+        .guide-section-sub {
+            border-left: 3px solid var(--primary);
+            padding-left: 1.25rem;
+            margin-left: 0.25rem;
+        }
+
+        .guide-section-sub h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .guide-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        .guide-section p {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            line-height: 1.7;
+            margin-bottom: 0.75rem;
+        }
+
+        .guide-section ol,
+        .guide-section ul {
+            padding-left: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .guide-section ol {
+            list-style: decimal;
+        }
+
+        .guide-section ul {
+            list-style: disc;
+        }
+
+        .guide-code {
+            display: block;
+            border-radius: var(--radius-lg);
+            background: var(--muted);
+            padding: 1rem;
+            font-size: 0.8125rem;
+            font-family: var(--font-mono);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            color: var(--muted-foreground);
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .guide-callout {
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            font-size: 0.8125rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .guide-callout-info {
+            background: color-mix(in srgb, var(--primary) 8%, transparent);
+            border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+            color: var(--muted-foreground);
+        }
+
+        .guide-callout-warning {
+            background: hsla(38, 92%, 50%, 0.08);
+            border: 1px solid hsla(38, 92%, 50%, 0.25);
+            color: var(--muted-foreground);
+        }
+
+        .guide-callout-icon {
+            flex-shrink: 0;
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-top: 0.1rem;
+        }
+
+        .inline-code {
+            background: var(--muted);
+            padding: 0.125rem 0.375rem;
+            border-radius: var(--radius);
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            color: var(--primary);
+        }
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+            margin-bottom: 1rem;
+        }
+
+        .header-table th,
+        .header-table td {
+            text-align: left;
+            padding: 0.625rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-table th {
+            color: var(--foreground);
+            font-weight: 600;
+            background: color-mix(in srgb, var(--muted) 50%, transparent);
+        }
+
+        .header-table td {
+            color: var(--muted-foreground);
+        }
+
+        .header-table code {
+            color: var(--primary);
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+        }
+    </style>
 </head>
 
 <body>

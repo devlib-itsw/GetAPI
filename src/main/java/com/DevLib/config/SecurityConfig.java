@@ -1,4 +1,4 @@
-package com.DevLib;
+package com.DevLib.config;
 
 import com.DevLib.filter.JwtAuthenticationFilter;
 import com.DevLib.handler.OAuth2SuccessHandler;
@@ -31,7 +31,8 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션 사용 안 함
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login**", "/error**", "/oauth2/**", "/login/oauth2/**").permitAll()
+            	.requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
+                .requestMatchers("/", "/login**", "/error**", "/oauth2/**", "/login/oauth2/**", "/smsVerify/**").permitAll()
                 .anyRequest().authenticated()
             ) 
             .oauth2Login(oauth2 -> oauth2
