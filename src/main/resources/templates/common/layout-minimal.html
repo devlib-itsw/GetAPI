@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:fragment="title">GET Api</title>
+    <th:block layout:fragment="metatags">
+        <meta name="description" content="스프링 스터디 기본 설명입니다.">
+    </th:block>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <th:block layout:fragment="style"></th:block>
+</head>
+
+<body>
+    <div class="page-wrapper">
+
+        <!-- MINIMAL HEADER (로고만) -->
+        <header class="site-header">
+            <div class="header-inner">
+                <div class="flex items-center gap-8">
+                    <a th:href="@{/}" class="logo">
+                        <div class="logo-icon"><span>API</span></div>
+                        <span class="logo-text">GetAPI</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <th:block layout:fragment="content"></th:block>
+
+    </div>
+
+    <script th:src="@{/js/icons.js}"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <th:block layout:fragment="script"></th:block>
+</body>
+
+</html>

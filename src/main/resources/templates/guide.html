@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorate="~{common/layout}">
+
+<head>
+    <title layout:fragment="title">서비스 가이드 - GetAPI</title>
+    <th:block layout:fragment="metatags">
+        <meta name="description" content="GetAPI 서비스 이용 가이드. API 서명, 프록시 설정, 키 관리 방법을 안내합니다.">
+    </th:block>
+    <th:block layout:fragment="style">
+        <style>
+            /* Guide-specific layout */
+            .guide-layout {
+                display: grid;
+                grid-template-columns: 15rem 1fr;
+                gap: 2rem;
+                align-items: start;
+            }
+
+            @media (max-width: 768px) {
+                .guide-layout {
+                    grid-template-columns: 1fr;
+                }
+
+                .guide-sidebar {
+                    display: none;
+                }
+
+                .guide-mobile-toc {
+                    display: block;
+                }
+            }
+
+            /* Sidebar TOC */
+            .guide-sidebar {
+                position: sticky;
+                top: 5rem;
+            }
+
+            .toc-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 0.125rem;
+            }
+
+            .toc-item {
+                display: block;
+                padding: 0.5rem 0.75rem;
+                border-radius: var(--radius);
+                font-size: 0.8125rem;
+                color: var(--muted-foreground);
+                transition: all 0.15s;
+                border-left: 2px solid transparent;
+            }
+
+            .toc-item:not(.toc-sub) {
+                font-weight: 600;
+                color: var(--foreground);
+            }
+
+            /* 대분류 사이 여백 (하위항목 직전 제외) */
+            .toc-list li:has(> .toc-item:not(.toc-sub))+li:has(> .toc-item:not(.toc-sub)) {
+                margin-top: 0.375rem;
+                padding-top: 0.375rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .toc-item:hover {
+                color: var(--foreground);
+                background: color-mix(in srgb, var(--muted) 50%, transparent);
+            }
+
+            .toc-item.active {
+                color: var(--primary);
+                border-left-color: var(--primary);
+                background: color-mix(in srgb, var(--primary) 5%, transparent);
+            }
+
+            .toc-sub.active {
+                border-left-color: transparent;
+                background: color-mix(in srgb, var(--primary) 8%, transparent);
+            }
+
+            .toc-sub.active::before {
+                background: var(--primary);
+            }
+
+            .toc-sub {
+                padding-left: 1.75rem;
+                font-size: 0.75rem;
+                position: relative;
+            }
+
+            .toc-sub::before {
+                content: '';
+                position: absolute;
+                left: 0.75rem;
+                top: 50%;
+                width: 0.5rem;
+                height: 1px;
+                background: var(--border);
+            }
+
+            /* Mobile TOC */
+            .guide-mobile-toc {
+                display: none;
+                margin-bottom: 1.5rem;
+            }
+
+            /* Guide sections */
+            .guide-section {
+                scroll-margin-top: 5rem;
+                padding-bottom: 2rem;
+                border-bottom: 1px solid var(--border);
+                margin-bottom: 2rem;
+            }
+
+            .guide-section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+            .guide-section h2 {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--foreground);
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            /* 하위 섹션(2-1 등) 본문 스타일 */
+            .guide-section-sub {
+                border-left: 3px solid var(--primary);
+                padding-left: 1.25rem;
+                margin-left: 0.25rem;
+            }
+
+            .guide-section-sub h2 {
+                font-size: 1.125rem;
+                font-weight: 600;
+                color: var(--primary);
+            }
+
+            .guide-section h3 {
+                font-size: 1rem;
+                font-weight: 600;
+                color: var(--foreground);
+                margin: 1.5rem 0 0.75rem;
+            }
+
+            .guide-section p {
+                font-size: 0.875rem;
+                color: var(--muted-foreground);
+                line-height: 1.7;
+                margin-bottom: 0.75rem;
+            }
+
+            .guide-section ol,
+            .guide-section ul {
+                padding-left: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                color: var(--muted-foreground);
+                line-height: 1.7;
+                margin-bottom: 1rem;
+            }
+
+            .guide-section ol {
+                list-style: decimal;
+            }
+
+            .guide-section ul {
+                list-style: disc;
+            }
+
+            .guide-code {
+                display: block;
+                border-radius: var(--radius-lg);
+                background: var(--muted);
+                padding: 1rem;
+                font-size: 0.8125rem;
+                font-family: var(--font-mono);
+                overflow-x: auto;
+                white-space: pre-wrap;
+                color: var(--muted-foreground);
+                margin-bottom: 1rem;
+                border: 1px solid var(--border);
+            }
+
+            .guide-callout {
+                border-radius: var(--radius-lg);
+                padding: 1rem;
+                font-size: 0.8125rem;
+                margin-bottom: 1rem;
+                display: flex;
+                gap: 0.75rem;
+                align-items: flex-start;
+            }
+
+            .guide-callout-info {
+                background: color-mix(in srgb, var(--primary) 8%, transparent);
+                border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+                color: var(--muted-foreground);
+            }
+
+            .guide-callout-warning {
+                background: hsla(38, 92%, 50%, 0.08);
+                border: 1px solid hsla(38, 92%, 50%, 0.25);
+                color: var(--muted-foreground);
+            }
+
+            .guide-callout-icon {
+                flex-shrink: 0;
+                width: 1.25rem;
+                height: 1.25rem;
+                margin-top: 0.1rem;
+            }
+
+            .inline-code {
+                background: var(--muted);
+                padding: 0.125rem 0.375rem;
+                border-radius: var(--radius);
+                font-family: var(--font-mono);
+                font-size: 0.8125rem;
+                color: var(--primary);
+            }
+
+            .header-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.8125rem;
+                margin-bottom: 1rem;
+            }
+
+            .header-table th,
+            .header-table td {
+                text-align: left;
+                padding: 0.625rem 0.75rem;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .header-table th {
+                color: var(--foreground);
+                font-weight: 600;
+                background: color-mix(in srgb, var(--muted) 50%, transparent);
+            }
+
+            .header-table td {
+                color: var(--muted-foreground);
+            }
+
+            .header-table code {
+                color: var(--primary);
+                font-family: var(--font-mono);
+                font-size: 0.8125rem;
+            }
+        </style>
+    </th:block>
+    <style>
+        /* Guide-specific layout */
+        .guide-layout {
+            display: grid;
+            grid-template-columns: 15rem 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .guide-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .guide-sidebar {
+                display: none;
+            }
+
+            .guide-mobile-toc {
+                display: block;
+            }
+        }
+
+        /* Sidebar TOC */
+        .guide-sidebar {
+            position: sticky;
+            top: 5rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+        }
+
+        .toc-item {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.8125rem;
+            color: var(--muted-foreground);
+            transition: all 0.15s;
+            border-left: 2px solid transparent;
+        }
+
+        .toc-item:not(.toc-sub) {
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        /* 대분류 사이 여백 (하위항목 직전 제외) */
+        .toc-list li:has(> .toc-item:not(.toc-sub))+li:has(> .toc-item:not(.toc-sub)) {
+            margin-top: 0.375rem;
+            padding-top: 0.375rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .toc-item:hover {
+            color: var(--foreground);
+            background: color-mix(in srgb, var(--muted) 50%, transparent);
+        }
+
+        .toc-item.active {
+            color: var(--primary);
+            border-left-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 5%, transparent);
+        }
+
+        .toc-sub.active {
+            border-left-color: transparent;
+            background: color-mix(in srgb, var(--primary) 8%, transparent);
+        }
+
+        .toc-sub.active::before {
+            background: var(--primary);
+        }
+
+        .toc-sub {
+            padding-left: 1.75rem;
+            font-size: 0.75rem;
+            position: relative;
+        }
+
+        .toc-sub::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            width: 0.5rem;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Mobile TOC */
+        .guide-mobile-toc {
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Guide sections */
+        .guide-section {
+            scroll-margin-top: 5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .guide-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .guide-section h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--foreground);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 하위 섹션(2-1 등) 본문 스타일 */
+        .guide-section-sub {
+            border-left: 3px solid var(--primary);
+            padding-left: 1.25rem;
+            margin-left: 0.25rem;
+        }
+
+        .guide-section-sub h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .guide-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        .guide-section p {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            line-height: 1.7;
+            margin-bottom: 0.75rem;
+        }
+
+        .guide-section ol,
+        .guide-section ul {
+            padding-left: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .guide-section ol {
+            list-style: decimal;
+        }
+
+        .guide-section ul {
+            list-style: disc;
+        }
+
+        .guide-code {
+            display: block;
+            border-radius: var(--radius-lg);
+            background: var(--muted);
+            padding: 1rem;
+            font-size: 0.8125rem;
+            font-family: var(--font-mono);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            color: var(--muted-foreground);
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .guide-callout {
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            font-size: 0.8125rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .guide-callout-info {
+            background: color-mix(in srgb, var(--primary) 8%, transparent);
+            border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+            color: var(--muted-foreground);
+        }
+
+        .guide-callout-warning {
+            background: hsla(38, 92%, 50%, 0.08);
+            border: 1px solid hsla(38, 92%, 50%, 0.25);
+            color: var(--muted-foreground);
+        }
+
+        .guide-callout-icon {
+            flex-shrink: 0;
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-top: 0.1rem;
+        }
+
+        .inline-code {
+            background: var(--muted);
+            padding: 0.125rem 0.375rem;
+            border-radius: var(--radius);
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            color: var(--primary);
+        }
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+            margin-bottom: 1rem;
+        }
+
+        .header-table th,
+        .header-table td {
+            text-align: left;
+            padding: 0.625rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-table th {
+            color: var(--foreground);
+            font-weight: 600;
+            background: color-mix(in srgb, var(--muted) 50%, transparent);
+        }
+
+        .header-table td {
+            color: var(--muted-foreground);
+        }
+
+        .header-table code {
+            color: var(--primary);
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- MAIN -->
+    <th:block layout:fragment="content">
+        <main class="main-content">
+
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="container" style="text-align:center">
+                    <div class="hero-badge mb-6">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
+                        </svg>
+                        <span>개발자를 위한 API 마켓플레이스</span>
+                    </div>
+
+                    <h1
+                        style="font-size:2.25rem; font-weight:700; color:var(--foreground); line-height:1.2; letter-spacing:-0.02em">
+                        API를 쉽게 찾고,<br>
+                        <span class="text-primary">판매하고, 공유하세요</span>
+                    </h1>
+
+                    <p
+                        style="max-width:40rem; margin:1.5rem auto 0; font-size:1.125rem; line-height:1.7; color:var(--muted-foreground)">
+                        검증된 API를 활용하여 개발 생산성을 높이고, 직접 만든 API로 수익을 창출하세요.
+                        개발자들의 기술 생태계를 함께 만들어갑니다.
+                    </p>
+
+                    <div
+                        style="margin-top:2.5rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:1rem">
+                        <a href="library.html" class="btn btn-primary btn-lg gap-2">
+                            API 둘러보기
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14" />
+                                <path d="m12 5 7 7-7 7" />
+                            </svg>
+                        </a>
+                        <a href="dashboard.html" class="btn btn-outline btn-lg">API 판매 시작하기</a>
+                    </div>
+
+                    <!-- Feature Cards -->
+                    <div
+                        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; max-width:56rem; margin:4rem auto 0">
+                        <div class="card" style="display:flex; align-items:center; gap:0.75rem; padding:1rem">
+                            <div
+                                style="width:2.5rem; height:2.5rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
+                                <svg class="icon-md text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="16 18 22 12 16 6" />
+                                    <polyline points="8 6 2 12 8 18" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-foreground">간편한 연동</p>
+                                <p class="text-xs text-muted">프록시 URI 자동 생성</p>
+                            </div>
+                        </div>
+                        <div class="card" style="display:flex; align-items:center; gap:0.75rem; padding:1rem">
+                            <div
+                                style="width:2.5rem; height:2.5rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
+                                <svg class="icon-md text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-foreground">안전한 거래</p>
+                                <p class="text-xs text-muted">포인트 기반 결제 시스템</p>
+                            </div>
+                        </div>
+                        <div class="card" style="display:flex; align-items:center; gap:0.75rem; padding:1rem">
+                            <div
+                                style="width:2.5rem; height:2.5rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
+                                <svg class="icon-md text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-foreground">실시간 모니터링</p>
+                                <p class="text-xs text-muted">트래픽 & 사용량 대시보드</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section style="border-top:1px solid var(--border); padding:5rem 0">
+                <div class="container">
+                    <div style="text-align:center; max-width:40rem; margin:0 auto">
+                        <h2 style="font-size:1.875rem; font-weight:700; color:var(--foreground)">
+                            개발자를 위한 <span class="text-primary">모든 기능</span>
+                        </h2>
+                        <p style="margin-top:1rem; font-size:1.125rem; color:var(--muted-foreground)">
+                            API 판매자와 구매자 모두를 위한 통합 플랫폼
+                        </p>
+                    </div>
+
+                    <div
+                        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:2rem; max-width:64rem; margin:4rem auto 0">
+                        <!-- Feature 1 -->
+                        <div class="card p-6 transition-all" style="cursor:default">
+                            <div
+                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
+                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+                                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                                    <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+                                    <path d="M2 7h20" />
+                                    <path
+                                        d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-foreground">API Library</h3>
+                            <p class="mt-2 text-sm leading-relaxed text-muted">다양한 카테고리의 검증된 API를 탐색하고, 호출당 포인트로 간편하게
+                                이용하세요.</p>
+                        </div>
+                        <!-- Feature 2 -->
+                        <div class="card p-6 transition-all" style="cursor:default">
+                            <div
+                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
+                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-foreground">Community</h3>
+                            <p class="mt-2 text-sm leading-relaxed text-muted">API 홍보, 제작 외주 요청, 개발자 네트워킹을 위한 커뮤니티
+                                공간입니다.</p>
+                        </div>
+                        <!-- Feature 3 -->
+                        <div class="card p-6 transition-all" style="cursor:default">
+                            <div
+                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
+                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 3v18h18" />
+                                    <path d="M18 17V9" />
+                                    <path d="M13 17V5" />
+                                    <path d="M8 17v-3" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-foreground">Dashboard</h3>
+                            <p class="mt-2 text-sm leading-relaxed text-muted">판매 중인 API의 트래픽, 수익, 구매자 현황을 실시간으로
+                                모니터링하세요.</p>
+                        </div>
+                        <!-- Feature 4 -->
+                        <div class="card p-6 transition-all" style="cursor:default">
+                            <div
+                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
+                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
+                                    <path d="m21 2-9.6 9.6" />
+                                    <circle cx="7.5" cy="15.5" r="5.5" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-foreground">API Key 관리</h3>
+                            <p class="mt-2 text-sm leading-relaxed text-muted">자동 재발급되는 API Key와 자동 서명기술로 안전하게 API를
+                                이용하세요.</p>
+                        </div>
+                        <!-- Feature 5 -->
+                        <div class="card p-6 transition-all" style="cursor:default">
+                            <div
+                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
+                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-foreground">피드백 시스템</h3>
+                            <p class="mt-2 text-sm leading-relaxed text-muted">댓글과 평점을 통해 API 품질을 개선하고 더 나은 서비스를 제공하세요.
+                            </p>
+                        </div>
+                        <!-- Feature 6 -->
+                        <div class="card p-6 transition-all" style="cursor:default">
+                            <div
+                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
+                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="20" height="14" x="2" y="5" rx="2" />
+                                    <line x1="2" x2="22" y1="10" y2="10" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-foreground">포인트 시스템</h3>
+                            <p class="mt-2 text-sm leading-relaxed text-muted">포인트 충전, 환전, 정기결제 연결로 유연한 결제 환경을 제공합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section style="border-top:1px solid var(--border); padding:4rem 0">
+                <div class="container">
+                    <div
+                        style="display:grid; grid-template-columns:repeat(2, 1fr); gap:2rem; max-width:56rem; margin:0 auto; text-align:center">
+                        <div>
+                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">1,200+</p>
+                            <p class="mt-2 text-sm text-muted">등록된 API</p>
+                        </div>
+                        <div>
+                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">5,000+</p>
+                            <p class="mt-2 text-sm text-muted">개발자</p>
+                        </div>
+                        <div>
+                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">10M+</p>
+                            <p class="mt-2 text-sm text-muted">월간 API 호출</p>
+                        </div>
+                        <div>
+                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">99.9%</p>
+                            <p class="mt-2 text-sm text-muted">가동률</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </th:block>
+    <th:block layout:fragment="script">
+
+    </th:block>
+</body>
+
+</html>
