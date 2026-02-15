@@ -287,7 +287,7 @@
       })();
 
       // 1. 필요한 변수 정의
-      const RECIPIENT = 'smsauth@getapi.kro.kr';
+      const RECIPIENT = 'phoneauth@getapi.kro.kr';
 	  const pathSegments = window.location.pathname.split('/');
 	  const token = pathSegments[pathSegments.length - 1];
 
@@ -327,14 +327,14 @@
       }
 
       function startSSE(token) {
-        const eventSource = new EventSource('/smsVerify/stream/' + token);
+        const eventSource = new EventSource('/phoneVerify/stream/' + token);
         let verified = false;
 
         eventSource.addEventListener('verified', function (e) {
           verified = true;
           alert('인증되었습니다.');
           eventSource.close();
-          window.location.href = '/smsVerify/complete/' + token;
+          window.location.href = '/phoneVerify/complete/' + token;
         });
 
         eventSource.onerror = function () {
@@ -351,8 +351,8 @@
         document.querySelectorAll(".sms-guide").forEach(el => el.style.display = "block");
 
         if (token && token !== "") {
-          const smsUri = 'sms:smsauth@getapi.kro.kr;body=수정하지말고 그대로 전송해주세요. (' + encodeURIComponent(token) + ")";
-          const qrSmsUri = 'http://mobileauth.getapi.kro.kr?token=' + encodeURIComponent(token);
+          const smsUri = 'sms:phoneauth@getapi.kro.kr;body=수정하지말고 그대로 전송해주세요. (' + encodeURIComponent(token) + ")";
+          const qrSmsUri = 'http://phoneauth.getapi.kro.kr?token=' + encodeURIComponent(token);
           const smsLink = document.getElementById('sms-link');
           if (smsLink) smsLink.setAttribute('href', smsUri);
           renderQR(qrSmsUri);
@@ -365,7 +365,7 @@
       document.querySelector("#submit").addEventListener('click', (e) => {
         const phone = document.querySelector("#title").value;
         e.preventDefault();
-        fetch("/smsVerify", {
+        fetch("/phoneVerify", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

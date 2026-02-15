@@ -88,14 +88,14 @@
                     <!-- 로그인됨 -->
                     <div class="profile-wrapper" th:if="${loggedIn}">
                         <button class="profile-btn" id="profile-btn" aria-label="프로필 메뉴">
-                            <img class="profile-avatar" th:src="${picture}" alt="프로필">
+                            <img class="profile-avatar" th:src="${loginUser.profileImage}" alt="프로필">
                         </button>
                         <div class="profile-dropdown" id="profile-dropdown">
                             <div class="profile-dropdown-header">
-                                <div class="profile-dropdown-name" th:text="${name}"></div>
-                                <div class="profile-dropdown-email" th:text="${email}"></div>
+                                <div class="profile-dropdown-name" th:text="${loginUser.name}"></div>
+                                <div class="profile-dropdown-email" th:text="${loginUser.email}"></div>
                             </div>
-                            <a href="mypage.html" class="profile-dropdown-item">
+                            <a th:href="@{/user/mypage}" class="profile-dropdown-item">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -170,7 +170,7 @@
                 </a>
                 <!-- 모바일: 비로그인 -->
                 <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border)"
-                    data-auth="logged-out">
+                    th:if="${!loggedIn}">
                     <a href="/oauth2/authorization/google" class="btn btn-primary gap-2">
                         <svg class="icon" viewBox="0 0 24 24">
                             <path fill="currentColor"
@@ -186,16 +186,16 @@
                     </a>
                 </div>
                 <!-- 모바일: 로그인됨 -->
-                <div class="mobile-profile-section" style="display:none">
+                <div class="mobile-profile-section" th:if="${loggedIn}">
                     <div class="mobile-profile-info">
-                        <img class="mobile-profile-avatar" data-profile-img src="" alt="프로필">
+                        <img class="mobile-profile-avatar" th:src="${loginUser.profileImage}" alt="프로필">
                         <div>
-                            <div class="mobile-profile-name" data-profile-name></div>
-                            <div class="mobile-profile-email" data-profile-email></div>
+                            <div class="mobile-profile-name" th:text="${loginUser.name}"></div>
+                            <div class="mobile-profile-email" th:text="${loginUser.email}"></div>
                         </div>
                     </div>
                     <div class="mobile-profile-links">
-                        <a href="mypage.html" class="mobile-nav-link">
+                        <a th:href="@{/user/mypage}" class="mobile-nav-link">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
