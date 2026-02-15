@@ -47,17 +47,18 @@
                         <div class="card-body" style="display:flex; flex-direction:column; gap:1.5rem">
                             <!-- Avatar Row -->
                             <div class="flex items-center gap-4">
-                                <div class="avatar avatar-lg">김</div>
+                                <img class="avatar avatar-lg" th:src="${loginUser.profileImage}"></img>
                                 <div>
-                                    <p class="font-medium text-foreground">kim@example.com</p>
-                                    <p class="text-sm text-muted">가입일: 2025-10-15</p>
+                                    <p class="font-medium text-foreground" th:text="${loginUser.name}">kim@example.com
+                                    </p>
+                                    <p class="text-sm text-muted" th:text="${loginUser.email}">가입일: 2025-10-15</p>
                                 </div>
                             </div>
                             <!-- Form Fields -->
                             <div style="display:flex; flex-direction:column; gap:1rem">
                                 <div class="form-group">
                                     <label class="form-label" for="name">사용자 이름</label>
-                                    <input class="form-input" type="text" id="name" value="김개발"
+                                    <input class="form-input" type="text" id="name" th:value="${loginUser.name}"
                                         placeholder="사용자 이름을 입력하세요">
                                     <p class="form-hint">미입력 시 Google 계정 이름이 사용됩니다.</p>
                                 </div>
@@ -330,7 +331,8 @@
                                     </svg>
                                     로그아웃
                                 </button>
-                                <button class="btn btn-destructive" id="btn-withdraw">회원 탈퇴</button>
+                                <button class="btn btn-destructive" id="btn-withdraw"
+                                    th:data-uri="|/user/${loginUser.userUuid}|">회원 탈퇴</button>
                             </div>
                         </div>
                     </div>
@@ -433,10 +435,41 @@
             });
 
             /* ── Withdraw Dialog ── */
-            document.getElementById('btn-withdraw').addEventListener('click', function () {
-                var text = prompt('탈퇴를 확인하려면 "탈퇴합니다"를 입력하세요:');
-                if (text === '탈퇴합니다') {
-                    showToast('회원 탈퇴가 완료되었습니다.', 'error');
+            document.getElementById('btn-withdraw').addEventListener('click', async (e) => {
+                e.preventDefault(); // 기본 동작 방지를 최상단으로 이동
+
+                const confirmationText = "탈퇴합니다.";
+                const userInput = prompt(`탈퇴를 확인하려면 "${confirmationText}"를 입력하세요:`);
+
+                // 1. 입력값이 일치하는지 확인
+                if (userInput === confirmationText) {
+                    try {
+                        const targetUri = e.currentTarget.dataset.uri;
+
+                        if (!targetUri) {
+                            console.error("URI를 찾을 수 없습니다.");
+                            return;
+                        }
+
+                        const response = await fetch(targetUri, { method: "DELETE" });
+
+                        if (response.ok) {
+                            // 2. 성공 시에만 토스트 메시지와 초기화 실행
+                            showToast('회원 탈퇴가 완료되었습니다.', 'success');
+							location.href = "/";
+                        } else {
+                            // 3. 서버 에러 처리
+                            const data = await response.json();
+                            alert(data.message || '탈퇴 처리 중 오류가 발생했습니다.');
+                        }
+                    } catch (error) {
+                        // 4. 네트워크 에러 처리
+                        console.error("에러 발생:", error);
+                        alert('서버와 통신 중 오류가 발생했습니다.');
+                    }
+                } else if (userInput !== null) {
+                    // 취소를 누른 게 아니라 잘못 입력했을 경우
+                    alert('입력 내용이 일치하지 않습니다.');
                 }
             });
 

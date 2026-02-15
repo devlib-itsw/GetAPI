@@ -36,7 +36,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
             	.requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
-                .requestMatchers("/", "/login**", "/error**", "/oauth2/**", "/login/oauth2/**", "/smsVerify/**").permitAll()
+                .requestMatchers("/", "/login**", "/error**", "/oauth2/**", "/login/oauth2/**", "/phoneVerify/**").permitAll()
                 .anyRequest().authenticated()
             ) 
             .oauth2Login(oauth2 -> oauth2

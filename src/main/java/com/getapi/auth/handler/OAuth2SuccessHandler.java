@@ -71,7 +71,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		} else {
 			// 신규 유저: 번호인증 진행
 			smsAuthService.saveToken(sub, secureToken, email, name, picture);
-			getRedirectStrategy().sendRedirect(request, response, "/smsVerify/" + secureToken);
+			getRedirectStrategy().sendRedirect(request, response, "/phoneVerify/" + secureToken);
 		}
 	}
 }

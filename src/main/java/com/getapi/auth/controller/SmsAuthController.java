@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/phoneVerify")
 public class SmsAuthController {
 	private final SmsAuthService smsAuthService;
 	private final RefreshTokenService refreshTokenService;
@@ -38,7 +40,7 @@ public class SmsAuthController {
 	private final Map<String, String> pendingJwts = new ConcurrentHashMap<>();
 	private final JwtUtil jwtUtil;
 
-	@GetMapping("/smsVerify/{token}")
+	@GetMapping("/{token}")
 	public String returnHtml(@PathVariable("token") String token, Model model) {
 		if (token == null || token.isEmpty()) {
 			model.addAttribute("errorMessage", "유효하지 않은 접근입니다. 토큰이 없습니다.");
@@ -49,7 +51,7 @@ public class SmsAuthController {
 	}
 	
 	@ResponseBody
-	@PostMapping("/smsVerify")
+	@PostMapping("")
 	public ResponseEntity<?> handleVerification(@RequestBody Map<String, Object> data) {
 		String token = (String) data.get("key");
 		String phone = (String) data.get("phone");
@@ -83,7 +85,7 @@ public class SmsAuthController {
 
 	// SSE 연결 엔드포인트
 	@ResponseBody
-	@GetMapping("/smsVerify/stream/{token}")
+	@GetMapping("/stream/{token}")
 	public SseEmitter stream(@PathVariable("token") String token) {
 		SseEmitter emitter = new SseEmitter(330_000L);
 
@@ -114,7 +116,7 @@ public class SmsAuthController {
 	}
 
 	// SSE "verified" 수신 후 프론트에서 리다이렉트 → httpOnly 쿠키 설정
-	@GetMapping("/smsVerify/complete/{token}")
+	@GetMapping("/complete/{token}")
 	public void completeVerification(@PathVariable("token") String token,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String jwt = pendingJwts.remove(token);
