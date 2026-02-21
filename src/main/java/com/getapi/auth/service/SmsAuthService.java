@@ -5,6 +5,7 @@ import com.getapi.user.domain.Users;
 import com.getapi.auth.repository.SmsAuthRepository;
 import com.getapi.user.repository.UserRepository;
 import com.getapi.auth.util.ImapUtil;
+import com.getapi.auth.util.SecureUtil;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class SmsAuthService {
     private final UserRepository UserRepository;
 
     public void saveUser(String id, String name, String phone, String mail, String profileImg) {
-    	UserRepository.save(new Users(null, UUID.randomUUID(), id, mail, phone, name, name, null, null, 0L, null, profileImg, "ROLE_USER", null, null, LocalDateTime.now(), null, null));
+    	UserRepository.save(new Users(null, UUID.randomUUID(), id, mail, phone, name, null, null, null, 0L, null, profileImg, "ROLE_USER", null, SecureUtil.generate64Token(), LocalDateTime.now(), null, null));
     }
 
     public void saveToken(String id, String token, String userEmail, String userName, String userImg) {

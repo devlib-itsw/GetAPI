@@ -58,6 +58,7 @@ public class Users {
 
 	private String secretKey;
 
+	@Column(nullable=false)
 	private String rotationToken;
 
 	@Column(nullable=false)
