@@ -128,7 +128,6 @@ public class UserController {
 	@ResponseBody
 	public LocalDateTime lastApiUpdatedAt(@PathVariable("id") UUID uuid) {
 		Users user=this.userService.getUserByUUID(uuid);
-		LocalDateTime date=user.getApiUpdatedAt().plusDays(90);
-		return date;
+		return userService.getApiExpiryDate(user);
 	}
 }

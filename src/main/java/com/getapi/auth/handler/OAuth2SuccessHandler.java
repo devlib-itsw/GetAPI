@@ -49,7 +49,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			getRedirectStrategy().sendRedirect(request, response, "/?error=email_not_verified");
 			return;
 		} else if (smsAuthService.existsBySub(sub)) {
-			// 기존 유저: 바로 JWT 로그인
+			// 기존 유저: 프로필 최신화 후 JWT 로그인
+			smsAuthService.updateProfile(sub, name, picture);
 			String jwt = jwtUtil.generateToken(sub);
 
 			Cookie cookie = new Cookie("JWT-TOKEN", jwt);
