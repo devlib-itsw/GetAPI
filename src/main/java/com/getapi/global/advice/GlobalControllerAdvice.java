@@ -23,8 +23,6 @@ public class GlobalControllerAdvice {
         if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
             String sub = (String) authentication.getPrincipal();
             Users user = userRepository.findByProviderId(sub);
-            // 임시 권한 확인
-            System.out.printf("로그인된 유저 권한"+ user.getRole()+"\n");
 
             if (user != null) {
                 model.addAttribute("loginUser", user); // 유저 객체 통째로 담기

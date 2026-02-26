@@ -2,8 +2,6 @@ package com.getapi.auth.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -43,18 +41,15 @@ public class JwtUtil {
                 .compact();
     }
 
-    // JWT 토큰에서 이메일 추출
+    // JWT 토큰에서 sub 추출
     public String getSubFromToken(String token) {
         return getClaims(token).getSubject();
     }
-    
+
     // JWT 토큰에서 role 추출
     public String getRoleFromToken(String token) {
-        return getClaims(token).getRole();
+        return (String) getClaims(token).get("role");
     }
-    
-    // JWT 토큰에서 role 추출
-//    public String getRole
 
     // JWT 토큰 유효성 검증
     public boolean validateToken(String token) {

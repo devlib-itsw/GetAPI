@@ -5,6 +5,8 @@ import com.getapi.auth.service.RefreshTokenService;
 import com.getapi.auth.service.SmsAuthService;
 import com.getapi.auth.util.JwtUtil;
 import com.getapi.auth.util.SecureUtil;
+import com.getapi.user.domain.Users;
+import com.getapi.user.repository.UserRepository;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -21,15 +23,16 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final RefreshTokenService refreshTokenService;
-
 	private final JwtUtil jwtUtil;
 	private final SmsAuthService smsAuthService;
+	private final UserRepository userRepository;
 
 	public OAuth2SuccessHandler(JwtUtil jwtUtil, SmsAuthService smsAuthService,
-			RefreshTokenService refreshTokenService) {
+			RefreshTokenService refreshTokenService, UserRepository userRepository) {
 		this.jwtUtil = jwtUtil;
 		this.smsAuthService = smsAuthService;
 		this.refreshTokenService = refreshTokenService;
+		this.userRepository = userRepository;
 	}
 
 	@Override
@@ -43,14 +46,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String name = oAuth2User.getAttribute("name");
 		String picture = oAuth2User.getAttribute("picture");
 		String sub = oAuth2User.getAttribute("sub");
-		String role = oAuth2User.getAttribute("role");
 		String secureToken = SecureUtil.generate64Token();
 
 		if (emailVerified == null || !emailVerified) {
 			getRedirectStrategy().sendRedirect(request, response, "/?error=email_not_verified");
 			return;
 		} else if (smsAuthService.existsBySub(sub)) {
-			// 기존 유저: 바로 JWT 로그인
+			// 기존 유저: DB에서 role 조회 후 JWT 발급
+			Users user = userRepository.findByProviderId(sub);
+			String role = user.getRole();
 			String jwt = jwtUtil.generateToken(sub, role);
 
 			Cookie cookie = new Cookie("JWT-TOKEN", jwt);

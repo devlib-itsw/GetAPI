@@ -114,7 +114,8 @@ public class MailIdleConfig {
         if (verifiedUser != null) {
             smsAuthController.notifyVerified(
                 verifiedUser.getToken(),
-                verifiedUser.getUserId()
+                verifiedUser.getUserId(),
+                "USER"
             );
         }
     }
