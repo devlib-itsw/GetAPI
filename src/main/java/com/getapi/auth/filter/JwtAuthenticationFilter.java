@@ -42,6 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (jwtToken != null && jwtUtil.validateToken(jwtToken) && !jwtUtil.isTokenExpired(jwtToken)) {
             String sub = jwtUtil.getSubFromToken(jwtToken);
             
+            // 토큰에서 role 정보 가져오기
+//            String role=jwtUtil
+            
             UsernamePasswordAuthenticationToken authentication = 
                 new UsernamePasswordAuthenticationToken(sub, null, new ArrayList<>());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -51,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         	      RefreshToken rt = refreshTokenService.rotate(refreshToken, request.getRemoteAddr(),request.getHeader("User-Agent"));
 
         	      // 새 액세스 토큰 쿠키
-        	      Cookie accessCookie = new Cookie("JWT-TOKEN", jwtUtil.generateToken(rt.getId()));
+        	      Cookie accessCookie = new Cookie("JWT-TOKEN", jwtUtil.generateToken(rt.getId(), rt.));
         	      accessCookie.setHttpOnly(true);
         	      accessCookie.setPath("/");
         	      accessCookie.setMaxAge(1800);

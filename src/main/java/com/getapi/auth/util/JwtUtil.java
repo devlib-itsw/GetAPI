@@ -29,9 +29,10 @@ public class JwtUtil {
     }
 
     // JWT 토큰 생성
-    public String generateToken(String sub) {
+    public String generateToken(String sub, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", sub);
+        claims.put("role", role);
 
         return Jwts.builder()
                 .claims(claims)
@@ -46,6 +47,14 @@ public class JwtUtil {
     public String getSubFromToken(String token) {
         return getClaims(token).getSubject();
     }
+    
+    // JWT 토큰에서 role 추출
+    public String getRoleFromToken(String token) {
+        return getClaims(token).getRole();
+    }
+    
+    // JWT 토큰에서 role 추출
+//    public String getRole
 
     // JWT 토큰 유효성 검증
     public boolean validateToken(String token) {

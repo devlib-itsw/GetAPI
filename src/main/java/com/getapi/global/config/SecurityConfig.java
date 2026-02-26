@@ -7,6 +7,7 @@ import com.getapi.auth.service.CustomOAuth2UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled=true) // PreAuthorize
 public class SecurityConfig {
 
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -56,7 +58,10 @@ public class SecurityConfig {
                 .deleteCookies("JWT-TOKEN", "REFRESH-TOKEN")  // JWT + 리프레시 토큰 쿠키 삭제
                 .permitAll()
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // JWT 필터 추가
+            .exceptionHandling(exception -> exception
+        		.accessDeniedHandler((req, res, exp) -> res.sendRedirect("/"))
+    		); // 권한 거부 시 index page로 이동
         
         return http.build();
     }

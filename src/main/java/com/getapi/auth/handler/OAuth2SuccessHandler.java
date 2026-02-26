@@ -43,6 +43,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String name = oAuth2User.getAttribute("name");
 		String picture = oAuth2User.getAttribute("picture");
 		String sub = oAuth2User.getAttribute("sub");
+		String role = oAuth2User.getAttribute("role");
 		String secureToken = SecureUtil.generate64Token();
 
 		if (emailVerified == null || !emailVerified) {
@@ -50,7 +51,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			return;
 		} else if (smsAuthService.existsBySub(sub)) {
 			// 기존 유저: 바로 JWT 로그인
-			String jwt = jwtUtil.generateToken(sub);
+			String jwt = jwtUtil.generateToken(sub, role);
 
 			Cookie cookie = new Cookie("JWT-TOKEN", jwt);
 			cookie.setHttpOnly(true);
@@ -58,7 +59,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			cookie.setMaxAge(1800); // 30분
 			response.addCookie(cookie);
 
-			RefreshToken rt = refreshTokenService.save(sub, request.getRemoteAddr(), request.getHeader("User-Agent"));
+			RefreshToken rt = refreshTokenService.save(sub, request.getRemoteAddr(), request.getHeader("User-Agent"), role);
 			String token = rt.getToken(); // 쿠키에 넣을 값
 
 			Cookie refreshCookie = new Cookie("REFRESH-TOKEN", token);
