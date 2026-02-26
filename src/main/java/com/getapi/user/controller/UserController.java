@@ -95,7 +95,7 @@ public class UserController {
 	@ResponseBody
 	public void updateUser(@PathVariable("id") UUID uuid, @RequestBody UserUpdateDTO dto) {
 		Users user=this.userService.getUserByUUID(uuid);
-		
+
 		this.userService.updateUser(user, dto);
 	}
 	
