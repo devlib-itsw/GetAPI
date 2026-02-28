@@ -19,7 +19,7 @@
         <header class="site-header">
             <div class="header-inner">
                 <div class="flex items-center gap-8">
-                    <a href="index.html" class="logo">
+                    <a th:href="index.html" class="logo">
                         <div class="logo-icon"><span>API</span></div>
                         <span class="logo-text">GetAPI</span>
                     </a>
@@ -34,7 +34,7 @@
                             </svg>
                             Library
                         </a>
-                        <a href="community.html" class="nav-link">
+                        <a th:href="@{/community/list}" class="nav-link">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -92,7 +92,7 @@
                         </button>
                         <div class="profile-dropdown" id="profile-dropdown">
                             <div class="profile-dropdown-header">
-                                <div class="profile-dropdown-name" th:text="${loginUser.name}"></div>
+                                <div class="profile-dropdown-name" th:text="${loginUser.nickname}"></div>
                                 <div class="profile-dropdown-email" th:text="${loginUser.email}"></div>
                             </div>
                             <a th:href="@{/user/mypage}" class="profile-dropdown-item">
@@ -190,7 +190,7 @@
                     <div class="mobile-profile-info">
                         <img class="mobile-profile-avatar" th:src="${loginUser.profileImage}" alt="프로필">
                         <div>
-                            <div class="mobile-profile-name" th:text="${loginUser.name}"></div>
+                            <div class="mobile-profile-name" th:text="${loginUser.nickname}"></div>
                             <div class="mobile-profile-email" th:text="${loginUser.email}"></div>
                         </div>
                     </div>

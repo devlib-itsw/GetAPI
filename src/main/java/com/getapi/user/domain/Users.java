@@ -66,4 +66,11 @@ public class Users {
 	private LocalDateTime apiUpdatedAt;
 
 	private LocalDateTime profileDeletedAt;
+	
+	public void updateMyPage(String nickname, String introduction, String webUrl) {
+	    this.nickname = nickname;
+	    this.introduction = introduction;
+	    this.webUrl = webUrl;
+	    
+	}//이시우
 }

@@ -6,13 +6,18 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
@@ -20,6 +25,7 @@ import org.springframework.ui.Model;
 import com.getapi.auth.service.RefreshTokenService;
 import com.getapi.auth.util.SecureUtil;
 import com.getapi.user.domain.Users;
+import com.getapi.user.dto.UserUpdateDto;
 import com.getapi.user.repository.UserRepository;
 import com.getapi.user.service.UserService;
 
@@ -36,8 +42,37 @@ public class UserController {
     private final RefreshTokenService refreshTokenService;
 	
 	@GetMapping("/mypage")
-	public String returnHtml(Model model) {
+	public String returnHtml(@AuthenticationPrincipal OAuth2User oAuth2User,Model model) {
+	    
 		return "mypage";
+	}
+	
+	@GetMapping("/profile.html")
+	public String profilePage() {
+	    return "profile"; // src/main/resources/templates/profile.html 파일을 보여줌
+	}
+
+	
+	// 1. 마이페이지 화면 이동 및 데이터 전달
+	@PostMapping("/mypage/edit/{uuid}") // PostMapping 사용
+	public String updateMyPage(
+	        @PathVariable("uuid") UUID uuid,
+	        UserUpdateDto updateDto) { // @RequestBody 제거! 폼 데이터는 그냥 객체로 받습니다.
+	    
+	    // 서비스 호출하여 DB 수정
+	    userService.updateUserInfo(uuid, 
+	                               updateDto.getNickname(), 
+	                               updateDto.getIntroduction(), 
+	                               updateDto.getWebUrl());
+	    
+	    // 6. 중요: 수정이 끝난 후 다시 마이페이지 화면으로 보냅니다. (새로고침 효과)
+	    return "redirect:/user/mypage/view/" + uuid;
+	}//이시우
+	@GetMapping("/mypage/view/{uuid}")
+	public String viewMyPage(@PathVariable("uuid") UUID uuid, Model model) {
+	    Users user = userService.getUserByUUID(uuid);
+	    model.addAttribute("loginUser", user); // 여기서 loginUser에 "이시우"가 담김
+	    return "mypage";
 	}
 	
 	@DeleteMapping("/{id}")

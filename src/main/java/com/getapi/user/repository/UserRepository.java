@@ -3,6 +3,7 @@ package com.getapi.user.repository;
 import com.getapi.user.domain.Users;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,6 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 	// deleted_at 시간 기준으로 지난 날짜 사용자 일괄 삭제
 	@Transactional
 	void deleteByProfileDeletedAtBefore(LocalDateTime limit);
+	   
 }
+
