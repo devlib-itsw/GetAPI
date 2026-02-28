@@ -1,10 +1,12 @@
 package com.getapi.user.service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.getapi.errors.DataNotFoundException;
 import com.getapi.user.domain.Users;
 import com.getapi.user.repository.UserRepository;
 
@@ -22,6 +24,12 @@ public class UserService {
 		return user;
 	}
 	
+	
+	public Users getProviderId(String providerId) {
+		Users user = this.userRepository.findByProviderId(providerId);
+		return user;
+	}
+	
 	// 사용자 요청으로 통한 임시 삭제
 	public void softDelete(Users user) {
 		user.setProfileDeletedAt(LocalDateTime.now());
@@ -32,5 +40,15 @@ public class UserService {
 	public void hardDelete() {
 		LocalDateTime limit=LocalDateTime.now().minusDays(90);
 		this.userRepository.deleteByProfileDeletedAtBefore(limit);
+	}
+	
+	public Users getByName(String name) {
+		Optional<Users> user = this.userRepository.findByName(name);
+		
+		if(user.isPresent()) {
+			return user.get();
+		} else {
+			throw new DataNotFoundException("siteuser no found");
+		}
 	}
 }

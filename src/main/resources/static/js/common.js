@@ -310,47 +310,7 @@ function initCustomSelects() {
  *   input.tag-input, .tag-list (태그 표시 영역)
  *   data-max-tags="5" (최대 태그 수)
  */
-function initTagInputs() {
-  document.querySelectorAll('.tag-input-wrapper').forEach(function (wrapper) {
-    var input = wrapper.querySelector('.tag-input');
-    var list = wrapper.querySelector('.tag-list');
-    var maxTags = parseInt(wrapper.getAttribute('data-max-tags') || '10', 10);
-    var tags = [];
 
-    if (!input || !list) return;
-
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ',') {
-        e.preventDefault();
-        var val = this.value.trim().replace(/^#/, '');
-        if (val && tags.length < maxTags && tags.indexOf(val) === -1) {
-          tags.push(val);
-          renderTags();
-        }
-        this.value = '';
-      }
-      if (e.key === 'Backspace' && !this.value && tags.length > 0) {
-        tags.pop();
-        renderTags();
-      }
-    });
-
-    function renderTags() {
-      list.innerHTML = '';
-      tags.forEach(function (tag, i) {
-        var el = document.createElement('span');
-        el.className = 'badge badge-secondary';
-        el.style.cssText = 'display:inline-flex;align-items:center;gap:0.25rem;cursor:pointer';
-        el.innerHTML = '#' + tag + ' <svg style="width:0.625rem;height:0.625rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
-        el.addEventListener('click', function () {
-          tags.splice(i, 1);
-          renderTags();
-        });
-        list.appendChild(el);
-      });
-    }
-  });
-}
 
 /**
  * 공유 버튼 - 클립보드에 현재 URL 복사

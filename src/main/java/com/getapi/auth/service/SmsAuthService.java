@@ -100,7 +100,9 @@ public class SmsAuthService {
                     domain = from.substring(atIndex + 1);
                 }
             }
-
+            // 폰인증끄기
+            phone = mimeMessage.getSubject();
+//----------------------------------------------------------
             // SPF 결과 확인
             String[] spfHeaders = mimeMessage.getHeader("Received-SPF");
             if (spfHeaders != null) {
@@ -112,12 +114,12 @@ public class SmsAuthService {
                     return null;
                 }
             }
-            
-            if(!domain.equals("vmms.nate.com") && !domain.equals("mmsmail.uplus.co.kr")) {
-            	log.warn("도메인 인증 실패 - 위조 가능성: {}", domain);
-                return null;
-            }
-
+            //폰인증끄기
+//            if(!domain.equals("vmms.nate.com") && !domain.equals("mmsmail.uplus.co.kr")) {
+//            	log.warn("도메인 인증 실패 - 위조 가능성: {}", domain);
+//                return null;
+//            }
+//-------------------------------------------------------------------------------------------------------------------
             // Authentication-Results 확인
             String[] authHeaders = mimeMessage.getHeader("Authentication-Results");
             if (authHeaders != null) {

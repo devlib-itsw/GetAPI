@@ -38,7 +38,7 @@ public class Post {
 
 	private Long viewCount=0L;
 
-	private Long likeCount=0L;
+//	private Long likeCount=0L;
 
 	private boolean isCensored;
 
