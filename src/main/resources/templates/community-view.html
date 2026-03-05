@@ -15,7 +15,7 @@
     <th:block layout:fragment="content">
         <main class="main-content bg-muted-30">
             <div class="container-md" style="max-width:56rem; margin:0 auto; padding:2rem 1rem">
-                <a href="community.html"
+                <a th:href="@{/community/list}"
                     class="inline-flex items-center gap-2 text-sm text-muted mb-6 hover\:text-primary"
                     style="display:inline-flex">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -28,18 +28,18 @@
                 <!-- Post Card -->
                 <div class="card mb-6">
                     <div class="card-content p-6">
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="badge badge-secondary text-xs">#번역</span>
-                            <span class="badge badge-secondary text-xs">#NLP</span>
-                            <span class="badge badge-secondary text-xs">#출시</span>
-                            <span class="badge badge-secondary text-xs">#무료체험</span>
+                        <div class="flex flex-wrap gap-2 mb-4" >
+                            <span class="badge badge-secondary text-xs" th:each="tag, loop : ${tags}" th:text="${tag.tag}"></span>
                         </div>
-                        <h1 class="text-2xl font-bold text-foreground mb-4">번역 API 출시! 100개 언어 지원, 무료 체험 가능</h1>
+                        <h1 class="text-2xl font-bold text-foreground mb-4" th:text="${post.title}"></h1>
 
                         <div class="flex flex-wrap items-center gap-4 border-b pb-4 text-sm text-muted mb-6">
                             <a href="profile.html" class="flex items-center gap-2 hover\:text-primary">
-                                <div class="avatar avatar-sm">김</div>
-                                <span class="font-medium text-foreground">김개발</span>
+								<div class="avatar avatar-sm">
+									<img th:src="${post.user.profileImage}" alt="profileImage" style="border-radius: 50%;"/>
+									
+								</div>
+                                <span class="font-medium text-foreground">[[${post.user.name}]]</span>
                             </a>
                             <span class="flex items-center gap-1"><svg class="icon" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2">
@@ -47,7 +47,7 @@
                                     <path d="M16 2v4" />
                                     <rect width="18" height="18" x="3" y="4" rx="2" />
                                     <path d="M3 10h18" />
-                                </svg> 2026-02-05</span>
+                                </svg> [[${#temporals.format(post.createdAt, 'yyyy-MM-dd')}]]</span>
                             <span class="flex items-center gap-1"><svg class="icon" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2">
                                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
@@ -57,19 +57,7 @@
 
                         <!-- Post Content -->
                         <div class="space-y-4" style="color:var(--foreground)">
-                            <p class="leading-relaxed">안녕하세요, 개발자 여러분!</p>
-                            <p class="leading-relaxed">오랜 시간 준비한 번역 API를 드디어 출시하게 되었습니다.</p>
-                            <h2 class="text-lg font-semibold mt-6 mb-3">주요 기능</h2>
-                            <p class="mb-2"><strong>100개 이상의 언어 지원</strong>: 한국어, 영어, 일본어, 중국어 등 주요 언어는 물론 다양한 언어를
-                                지원합니다.</p>
-                            <p class="mb-2"><strong>딥러닝 기반 번역</strong>: 자연스러운 번역 결과를 제공합니다.</p>
-                            <p class="mb-2"><strong>빠른 응답 속도</strong>: 평균 200ms 이내의 응답 속도를 보장합니다.</p>
-                            <p class="mb-2"><strong>합리적인 가격</strong>: 호출당 1포인트로 부담 없이 사용하실 수 있습니다.</p>
-                            <h2 class="text-lg font-semibold mt-6 mb-3">무료 체험</h2>
-                            <p class="leading-relaxed">신규 가입자 분들께 1,000 포인트를 무료로 드립니다!</p>
-                            <p class="leading-relaxed">지금 바로 GetAPI에서 번역 API를 체험해보세요.</p>
-                            <p class="leading-relaxed">궁금한 점이 있으시면 댓글로 남겨주세요. 빠르게 답변 드리겠습니다.</p>
-                            <p class="leading-relaxed">감사합니다!</p>
+                            <p class="leading-relaxed" th:text="${post.content}"></p>
                         </div>
 
                         <!-- Actions -->
@@ -109,7 +97,7 @@
 
                     <div class="card mb-6">
                         <div class="card-content p-4">
-                            <textarea class="textarea mb-3" placeholder="댓글을 작성하세요..." rows="3"></textarea>
+                            <textarea class="textarea mb-3" placeholder="댓글을 작성하세요..." rows="3" style="resize: none;"></textarea>
                             <div class="flex justify-end"><button class="btn btn-primary btn-sm">댓글 작성</button></div>
                         </div>
                     </div>

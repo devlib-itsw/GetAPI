@@ -19,4 +19,8 @@ public class PostTagMappingService {
 	public List<PostTagMapping> getMappings(Post post){
 	    return this.postTagMappingRepository.findByPost(post);
 	}
+	
+	public List<PostTagMapping> getAllMappings() {
+		return this.postTagMappingRepository.findAll();
+	}
 }

@@ -4,6 +4,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -84,5 +86,19 @@ public class PostController {
 		this.postService.create(writeForm.getTitle(), writeForm.getContent(), writeForm.getTagList(), user);
 		
 		return "redirect:/community/list";
+	}
+	
+	@GetMapping("/view/{id}")
+	public String viewPost(Model model, @PathVariable("id") Long id, Principal principal) {
+		Post post = this.postService.getPost(id);
+		
+		List<Tag> tags = this.postTagMappingService.getMappings(post)
+	            .stream()
+	            .map(PostTagMapping::getTag)
+	            .toList();
+		
+		model.addAttribute("tags", tags); // 상세 페이지에서 쓸 태그 리스트 추가
+		model.addAttribute("post", post);
+		return "community-view";
 	}
 }

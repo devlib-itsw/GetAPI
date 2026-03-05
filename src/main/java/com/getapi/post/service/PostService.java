@@ -3,15 +3,16 @@ package com.getapi.post.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.getapi.errors.DataNotFoundException;
 import com.getapi.post.domain.Post;
 import com.getapi.post.domain.PostTagMapping;
 import com.getapi.post.repository.PostRepository;
@@ -36,6 +37,16 @@ public class PostService {
 		System.out.println(sorts);
 		/* return this.questionRepository.findAll(spec, pageable); */
 		return this.postRepository.findAll(pageable);
+	}
+	
+	public Post getPost(Long id) {
+		Optional<Post> post = this.postRepository.findById(id);
+		
+		if(post.isPresent()) {
+			return post.get();
+		} else {
+			throw new DataNotFoundException("question not found");
+		}
 	}
 	
 	public void create(String title, String content, List<String> tags, Users user) {
