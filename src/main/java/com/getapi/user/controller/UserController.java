@@ -41,9 +41,57 @@ public class UserController {
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
 	
+    @GetMapping("/points")
+    public String pointsPage(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (auth != null && !auth.getPrincipal().equals("anonymousUser")) {
+            String email;
+            if (auth.getPrincipal() instanceof OAuth2User) {
+                email = ((OAuth2User) auth.getPrincipal()).getAttribute("email");
+            } else {
+                email = auth.getName(); 
+            }
+
+            // DB에서 포인트가 갱신된 최신 유저 정보 조회
+            Users user = userRepository.findByProviderId(email);
+            
+            if (user != null) {
+                // HTML에서 ${user.point}로 쓸 수 있게 담아줍니다.
+                model.addAttribute("user", user);
+            }
+        }
+        return "points"; // points.html 렌더링
+    }
+    
+    
 	@GetMapping("/mypage")
 	public String returnHtml(@AuthenticationPrincipal OAuth2User oAuth2User,Model model) {
+		
+		// 1. 현재 로그인된 유저의 식별값(이메일)을 직접 가져옵니다. 2026-3-18일
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 	    
+	    // 로그인이 안 된 경우 처리
+	    if (auth == null || auth.getPrincipal().equals("anonymousUser")) {
+	        return "redirect:/login";
+	    }
+
+	    // 2. 이메일 추출 (JWT 필터가 넣은 값이 문자열이든 객체든 대응 가능)
+	    String email;
+	    if (auth.getPrincipal() instanceof OAuth2User) {
+	        email = ((OAuth2User) auth.getPrincipal()).getAttribute("email");
+	    } else {
+	        email = auth.getName(); // JWT 필터 등을 거쳤을 때 보통 이메일이 담깁니다.
+	    }
+
+	    // 3. DB에서 유저 정보 조회
+	    Users user = userRepository.findByEmail(email);
+	    
+	    if (user != null) {
+	        // HTML에서 사용하는 이름인 "user"로 담아줍니다.
+	        model.addAttribute("user", user);
+	    }
+        //2026-3-18일
 		return "mypage";
 	}
 	
@@ -74,6 +122,17 @@ public class UserController {
 	    model.addAttribute("loginUser", user); // 여기서 loginUser에 "이시우"가 담김
 	    return "mypage";
 	}
+	
+	@GetMapping("/library/view/{uuid}")
+	public String ViewLibrary(@PathVariable("uuid") UUID uuid, Model model) {
+		Users user = userService.getUserByUUID(uuid);
+	    model.addAttribute("loginUser", user); // 여기서 loginUser에 "이시우"가 담김
+	    // 2.  페이지 호출
+	    return "library"; 
+	}	
+
+	
+
 	
 	@DeleteMapping("/{id}")
 	@ResponseBody // JSON 또는 상태 코드를 직접 반환하기 위해 필요

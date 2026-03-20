@@ -24,7 +24,7 @@
                         <span class="logo-text">GetAPI</span>
                     </a>
                     <nav class="nav-links">
-                        <a href="library.html" class="nav-link">
+                        <a th:href="@{/user/library}" class="nav-link">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m16 6 4 14" />
@@ -133,7 +133,7 @@
                 </button>
             </div>
             <div class="mobile-menu" id="mobile-menu">
-                <a href="library.html" class="mobile-nav-link">
+                <a th:href="@{/library}" class="mobile-nav-link">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="m16 6 4 14" />
@@ -258,7 +258,8 @@
             </div>
         </footer>
     </div>
-
+	
+	<script src="https://js.tosspayments.com/v1/payment"></script>
     <script th:src="@{/js/icons.js}"></script>
     <script th:src="@{/js/common.js}"></script>
     <th:block layout:fragment="script"></th:block>

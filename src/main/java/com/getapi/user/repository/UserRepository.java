@@ -18,6 +18,9 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 	// deleted_at 시간 기준으로 지난 날짜 사용자 일괄 삭제
 	@Transactional
 	void deleteByProfileDeletedAtBefore(LocalDateTime limit);
+
+	Users findByEmail(String email);
+	
 	   
 }
 

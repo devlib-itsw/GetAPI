@@ -46,7 +46,7 @@ public class Users {
 	private String webUrl;
 
 	private Long point=0L;
-
+	
 	@Column(unique=true)
 	private String apiKey;
 
@@ -72,5 +72,7 @@ public class Users {
 	    this.introduction = introduction;
 	    this.webUrl = webUrl;
 	    
-	}//이시우
+	}//이시우 마이페이지 업데이트
+	
+	
 }

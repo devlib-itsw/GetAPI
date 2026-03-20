@@ -98,12 +98,19 @@
                             <div
                                 style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem">
                                 <div>
-                                    <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">12,500 P</p>
+									<p style="font-size:1.875rem; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:0.5rem">
+										<span style="font-size:1.875rem; font-weight:700; color:var(--foreground)"
+																		      	th:text="${user != null and user.point != null ? #numbers.formatInteger(user.point, 0, 'COMMA') + ' P' : '0 P'}">
+																		    0 P
+																			
+											</span>
+											
+									</p>
                                     <p class="text-sm text-muted">현재 보유 포인트</p>
                                 </div>
                                 <div class="flex gap-3">
-                                    <a href="points.html" class="btn btn-primary">포인트 충전</a>
-                                    <a href="points-withdraw.html" class="btn btn-outline">포인트 환전</a>
+									<a th:href="@{/points/charge}" class="btn btn-primary">포인트 충전</a>
+									<a th:href="@{|/points/withdraw|}" class="btn btn-outline">포인트 환전</a>
                                 </div>
                             </div>
                         </div>

@@ -8,14 +8,16 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 
 @Configuration
-@EnableRedisRepositories(basePackages = "com.getapi.auth.repository")
+//아래와 같이 스캔 범위를 확장하세요
+@EnableRedisRepositories(basePackages = {
+ "com.getapi.auth.repository", 
+ "com.getapi.payments"  // PaymentsRepository가 있는 위치 추가
+})
 @EnableJpaRepositories(basePackages = "com.getapi.user.repository")
 public class RedisConfig {
 
-    @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        // 기본값은 localhost:6379입니다. 
-        // 외부 서버를 쓴다면 여기에 설정을 넣습니다.
-        return new LettuceConnectionFactory();
-    }
+ @Bean
+ public RedisConnectionFactory redisConnectionFactory() {
+     return new LettuceConnectionFactory();
+ }
 }
