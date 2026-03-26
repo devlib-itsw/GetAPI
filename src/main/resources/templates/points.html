@@ -37,7 +37,7 @@
 								</svg>
 
 								<span style="font-size:1.875rem; font-weight:700; color:var(--foreground)"
-								      th:text="${user != null and user.point != null ? #numbers.formatInteger(user.point, 0, 'COMMA') + ' P' : '0 P'}">
+								      th:text="${loginUser != null and loginUser.point != null ? #numbers.formatInteger(loginUser.point, 0, 'COMMA') + ' P' : '0 P'}">
 								    0 P
 								</span>
 							</p>

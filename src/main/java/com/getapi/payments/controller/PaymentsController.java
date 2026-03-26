@@ -25,9 +25,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.getapi.auth.util.JwtUtil; // JwtUtil이 있는 실제 패키지 경로
 import com.getapi.payments.PaymentsConfirmRequest;
 import com.getapi.payments.PaymentsConfirmResponse;
-import com.getapi.payments.PaymentsRepository;
 import com.getapi.payments.PaymentsService;
 import com.getapi.payments.domain.paymentdomain;
+import com.getapi.payments.repository.PaymentsRepository;
 
 import java.util.Map;
 
