@@ -1,6 +1,9 @@
-package com.getapi.payments;
+package com.getapi.payments.client;
 
-import com.getapi.payments.PaymentConfig;
+import com.getapi.payments.config.PaymentConfig;
+import com.getapi.payments.dto.PaymentsConfirmRequest;
+import com.getapi.payments.dto.PaymentsConfirmResponse;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

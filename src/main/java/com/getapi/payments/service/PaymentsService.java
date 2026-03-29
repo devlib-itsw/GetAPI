@@ -1,4 +1,4 @@
-package com.getapi.payments;
+package com.getapi.payments.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -6,7 +6,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import com.getapi.payments.client.PaymentClient;
 import com.getapi.payments.domain.paymentdomain;
+import com.getapi.payments.dto.PaymentsConfirmRequest;
+import com.getapi.payments.dto.PaymentsConfirmResponse;
 import com.getapi.payments.repository.PaymentsRepository;
 import com.getapi.user.domain.Users;
 import com.getapi.user.repository.UserRepository;

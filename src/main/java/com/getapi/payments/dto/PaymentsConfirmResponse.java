@@ -1,4 +1,4 @@
-package com.getapi.payments;
+package com.getapi.payments.dto;
 
 import lombok.Getter;
 import lombok.Setter;

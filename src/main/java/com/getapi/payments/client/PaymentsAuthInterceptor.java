@@ -1,9 +1,11 @@
-package com.getapi.payments;
+package com.getapi.payments.client;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+
+import com.getapi.payments.config.PaymentProperties;
 
 public class PaymentsAuthInterceptor implements RequestInterceptor {
     private static final String AUTH_HEADER_PREFIX = "Basic ";

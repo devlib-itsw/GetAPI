@@ -23,11 +23,11 @@ import jakarta.transaction.Transactional;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import com.getapi.auth.util.JwtUtil; // JwtUtil이 있는 실제 패키지 경로
-import com.getapi.payments.PaymentsConfirmRequest;
-import com.getapi.payments.PaymentsConfirmResponse;
-import com.getapi.payments.PaymentsService;
 import com.getapi.payments.domain.paymentdomain;
+import com.getapi.payments.dto.PaymentsConfirmRequest;
+import com.getapi.payments.dto.PaymentsConfirmResponse;
 import com.getapi.payments.repository.PaymentsRepository;
+import com.getapi.payments.service.PaymentsService;
 
 import java.util.Map;
 
