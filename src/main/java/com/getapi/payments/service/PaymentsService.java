@@ -14,14 +14,18 @@ import com.getapi.payments.repository.PaymentsRepository;
 import com.getapi.user.domain.Users;
 import com.getapi.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
-
+import com.getapi.payments.domain.PaymentHistory;
+import com.getapi.payments.repository.PaymentHistoryRepository;
+import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class PaymentsService {
     private final PaymentClient paymentClient;
     private final UserRepository userRepository;
-    
+    private final PaymentHistoryRepository paymentHistoryRepository;
     private final PaymentsRepository paymentsRepository;
+    
+    
     
     @Transactional
     public PaymentsConfirmResponse confirmPayment(PaymentsConfirmRequest requestDto) {
@@ -56,6 +60,16 @@ public class PaymentsService {
                     userRepository.save(user);
                     
                     System.out.println("트랜잭션 내 포인트 변경 완료: " + user.getPoint());
+                    
+                    PaymentHistory history = PaymentHistory.builder()  // 4월 11일 충전 내역
+                    	    .orderId(requestDto.getOrderId())
+                    	    .userEmail(email)
+                    	    .amount(amount)
+                    	    .status(response.getStatus())
+                    	    .orderName(response.getOrderName()) // ← PaymentsConfirmResponse에 있으면
+                    	    .paidAt(LocalDateTime.now())
+                    	    .build();
+                    	paymentHistoryRepository.save(history);
                 } else {
                     System.out.println("에러: DB에서 유저를 찾을 수 없습니다. (Email: " + email + ")");
                 }
@@ -65,4 +79,27 @@ public class PaymentsService {
         }
         return response;
     }
+    @Transactional
+    public org.springframework.http.ResponseEntity<?> useApi(String userEmail) { // 차감 4월 11일
+        // 1. DB에서 유저 조회
+        Users user = userRepository.findByProviderId(userEmail);
+        
+        if (user == null) {
+            return org.springframework.http.ResponseEntity.status(404).body("사용자를 찾을 수 없습니다.");
+        }
+
+        // 2. 포인트 부족 시 즉시 차단 (Guard Clause)
+        if (user.getPoint() == null || user.getPoint() < 1) {
+            return org.springframework.http.ResponseEntity.status(403).body("포인트가 부족합니다. 충전 후 이용해주세요.");
+        }
+
+        // 3. 포인트 차감 (1P씩)
+        user.setPoint(user.getPoint() - 1);
+        userRepository.save(user); // JPA Dirty Checking으로 자동 저장되지만 명시적으로 호출
+        
+        return org.springframework.http.ResponseEntity.ok("API 호출 성공! 남은 포인트: " + user.getPoint());
+    }
+    
+    
+   
 }

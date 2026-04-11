@@ -22,7 +22,14 @@
         <div class="card-body" style="padding:1.5rem">
           <div style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:1rem">
             <div class="flex items-center gap-4">
-              <div class="avatar" style="width:5rem; height:5rem; font-size:1.5rem">김</div>
+				<div class="profile-wrapper" th:if="${loggedIn}">
+
+				  <img class="profile-avatar"
+				       th:src="${loginUser.profileImage}" 
+					   alt="프로필"
+					  style="width:5rem; height:5rem; border-radius:50%; object-fit:cover;" >
+
+				</div>
               <div>
                 <h1 style="font-size:1.5rem; font-weight:700; color:var(--foreground)" name="nickname" th:text="${loginUser.nickname}"></h1>
                 <p style="margin-top:0.25rem; color:var(--muted-foreground)" name="introduction" th:text="${loginUser.introduction}"></p>

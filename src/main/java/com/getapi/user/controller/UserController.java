@@ -123,14 +123,17 @@ public class UserController {
 	    return "mypage";
 	}
 	
-	@GetMapping("/library/view/{uuid}")
-	public String ViewLibrary(@PathVariable("uuid") UUID uuid, Model model) {
-		Users user = userService.getUserByUUID(uuid);
-	    model.addAttribute("loginUser", user); // 여기서 loginUser에 "이시우"가 담김
+	@GetMapping("/library")
+	public String ViewLibrary() {
 	    // 2.  페이지 호출
 	    return "library"; 
 	}	
-
+	@GetMapping("/library-view")
+	public String ViewLibrary_view() {
+	    // 2.  페이지 호출
+	    return "library-view"; 
+	}
+	
 	
 
 	

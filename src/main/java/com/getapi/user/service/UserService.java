@@ -3,6 +3,7 @@ package com.getapi.user.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.getapi.user.domain.Users;
@@ -47,6 +48,8 @@ public class UserService {
 	        this.userRepository.save(user);
 	    }
 	}
+	
+	
 
 
 }

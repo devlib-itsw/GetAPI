@@ -37,8 +37,8 @@
 								</svg>
 
 								<span style="font-size:1.875rem; font-weight:700; color:var(--foreground)"
-								      th:text="${loginUser != null and loginUser.point != null ? #numbers.formatInteger(loginUser.point, 0, 'COMMA') + ' P' : '0 P'}">
-								    0 P
+									th:text="${loginUser != null and loginUser.point != null ? #numbers.formatInteger(loginUser.point, 0, 'COMMA') + ' P' : '0 P'}">
+									0 P
 								</span>
 							</p>
 						</div>
@@ -180,53 +180,16 @@
 
 				<!-- Tab: History -->
 				<div class="tab-content" id="tab-history" style="display:none">
-					<div class="card">
-						<div class="card-header">
-							<h2 class="card-title">이용 내역</h2>
-							<p class="card-description">최근 포인트 사용 및 충전 내역</p>
-						</div>
-						<div class="card-body" style="display:flex; flex-direction:column; gap:1rem">
-							<div
-								style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:1rem">
-								<div>
-									<p class="font-medium text-foreground">포인트 충전</p>
-									<p class="text-sm text-muted">2026-02-05</p>
-								</div>
-								<span class="font-semibold" style="color:var(--primary)">+10,000 P</span>
-							</div>
-							<div
-								style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:1rem">
-								<div>
-									<p class="font-medium text-foreground">Translation API 호출</p>
-									<p class="text-sm text-muted">2026-02-04</p>
-								</div>
-								<span class="font-semibold text-muted">-50 P</span>
-							</div>
-							<div
-								style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:1rem">
-								<div>
-									<p class="font-medium text-foreground">Image Resize API 호출</p>
-									<p class="text-sm text-muted">2026-02-04</p>
-								</div>
-								<span class="font-semibold text-muted">-100 P</span>
-							</div>
-							<div
-								style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:1rem">
-								<div>
-									<p class="font-medium text-foreground">Translation API 판매 수익</p>
-									<p class="text-sm text-muted">2026-02-03</p>
-								</div>
-								<span class="font-semibold" style="color:var(--primary)">+1,230 P</span>
-							</div>
-							<div style="display:flex; align-items:center; justify-content:space-between">
-								<div>
-									<p class="font-medium text-foreground">포인트 충전</p>
-									<p class="text-sm text-muted">2026-02-01</p>
-								</div>
-								<span class="font-semibold" style="color:var(--primary)">+5,000 P</span>
-							</div>
-						</div>
-					</div>
+				    <div class="card">
+				        <div class="card-header">
+				            <h2 class="card-title">이용 내역</h2>
+				            <p class="card-description">최근 포인트 사용 및 충전 내역</p>
+				        </div>
+				        <div class="card-body" style="display:flex; flex-direction:column; gap:1rem" id="history-list">
+				            <!-- 로딩 중 표시 -->
+				            <p class="text-sm text-muted" id="history-loading">불러오는 중...</p>
+				        </div>
+				    </div>
 				</div>
 
 			</div>
@@ -252,6 +215,9 @@
 					if (target) {
 						target.style.display = '';
 						target.classList.add('active');
+					}
+					if (this.getAttribute('data-tab') === 'history') {
+					  	loadHistory();
 					}
 				});
 			});
@@ -323,6 +289,45 @@
 					console.error('결제 요청 중 에러 발생:', error);
 					alert("결제 준비 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
 				}
+			}
+			/* ── 4. 이용내역 불러오기 ── */
+			function loadHistory() {
+			    const list = document.getElementById('history-list');
+			    list.innerHTML = '<p class="text-sm text-muted">불러오는 중...</p>';
+
+			    fetch('/api/v1/payments/history')
+			        .then(function (res) {
+			            if (!res.ok) throw new Error('조회 실패');
+			            return res.json();
+			        })
+			        .then(function (data) {
+			            if (data.length === 0) {
+			                list.innerHTML = '<p class="text-sm text-muted">이용 내역이 없습니다.</p>';
+			                return;
+			            }
+
+			            list.innerHTML = data.map(function (item, index) {
+			                const isLast = index === data.length - 1;
+			                const date = item.approvedAt
+			                    ? item.approvedAt.substring(0, 10)   // "2026-02-05T..." → "2026-02-05"
+			                    : item.paidAt ? item.paidAt.substring(0, 10) : '-';
+
+			                return `
+			                    <div style="display:flex; align-items:center; justify-content:space-between;
+			                                ${isLast ? '' : 'border-bottom:1px solid var(--border); padding-bottom:1rem'}">
+			                        <div>
+			                            <p class="font-medium text-foreground">${item.orderName ?? '포인트 충전'}</p>
+			                            <p class="text-sm text-muted">${date}</p>
+			                        </div>
+			                        <span class="font-semibold" style="color:var(--primary)">
+			                            +${item.amount.toLocaleString()} P
+			                        </span>
+			                    </div>`;
+			            }).join('');
+			        })
+			        .catch(function () {
+			            list.innerHTML = '<p class="text-sm text-muted">내역을 불러오지 못했습니다.</p>';
+			        });
 			}
 		</script>
 	</th:block>

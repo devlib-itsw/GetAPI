@@ -6,8 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PaymentsConfirmResponse {
-    private String mId;            // 상점 아이디
-    private String orderId;        // 주문 번호
+    private String orderId;        // 주문 아이디
     private String orderName;      // 주문 명
     private String paymentKey;     // 결제 고유 키
     private String status;         // 결제 상태 (DONE, CANCELED 등)

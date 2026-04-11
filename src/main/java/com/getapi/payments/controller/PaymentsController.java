@@ -26,9 +26,11 @@ import com.getapi.auth.util.JwtUtil; // JwtUtil이 있는 실제 패키지 경�
 import com.getapi.payments.domain.paymentdomain;
 import com.getapi.payments.dto.PaymentsConfirmRequest;
 import com.getapi.payments.dto.PaymentsConfirmResponse;
+import com.getapi.payments.repository.PaymentHistoryRepository;
 import com.getapi.payments.repository.PaymentsRepository;
 import com.getapi.payments.service.PaymentsService;
-
+import com.getapi.payments.domain.PaymentHistory;
+import java.util.List;
 import java.util.Map;
 
 
@@ -40,6 +42,7 @@ public class PaymentsController {
     private final PaymentsService paymentsService;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final PaymentHistoryRepository paymentHistoryRepository; //4월 11일
     
     @GetMapping("/confirm")
     public String confirm(PaymentsConfirmRequest request, Model model) {
@@ -92,6 +95,53 @@ public class PaymentsController {
         return ResponseEntity.ok(Map.of("status", "success", "orderId", payment.getOrderId()));
     }
     
+    @ResponseBody
+    @GetMapping("/history")
+    public ResponseEntity<?> getHistory(HttpServletRequest request) { //충전 내역 4월 11일 
+        // JWT에서 이메일 추출
+        Cookie[] cookies = request.getCookies();
+        String userEmail = null;
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("JWT-TOKEN".equals(cookie.getName())) {
+                    userEmail = jwtUtil.getSubFromToken(cookie.getValue());
+                    break;
+                }
+            }
+        }
+        if (userEmail == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "로그인이 만료되었습니다."));
+        }
+
+        List<PaymentHistory> histories = paymentHistoryRepository.findByUserEmailOrderByPaidAtDesc(userEmail);
+        return ResponseEntity.ok(histories);
+    }
+    
+    @ResponseBody
+    @PostMapping("/use-api")
+    public ResponseEntity<?> useApi(HttpServletRequest request) { // 차감 4월 11일
+        // 1. 쿠키에서 JWT 추출 (기존 save, history 메서드와 동일한 로직)
+        Cookie[] cookies = request.getCookies();
+        String userEmail = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("JWT-TOKEN".equals(cookie.getName())) {
+                    userEmail = jwtUtil.getSubFromToken(cookie.getValue());
+                    break;
+                }
+            }
+        }
+
+        // 2. 로그인 여부 확인
+        if (userEmail == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "로그인이 만료되었습니다."));
+        }
+
+        // 3. PaymentsService에 작성한 useApi 호출
+        // 서비스에서 ResponseEntity를 리턴하므로 그대로 반환하면 됩니다.
+        return paymentsService.useApi(userEmail);
+    }
 }
 
 
