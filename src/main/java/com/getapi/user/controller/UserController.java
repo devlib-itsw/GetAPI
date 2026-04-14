@@ -128,12 +128,11 @@ public class UserController {
 	    // 2.  페이지 호출
 	    return "library"; 
 	}	
-	@GetMapping("/library-view")
-	public String ViewLibrary_view() {
-	    // 2.  페이지 호출
-	    return "library-view"; 
+	@GetMapping("/library-view/{id}")
+	public String ViewLibrary_view(@PathVariable("id") Long id, Model model) {
+	    model.addAttribute("id", id);
+	    return "library-view";
 	}
-	
 	
 
 	
