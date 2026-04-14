@@ -38,7 +38,11 @@ class DataPaginator {
     }
 
     render() {
-        if (!this.data) return;
+		if (!this.data || this.data.content.length === 0) {
+		        this.bodyContainer.innerHTML = '<div class="col-span-full text-center p-10">검색 결과가 없습니다.</div>';
+		        this.navContainer.innerHTML = "";
+		        return;
+		    }
         
         // 1. 리스트 출력
         this.bodyContainer.innerHTML = this.data.content.map(item => this.renderRow(item)).join("");
