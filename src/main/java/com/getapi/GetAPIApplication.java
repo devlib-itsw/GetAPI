@@ -11,7 +11,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaRepositories(
     basePackages = {
         "com.getapi.post.repository",
-        "com.getapi.tag.repository"
+        "com.getapi.tag.repository",
+        "com.getapi.comment.repository"
     }
 )
 @EnableRedisRepositories(basePackages = "com.getapi.redis")

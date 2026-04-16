@@ -3,14 +3,14 @@ package com.getapi.post.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
-import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.getapi.errors.DataNotFoundException;
 import com.getapi.post.domain.Post;
@@ -39,14 +39,15 @@ public class PostService {
 		return this.postRepository.findAll(pageable);
 	}
 	
-	public Post getPost(Long id) {
-		Optional<Post> post = this.postRepository.findById(id);
-		
-		if(post.isPresent()) {
-			return post.get();
-		} else {
-			throw new DataNotFoundException("question not found");
-		}
+	@Transactional
+	public Post getPost(UUID postUuid) {
+
+	    // 1. 조회수 증가 (UUID 기준)
+	    this.postRepository.increaseViewCountByUuid(postUuid);
+
+	    // 2. 게시글 조회
+	    return this.postRepository.findByPostUuid(postUuid)
+	            .orElseThrow(() -> new DataNotFoundException("post not found"));
 	}
 	
 	public void create(String title, String content, List<String> tags, Users user) {
@@ -81,5 +82,15 @@ public class PostService {
 	    }
 		
 		
+	}
+	
+	public Post findById(Long postId) {
+	    return this.postRepository.findById(postId)
+	            .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. id=" + postId));
+	}
+	
+	public Post findByUuid(UUID postUuid) {
+	    return this.postRepository.findByPostUuid(postUuid)
+	            .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. uuid=" + postUuid));
 	}
 }
