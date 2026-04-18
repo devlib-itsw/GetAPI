@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class LibraryDto {
-    private Long id;
+    private String apiUuid;
     private String title;
     private String description;
     private int price;

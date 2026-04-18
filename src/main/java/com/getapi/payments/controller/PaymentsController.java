@@ -35,7 +35,7 @@ import java.util.Map;
 
 
 @Controller
-@RequestMapping("/api/v1/payments")
+@RequestMapping("/payments")
 @RequiredArgsConstructor
 public class PaymentsController {
 	private final PaymentsRepository paymentsRepository;
@@ -57,6 +57,16 @@ public class PaymentsController {
         
         // [화면 이동] 이제 JSON 데이터가 아닌 "mypage.html" 파일을 보여줌
         return "redirect:/user/mypage?amount=" + response.getTotalAmount();
+    }
+    
+    @GetMapping("/charge") // 충전 페이지 주소
+    public String chargePage() {
+        return "points"; // 실제 파일 위치: templates/points/points.html
+    }
+
+    @GetMapping("/withdraw") // 환전 페이지 주소
+    public String withdrawPage() {
+        return "points-withdraw"; // 실제 파일 위치: templates/points/points-withdraw.html
     }
     
     @ResponseBody

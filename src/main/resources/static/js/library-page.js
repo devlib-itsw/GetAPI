@@ -36,15 +36,23 @@ document.addEventListener("DOMContentLoaded", function () {
         bodyContainer: '#library-grid',
         navContainer: '#library-nav',
 
-        getSearchParams: () => ({
-            keyword: keywordInput ? keywordInput.value.trim() : '',
-            filters: [...document.querySelectorAll('[name="library-search"]:checked')]
-                .map(el => el.value),
-            sort: document.querySelector('.custom-select-item.selected')?.dataset.value ?? 'latest'
-        }),
+		getSearchParams: () => {
+		    // 1. 체크된 모든 필터 항목의 'data-filter' 값을 가져옵니다.
+		    const checkedFilters = [...document.querySelectorAll('.filter-check-item.checked')]
+		        .map(el => el.getAttribute('data-filter'))
+		        .filter(val => val !== 'all'); // '전체'는 제외
+
+		    const selectedSort = document.querySelector('.custom-select-item.selected')?.dataset.value || 'latest';
+
+		    return {
+		        keyword: keywordInput ? keywordInput.value.trim() : '',
+		        filters: checkedFilters, // 예: ["title", "user"]
+		        sort: selectedSort
+		    };
+		},
 
 		renderRow: (item) => `
-		    <a href="/user/library-view/${item.id}" class="card-interactive">
+		    <a href="/library/view/${item.apiUuid}" class="card-interactive">
 		        <div class="p-5">
 		            <div class="flex items-start justify-between mb-3">
 		                <h3 class="text-lg font-semibold text-foreground">${item.title}</h3>
@@ -93,4 +101,25 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+});
+
+document.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // 1. 모든 필터 항목에서 active 클래스 제거
+        document.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('active'));
+        
+        // 2. 현재 클릭한 항목에 active 클래스 추가
+        this.classList.add('active');
+        
+        // 3. 버튼의 텍스트를 선택한 필터명으로 변경 (UI 피드백)
+        const filterBtn = document.querySelector('#filterButton');
+        if (filterBtn) {
+            filterBtn.innerText = this.innerText;
+        }
+        
+        // (선택사항) 필터 클릭 시 바로 검색되게 하고 싶다면 아래 주석 해제
+        // libraryPaginator.load(0);
+    });
 });

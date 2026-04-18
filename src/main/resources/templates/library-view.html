@@ -15,7 +15,7 @@
             <div class="container py-8">
 
                 <!-- Back Link -->
-                <a href="library.html"
+                <a th:href="@{/library}" 
                     class="inline-flex items-center gap-2 text-sm text-muted mb-6 hover\:text-primary"
                     style="display:inline-flex">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -517,7 +517,7 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
 			    this.disabled = true;
 
 			    try {
-			        const response = await fetch('/api/v1/payments/use-api', {
+			        const response = await fetch('/payments/use-api', {
 			            method: 'POST',
 			            headers: { 'Content-Type': 'application/json' }
 			        });

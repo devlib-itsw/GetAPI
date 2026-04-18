@@ -43,7 +43,7 @@
 							</p>
 						</div>
 						<div class="flex gap-3">
-							<a href="points-withdraw.html" class="btn btn-outline">포인트 환전</a>
+							<a th:href="@{|/payments/withdraw|}" class="btn btn-outline">포인트 환전</a>
 							<a href="points-auto.html" class="btn btn-outline">정기 충전 설정</a>
 						</div>
 					</div>
@@ -261,8 +261,8 @@
 
 				try {
 					// [중요] 1. 서버에 먼저 결제 대기 정보 저장 (비동기)
-					// 현재 도메인이 localhost:8080이면 상대 경로 '/api/v1/payments/save'로 써도 무방합니다.
-					const saveResponse = await fetch('/api/v1/payments/save', {
+					// 현재 도메인이 localhost:8080이면 상대 경로 '/payments/save'로 써도 무방합니다.
+					const saveResponse = await fetch('/payments/save', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json'
@@ -281,7 +281,7 @@
 						amount: paymentData.amount,
 						orderId: paymentData.orderId,
 						orderName: '포인트 충전 (' + amount.toLocaleString() + 'P)',
-						successUrl: window.location.origin + '/api/v1/payments/confirm',
+						successUrl: window.location.origin + '/payments/confirm',
 						failUrl: window.location.origin + '/points/charge', // 실패 시 돌아올 페이지
 					});
 
@@ -295,7 +295,7 @@
 			    const list = document.getElementById('history-list');
 			    list.innerHTML = '<p class="text-sm text-muted">불러오는 중...</p>';
 
-			    fetch('/api/v1/payments/history')
+			    fetch('/payments/history')
 			        .then(function (res) {
 			            if (!res.ok) throw new Error('조회 실패');
 			            return res.json();
