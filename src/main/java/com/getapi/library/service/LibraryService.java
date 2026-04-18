@@ -15,6 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.Selection; // 필요 시
+import java.util.function.Function; // 이 Function을 써야 합니다!
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,37 +41,41 @@ public class LibraryService {
         Specification<Api> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             
-            // 검색어 가공
+            // 1. 검색어 가공 (공백 제거 + 소문자 변환)
             String rawKeyword = req.getKeyword() != null ? req.getKeyword().trim() : "";
-            String keywordLike = "%" + rawKeyword + "%";
+            String sanitizedKeyword = rawKeyword.replaceAll("\\s+", "").toLowerCase(); 
+            String keywordLike = "%" + sanitizedKeyword + "%";
 
-            // [중요] 키워드가 있을 때만 필터링 조건을 추가합니다.
             if (!rawKeyword.isEmpty()) {
                 List<String> filters = req.getFilters();
                 List<Predicate> keywordPredicates = new ArrayList<>();
 
-                // 필터가 '전체'이거나 비어있을 때
+                // [H2 전용 최적화] DB 컬럼의 공백을 지우고 소문자로 바꾼 뒤 비교
+                java.util.function.Function<String, Expression<String>> normalize = (fieldName) -> {
+                    // SQL: LOWER(REPLACE(field, ' ', ''))
+                    Expression<String> replaced = cb.function("REPLACE", String.class, root.get(fieldName), cb.literal(" "), cb.literal(""));
+                    return cb.lower(replaced);
+                };
+
                 if (filters == null || filters.isEmpty() || filters.contains("all")) {
                     keywordPredicates.add(cb.or(
-                        cb.like(root.get("name"), keywordLike),
-                        cb.like(root.get("description"), keywordLike),
-                        cb.like(root.get("user").get("nickname"), keywordLike)
+                        cb.like(normalize.apply("name"), keywordLike),
+                        cb.like(normalize.apply("description"), keywordLike),
+                        cb.like(cb.lower(root.get("user").get("nickname")), "%" + rawKeyword.toLowerCase() + "%")
                     ));
-                } 
-                // 특정 필터가 체크되어 있을 때
-                else {
+                } else {
                     if (filters.contains("title")) {
-                        keywordPredicates.add(cb.like(root.get("name"), keywordLike));
+                        keywordPredicates.add(cb.like(normalize.apply("name"), keywordLike));
                     }
                     if (filters.contains("content")) {
-                        keywordPredicates.add(cb.like(root.get("description"), keywordLike));
+                        keywordPredicates.add(cb.like(normalize.apply("description"), keywordLike));
                     }
                     if (filters.contains("user")) {
-                        keywordPredicates.add(cb.like(root.get("user").get("nickname"), keywordLike));
+                        keywordPredicates.add(cb.like(cb.lower(root.get("user").get("nickname")), "%" + rawKeyword.toLowerCase() + "%"));
                     }
                     if (filters.contains("hashtag")) {
                         Join<Api, ApiTagMapping> tagMappings = root.join("apiTagMappings", JoinType.LEFT);
-                        keywordPredicates.add(cb.like(tagMappings.get("tag").get("tag"), keywordLike));
+                        keywordPredicates.add(cb.like(cb.lower(tagMappings.get("tag").get("tag")), "%" + rawKeyword.toLowerCase() + "%"));
                         query.distinct(true);
                     }
                 }
@@ -77,13 +84,8 @@ public class LibraryService {
                     predicates.add(cb.or(keywordPredicates.toArray(new Predicate[0])));
                 }
             }
-
-            // [핵심] 키워드가 없다면 predicates는 비어있게 되며, 
-            // cb.and(empty)는 SQL에서 아무 조건이 없는 "SELECT * FROM api"와 같이 동작하여 
-            // 초기 로딩 시 모든 데이터를 가져옵니다.
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
         return apiRepository.findAll(spec, pageable).map(this::convertToDto);
     }
 
