@@ -1,6 +1,7 @@
 package com.getapi.post.controller;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -49,21 +50,46 @@ public class PostController {
 	
 	
 	@GetMapping("")
-	public String getPost(Model model,
+	public String getPost(
+	        Model model,
 	        @RequestParam(value="page", defaultValue="0") int page,
-	        @AuthenticationPrincipal Users userDetails) {
+	        @RequestParam(value="kw", defaultValue="") String kw,
+	        @RequestParam(value="filters", required = false) String filters,
+	        @RequestParam(value="sort", defaultValue="latest") String sort, // 🔥 정렬 파라미터 추가
+	        @AuthenticationPrincipal Users userDetails
+	) {
 
-		Page<Post> paging = this.postService.getList(page);
+	    // 1. filters 문자열 → List 변환
+	    List<String> filterList;
+	    if (filters != null && !filters.isEmpty()) {
+	        filterList = Arrays.asList(filters.split(","));
+	    } else {
+	        filterList = List.of("all", "title", "content", "user", "hashtag"); // 기본 필터링 대상 모두 포함
+	    }
 
-		Map<Long, Long> likeMap = this.likeService.getLikeCountMap(paging.getContent());
+	    // 2. 서비스 호출 (정렬 조건인 sort를 함께 넘겨줍니다)
+	    // postService.getList 내부에서 sort 값에 따라 Pageable의 Sort 객체를 다르게 생성해야 합니다.
+	    Page<Post> paging = this.postService.getList(page, kw, filterList, sort); 
 
-		model.addAttribute("likeMap", likeMap);
-	    model.addAttribute("paging", paging);
+	    // 3. 좋아요 맵
+	    Map<Long, Long> likeMap = this.likeService.getLikeCountMap(paging.getContent());
 
+	    // 4. 태그 맵
 	    Map<Long, List<Tag>> postTagMap = this.postTagMappingService.getTagMap(paging.getContent());
-
-	    model.addAttribute("postTagMap", postTagMap);
 	    
+	    // filters가 null일 경우 뷰에서 오류가 나지 않도록 기본값 할당
+	    if (filters == null) {
+	        filters = "all,title,content,user,hashtag";
+	    }
+
+	    // 5. 모델에 담기
+	    model.addAttribute("paging", paging);
+	    model.addAttribute("kw", kw);
+	    model.addAttribute("likeMap", likeMap);
+	    model.addAttribute("postTagMap", postTagMap);
+	    model.addAttribute("filters", filters);
+	    model.addAttribute("filterList", filterList);
+	    model.addAttribute("sort", sort); // 🔥 이 줄이 있어야 HTML에서 ${sort}를 쓸 수 있습니다!
 
 	    return "community";
 	}

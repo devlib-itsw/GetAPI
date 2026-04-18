@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,10 @@ import com.getapi.tag.domain.Tag;
 import com.getapi.tag.repository.TagRepository;
 import com.getapi.user.domain.Users;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,13 +35,69 @@ public class PostService {
 	private final TagRepository tagRepository;
 	private final PostTagMappingRepository postTagMappingRepository;
 	
-	public Page<Post> getList(int page) {
-		List<Sort.Order> sorts = new ArrayList<>();
-		sorts.add(Sort.Order.desc("createdAt"));
-		Pageable pageable = PageRequest.of(page, 5, Sort.by(sorts));
-		System.out.println(sorts);
-		/* return this.questionRepository.findAll(spec, pageable); */
-		return this.postRepository.findAll(pageable);
+	public Page<Post> getList(int page, String kw, List<String> filters, String sort) {
+	    
+	    // 1. 좋아요순 정렬인 경우 (네이티브 쿼리 사용)
+	    if ("likes".equals(sort)) {
+	        Pageable pageable = PageRequest.of(page, 5); 
+	        return postRepository.findAllOrderByLikes(kw, pageable);
+	    }
+
+	    // 2. 최신순/조회순인 경우 (Specification 사용)
+	    List<Sort.Order> sorts = new ArrayList<>();
+	    if ("views".equals(sort)) {
+	        sorts.add(Sort.Order.desc("viewCount"));
+	    } else {
+	        sorts.add(Sort.Order.desc("createdAt"));
+	    }
+	    
+	    Pageable pageable = PageRequest.of(page, 5, Sort.by(sorts));
+
+	    // 🔥 Specification 정의 시작
+	    Specification<Post> spec = (p, query, cb) -> {
+	        query.distinct(true);
+
+	        // 람다 안에서 리스트를 새로 만들어야 에러가 나지 않습니다.
+	        List<Predicate> orConditions = new ArrayList<>();
+
+	        // 기본 join
+	        Join<Post, Users> u = p.join("user", JoinType.LEFT);
+
+	        boolean searchTitle = filters.contains("title");
+	        boolean searchContent = filters.contains("content");
+	        boolean searchUser = filters.contains("user");
+	        boolean searchTag = filters.contains("hashtag");
+	        boolean isAll = filters.contains("all");
+
+	        if (isAll || searchTitle) {
+	            orConditions.add(cb.like(p.get("title"), "%" + kw + "%"));
+	        }
+
+	        if (isAll || searchContent) {
+	            orConditions.add(cb.like(p.get("content"), "%" + kw + "%"));
+	        }
+
+	        if (isAll || searchUser) {
+	            orConditions.add(cb.like(u.get("name"), "%" + kw + "%"));
+	        }
+
+	        if (isAll || searchTag) {
+	            Root<PostTagMapping> ptm = query.from(PostTagMapping.class);
+	            Join<PostTagMapping, Tag> tag = ptm.join("tag", JoinType.LEFT);
+
+	            Predicate tagPredicate = cb.and(
+	                cb.equal(ptm.get("post"), p),
+	                cb.like(tag.get("tag"), "%" + kw + "%")
+	            );
+
+	            orConditions.add(tagPredicate);
+	        }
+
+	        // 최종적으로 생성된 orConditions를 반환
+	        return cb.or(orConditions.toArray(new Predicate[0]));
+	    };
+
+	    return postRepository.findAll(spec, pageable);
 	}
 	
 	@Transactional
@@ -92,5 +153,56 @@ public class PostService {
 	public Post findByUuid(UUID postUuid) {
 	    return this.postRepository.findByPostUuid(postUuid)
 	            .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. uuid=" + postUuid));
+	}
+	
+	private Specification<Post> buildSpecification(String kw, List<String> filters) {
+	    return (p, query, cb) -> {
+
+	        query.distinct(true);
+	        List<Predicate> predicates = new ArrayList<>();
+
+	        Join<Post, Users> userJoin = null;
+
+	        if (filters == null || filters.isEmpty() || filters.contains("all")) {
+	            userJoin = p.join("user", JoinType.LEFT);
+	            Join<Post, PostTagMapping> tagMappingJoin = p.join("postTagMappings", JoinType.LEFT);
+	            Join<PostTagMapping, Tag> tagJoin = tagMappingJoin.join("tag", JoinType.LEFT);
+
+	            return cb.or(
+	                cb.like(p.get("title"), "%" + kw + "%"),
+	                cb.like(p.get("content"), "%" + kw + "%"),
+	                cb.like(userJoin.get("name"), "%" + kw + "%"),
+	                cb.like(tagJoin.get("tag"), "%" + kw + "%")
+	            );
+	        }
+
+	        for (String filter : filters) {
+	            switch (filter) {
+
+	                case "title":
+	                    predicates.add(cb.like(p.get("title"), "%" + kw + "%"));
+	                    break;
+
+	                case "content":
+	                    predicates.add(cb.like(p.get("content"), "%" + kw + "%"));
+	                    break;
+
+	                case "user":
+	                    if (userJoin == null) {
+	                        userJoin = p.join("user", JoinType.LEFT);
+	                    }
+	                    predicates.add(cb.like(userJoin.get("name"), "%" + kw + "%"));
+	                    break;
+
+	                case "hashtag":
+	                    Join<Post, PostTagMapping> tagMappingJoin = p.join("postTagMappings", JoinType.LEFT);
+	                    Join<PostTagMapping, Tag> tagJoin = tagMappingJoin.join("tag", JoinType.LEFT);
+	                    predicates.add(cb.like(tagJoin.get("tag"), "%" + kw + "%"));
+	                    break;
+	            }
+	        }
+
+	        return cb.or(predicates.toArray(new Predicate[0]));
+	    };
 	}
 }
