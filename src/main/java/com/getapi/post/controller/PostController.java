@@ -55,7 +55,7 @@ public class PostController {
 	        @RequestParam(value="page", defaultValue="0") int page,
 	        @RequestParam(value="kw", defaultValue="") String kw,
 	        @RequestParam(value="filters", required = false) String filters,
-	        @RequestParam(value="sort", defaultValue="latest") String sort, // 🔥 정렬 파라미터 추가
+	        @RequestParam(value="sort", defaultValue="latest") String sort,
 	        @AuthenticationPrincipal Users userDetails
 	) {
 
@@ -89,7 +89,7 @@ public class PostController {
 	    model.addAttribute("postTagMap", postTagMap);
 	    model.addAttribute("filters", filters);
 	    model.addAttribute("filterList", filterList);
-	    model.addAttribute("sort", sort); // 🔥 이 줄이 있어야 HTML에서 ${sort}를 쓸 수 있습니다!
+	    model.addAttribute("sort", sort);
 
 	    return "community";
 	}

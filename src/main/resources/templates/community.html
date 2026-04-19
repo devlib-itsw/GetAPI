@@ -227,7 +227,7 @@
 		                        </svg>
 				      		</a>
 				    	</li>
-				    	<li class="page-item btn btn-icon btn-sm" th:each="page : ${#numbers.sequence(0, paging.totalPages - 1)}" th:classappend="${paging.number == page} ? 'btn-primary' : 'btn-outline'" th:if="${page >= paging.number - 2 and page <= paging.number + 2}"><a class="page-link" href="javascript:void(0);" th:data-page="${page}">[[${page + 1}]]</a></li>
+				    	<li class="page-item btn btn-icon btn-sm page-link" th:each="page : ${#numbers.sequence(0, paging.totalPages - 1)}" th:classappend="${paging.number == page} ? 'btn-primary' : 'btn-outline'" th:if="${page >= paging.number - 2 and page <= paging.number + 2}" th:data-page="${page}"><a href="javascript:void(0);">[[${page + 1}]]</a></li>
 					    <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
 					      	<a class="page-link btn btn-outline btn-icon btn-sm" href="javascript:void(0);" th:data-page="${paging.number + 1}">
 								<svg class="icon" viewBox="0 0 24 24" fill="none"
