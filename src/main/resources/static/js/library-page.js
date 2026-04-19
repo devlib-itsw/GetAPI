@@ -87,7 +87,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     libraryPaginator.load(0);
-
+	
+	document.querySelectorAll('.custom-select-item').forEach(item => {
+	        item.addEventListener('click', function () {
+	            libraryPaginator.load(0);
+	        });
+	    });
     if (searchBtn) {
         searchBtn.addEventListener('click', function () {
             libraryPaginator.load(0);

@@ -31,9 +31,24 @@ public class LibraryService {
 
     public Page<LibraryDto> getLibraryList(LibrarySearchRequest req) {
         // 1. 정렬 설정
-        Sort sort = "popular".equals(req.getSort())
-                ? Sort.by(Sort.Direction.DESC, "viewCount")
-                : Sort.by(Sort.Direction.DESC, "createdAt");
+    	Sort sort;
+    	switch (req.getSort() != null ? req.getSort() : "latest") {
+    	    case "views":
+    	        sort = Sort.by(Sort.Direction.DESC, "viewCount");
+    	        break;
+    	    case "stars":
+    	        sort = Sort.by(Sort.Direction.DESC, "starCount"); // 필드명 확인 필요
+    	        break;
+    	    case "price-low":
+    	        sort = Sort.by(Sort.Direction.ASC, "price");
+    	        break;
+    	    case "price-high":
+    	        sort = Sort.by(Sort.Direction.DESC, "price");
+    	        break;
+    	    default: // "latest"
+    	        sort = Sort.by(Sort.Direction.DESC, "createdAt");
+    	        break;
+    	}
 
         Pageable pageable = PageRequest.of(req.getPage(), 6, sort);
 
@@ -57,7 +72,7 @@ public class LibraryService {
                     return cb.lower(replaced);
                 };
 
-                if (filters == null || filters.isEmpty() || filters.contains("all")) {
+                if (filters == null || filters.isEmpty() || filters.size() >= 4) { 
                     keywordPredicates.add(cb.or(
                         cb.like(normalize.apply("name"), keywordLike),
                         cb.like(normalize.apply("description"), keywordLike),
