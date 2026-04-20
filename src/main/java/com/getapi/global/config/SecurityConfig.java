@@ -42,7 +42,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
             	.requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
-                .requestMatchers("/", "/login**", "/error**", "/oauth2/**", "/login/oauth2/**", "/phoneVerify/**").permitAll()
+                .requestMatchers("/", "/login**", "/error**", "/oauth2/**", "/login/oauth2/**", "/phoneVerify/**", "/auth/api-key").permitAll()
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated()
             ) 

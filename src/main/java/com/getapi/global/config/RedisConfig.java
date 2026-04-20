@@ -9,7 +9,8 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 
 @Configuration
 @EnableRedisRepositories(basePackages = "com.getapi.auth.repository")
-/* @EnableJpaRepositories(basePackages = "com.getapi.user.repository") */
+// @EnableJpaRepositories(basePackages = {"com.getapi.user.repository", "com.getapi.auth.repository"})
+@EnableJpaRepositories(basePackages = "com.getapi")
 public class RedisConfig {
 
     @Bean

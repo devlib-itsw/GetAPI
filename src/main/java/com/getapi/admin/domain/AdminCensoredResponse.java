@@ -19,7 +19,6 @@ public class AdminCensoredResponse {
 	private Users user;
 	
 	public AdminCensoredResponse(Long id, String title, String content, String uuid, LocalDateTime date, Users user) {
-		super();
 		this.id = id;
 		this.title = title;
 		this.content = content;

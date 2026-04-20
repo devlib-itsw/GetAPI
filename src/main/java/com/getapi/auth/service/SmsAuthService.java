@@ -1,8 +1,10 @@
 package com.getapi.auth.service;
 
 import com.getapi.auth.domain.SmsAuth;
+import com.getapi.user.domain.UserProfile;
 import com.getapi.user.domain.Users;
 import com.getapi.auth.repository.SmsAuthRepository;
+import com.getapi.user.repository.UserProfileRepository;
 import com.getapi.user.repository.UserRepository;
 import com.getapi.auth.util.ImapUtil;
 import com.getapi.auth.util.SecureUtil;
@@ -19,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
@@ -27,9 +30,28 @@ import org.springframework.web.server.ResponseStatusException;
 public class SmsAuthService {
     private final SmsAuthRepository smsAuthRepository;
     private final UserRepository UserRepository;
+    private final UserProfileRepository userProfileRepository;
 
+    @Transactional
     public void saveUser(String id, String name, String phone, String mail, String profileImg) {
-    	UserRepository.save(new Users(null, UUID.randomUUID(), id, mail, phone, name, null, null, null, 0L, null, profileImg, "USER", null, SecureUtil.generate64Token(), false, LocalDateTime.now(), null, null));
+        Users user = new Users(null, UUID.randomUUID(), id, mail, phone, "ROLE_USER", LocalDateTime.now(), null, null);
+        UserRepository.save(user);
+        UserProfile profile = new UserProfile();
+        profile.setUser(user);
+        profile.setName(name);
+        profile.setProfileImage(profileImg != null ? profileImg : "");
+        userProfileRepository.save(profile);
+    }
+
+    public Users updateProfile(String sub, String name, String picture) {
+        Users user = UserRepository.findByProviderId(sub);
+        if (user == null) return null;
+        UserProfile profile = userProfileRepository.findByUser(user).orElse(new UserProfile());
+        profile.setUser(user);
+        profile.setName(name);
+        if (picture != null) profile.setProfileImage(picture);
+        userProfileRepository.save(profile);
+        return user;
     }
 
     public void saveToken(String id, String token, String userEmail, String userName, String userImg) {

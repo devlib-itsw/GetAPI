@@ -47,9 +47,9 @@
                         <div class="card-body" style="display:flex; flex-direction:column; gap:1.5rem">
                             <!-- Avatar Row -->
                             <div class="flex items-center gap-4">
-                                <img class="avatar avatar-lg" th:src="${loginUser.profileImage}"></img>
+                                <img class="avatar avatar-lg" th:src="${loginProfile?.profileImage}"></img>
                                 <div>
-                                    <p class="font-medium text-foreground" th:text="${loginUser.name}">kim@example.com
+                                    <p class="font-medium text-foreground" th:text="${loginProfile?.name}">kim@example.com
                                     </p>
                                     <p class="text-sm text-muted" th:text="${loginUser.email}">가입일: 2025-10-15</p>
                                 </div>
@@ -58,18 +58,18 @@
                             <div style="display:flex; flex-direction:column; gap:1rem">
                                 <div class="form-group">
                                     <label class="form-label" for="name">사용자 이름</label>
-                                    <input class="form-input" type="text" id="name" name="nickname" th:value="${loginUser.nickname}"
-                                        th:placeholder="${loginUser.name}">
+                                    <input class="form-input" type="text" id="name" name="nickname" th:value="${loginProfile?.nickname}"
+                                        th:placeholder="${loginProfile?.name}">
                                     <p class="form-hint">미입력 시 Google 계정 이름이 사용됩니다.</p>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="bio">소개</label>
                                     <textarea class="form-input" id="bio" name="introduction" rows="3"
-                                        placeholder="자기소개를 입력하세요" th:text="${loginUser.introduction}">풀스택 개발자 | API 전문가</textarea>
+                                        placeholder="자기소개를 입력하세요" th:text="${loginProfile?.introduction}">풀스택 개발자 | API 전문가</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="website">웹사이트</label>
-                                    <input class="form-input" type="url" id="website" name="webUrl" th:value="${loginUser.webUrl}"
+                                    <input class="form-input" type="url" id="website" name="webUrl" th:value="${loginProfile?.webUrl}"
                                         placeholder="https://your-website.com">
                                 </div>
                                 <button class="btn btn-primary" id="btn-updateUser" th:data-uri="|/user/${loginUser.userUuid}|" style="align-self:flex-start">프로필 저장</button>
@@ -127,7 +127,7 @@
                             <div>
                                 <label class="form-label">현재 API Key</label>
                                 <div class="flex gap-3">
-                                    <input th:type="${loginUser.apiKey!=null} ? 'password' : 'text'" id="display-api-key" th:value="${loginUser.apiKey ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default;"/>
+                                    <input th:type="${loginApiAuth?.apiKey!=null} ? 'password' : 'text'" id="display-api-key" th:value="${loginApiAuth?.apiKey ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default;"/>
                                     <button class="btn btn-outline btn-icon" id="copy-api-key" title="API Key 복사">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -143,7 +143,7 @@
                             <div>
                                 <label class="form-label">Rotation Token</label>
                                 <div class="flex gap-3">
-                                    <input th:type="${loginUser.rotationToken!=null} ? 'password' : 'text'" id="display-rotation-token" th:value="${loginUser.rotationToken ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default;"/>
+                                    <input th:type="${loginApiAuth?.rotationToken!=null} ? 'password' : 'text'" id="display-rotation-token" th:value="${loginApiAuth?.rotationToken ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default;"/>
                                     <button class="btn btn-outline btn-icon" id="copy-rotation-token"
                                         title="Rotation Token 복사">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -164,7 +164,7 @@
 
                             <!-- Renew API Key Button -->
                             <div class="flex gap-3" style="align-self:flex-start">
-                                <button class="btn btn-outline gap-2" id="btn-renew-key" th:data-uri="|/user/apiKey/${loginUser.userUuid}|" th:text="${loginUser.apiKey!=null} ? 'API 재발급' : 'API 발급'">
+                                <button class="btn btn-outline gap-2" id="btn-renew-key" th:data-uri="|/user/apiKey/${loginUser.userUuid}|" th:text="${loginApiAuth?.apiKey!=null} ? 'API 재발급' : 'API 발급'">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
@@ -221,12 +221,12 @@
                         <div class="card-body" style="display:flex; flex-direction:column; gap:1rem">
                             <div>
                                 <label class="form-label">Secret Key</label>
-								<input th:type="${loginUser.secretKey!=null} ? 'password' : 'text'" id="display-secret-key" th:value="${loginUser.secretKey ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default; width: 100%;"/>
+								<input th:type="${loginApiAuth?.secretKey!=null} ? 'password' : 'text'" id="display-secret-key" th:value="${loginApiAuth?.secretKey ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default; width: 100%;"/>
                                 <!--<code
                                     style="display:block; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); color:var(--muted-foreground)">qwe</code>-->
                                 <p class="form-hint">절대 외부에 노출하지 마세요. 분실 시 재발급만 가능합니다.</p>
                             </div>
-                            <button class="btn btn-outline gap-2" id="btn-renew-secret" th:text="${loginUser.secretKey!=null} ? 'Secret Key 재발급' : 'Secret Key 발급'" th:data-uri="|/user/secretKey/${loginUser.userUuid}|" style="align-self:flex-start">
+                            <button class="btn btn-outline gap-2" id="btn-renew-secret" th:text="${loginApiAuth?.secretKey!=null} ? 'Secret Key 재발급' : 'Secret Key 발급'" th:data-uri="|/user/secretKey/${loginUser.userUuid}|" style="align-self:flex-start">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
@@ -376,7 +376,7 @@
 
                 /* ── API 재발급 ── */
                 document.getElementById('btn-renew-key').addEventListener('click', async e=>{
-                    var btn = this;
+                    var btn = e.currentTarget;
                     btn.disabled = true;
                     btn.innerHTML = '<div style="width:1rem;height:1rem;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div> 재발급 중...';
 					
@@ -412,7 +412,7 @@
                 /* ── Secret Key 재발급 (모달) ── */
                 document.getElementById('btn-renew-secret').addEventListener('click', async e=>{
                     if (!confirm('Secret Key를 재발급하면 기존 키는 즉시 폐기됩니다. 계속하시겠습니까?')) return;
-                    var btn = this;
+                    var btn = e.currentTarget;
                     btn.disabled = true;
                     btn.innerHTML = '<div style="width:1rem;height:1rem;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div> 재발급 중...';
 					

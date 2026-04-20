@@ -52,10 +52,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			getRedirectStrategy().sendRedirect(request, response, "/?error=email_not_verified");
 			return;
 		} else if (smsAuthService.existsBySub(sub)) {
-			// 기존 유저: DB에서 role 조회 후 JWT 발급
-			Users user = userRepository.findByProviderId(sub);
-			String role = user.getRole();
-			String jwt = jwtUtil.generateToken(sub, role);
+			Users user = smsAuthService.updateProfile(sub, name, picture);
+			String jwt = jwtUtil.generateToken(sub, user.getRole());
 
 			Cookie cookie = new Cookie("JWT-TOKEN", jwt);
 			cookie.setHttpOnly(true);
@@ -63,7 +61,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			cookie.setMaxAge(1800); // 30분
 			response.addCookie(cookie);
 
-			RefreshToken rt = refreshTokenService.save(sub, request.getRemoteAddr(), request.getHeader("User-Agent"), role);
+			RefreshToken rt = refreshTokenService.save(sub, request.getRemoteAddr(), request.getHeader("User-Agent"), user.getRole());
 			String token = rt.getToken(); // 쿠키에 넣을 값
 
 			Cookie refreshCookie = new Cookie("REFRESH-TOKEN", token);

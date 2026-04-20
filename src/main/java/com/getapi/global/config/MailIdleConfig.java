@@ -19,8 +19,10 @@ import com.getapi.auth.domain.SmsAuth;
 import com.getapi.auth.service.SmsAuthService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @Configuration
 @EnableIntegration
 @RequiredArgsConstructor
@@ -104,6 +106,8 @@ public class MailIdleConfig {
     // 메일이 도착했을 때 실행될 메서드
     @ServiceActivator(inputChannel = "gmailChannel")
     public void autoRunMailProcess(Message<?> message) {
+        log.info("[MAIL] 메일 수신됨 - 처리 시작");
+
         // 1. 메시지 봉투에서 실제 메일(MimeMessage)을 꺼냅니다.
         jakarta.mail.internet.MimeMessage payload = (jakarta.mail.internet.MimeMessage) message.getPayload();
 
@@ -112,11 +116,14 @@ public class MailIdleConfig {
 
         // 3. 인증 성공 시 JWT 생성 + SSE 알림 (HTTP 관심사)
         if (verifiedUser != null) {
+            log.info("[MAIL] 인증 성공 → SSE 알림 전송");
             smsAuthController.notifyVerified(
                 verifiedUser.getToken(),
                 verifiedUser.getUserId(),
                 "USER"
             );
+        } else {
+            log.warn("[MAIL] processSmsAuth 결과 null - 인증 실패 또는 조건 불일치");
         }
     }
 }
