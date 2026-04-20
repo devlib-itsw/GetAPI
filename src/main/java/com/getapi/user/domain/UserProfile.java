@@ -38,5 +38,4 @@ public class UserProfile {
     @Column(nullable = false)
     private String profileImage;
 
-    private Long point = 0L;
 }

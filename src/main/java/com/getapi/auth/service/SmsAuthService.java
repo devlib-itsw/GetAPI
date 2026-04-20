@@ -34,7 +34,7 @@ public class SmsAuthService {
 
     @Transactional
     public void saveUser(String id, String name, String phone, String mail, String profileImg) {
-        Users user = new Users(null, UUID.randomUUID(), id, mail, phone, "ROLE_USER", LocalDateTime.now(), null);
+        Users user = new Users(null, UUID.randomUUID(), id, mail, phone, "ROLE_USER", LocalDateTime.now(), null, 0L);
         UserRepository.save(user);
         UserProfile profile = new UserProfile();
         profile.setUser(user);

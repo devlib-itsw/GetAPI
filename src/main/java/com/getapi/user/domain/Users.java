@@ -42,4 +42,6 @@ public class Users {
 	private LocalDateTime profileCreatedAt;
 
 	private LocalDateTime profileDeletedAt;
+
+	private Long point = 0L;
 }

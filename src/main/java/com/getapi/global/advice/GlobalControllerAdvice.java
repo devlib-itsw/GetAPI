@@ -5,6 +5,7 @@ import com.getapi.user.domain.Users;
 import com.getapi.user.repository.UserProfileRepository;
 import com.getapi.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,11 @@ public class GlobalControllerAdvice {
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
     private final ApiAuthRepository apiAuthRepository;
+
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<String> handleSecurityException(SecurityException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
 
     // 모든 컨트롤러의 메서드가 실행되기 전에 이 메서드가 먼저 실행되어 Model에 값을 담습니다.
     @ModelAttribute

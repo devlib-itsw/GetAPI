@@ -3,8 +3,7 @@ package com.getapi.user.scheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.getapi.auth.util.SecureUtil;
-import com.getapi.user.domain.Users;
+import com.getapi.auth.service.ApiAuthService;
 import com.getapi.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -13,14 +12,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserScheduler {
 	private final UserService userService;
-	
+	private final ApiAuthService apiAuthService;
+
 	@Scheduled(cron="0 0 0 * * *")
 	public void hardDelete() {
 		this.userService.hardDelete();
 	}
-	
+
 	@Scheduled(cron="0 0 0 * * *")
-	public void setApiKey() {
-		this.userService.setApiKey(this.userService.getUsersBeforeApiUpdatedAt());
+	public void issueApiKey() {
+		apiAuthService.issueApiKey(apiAuthService.getUsersBeforeApiUpdatedAt());
 	}
 }

@@ -4,6 +4,16 @@
    Tailwind CSS 디자인 토큰을 CSS 변수로 100% 재현
    ============================================================ */
 
+/* ── Utilities ── */
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mw-sm { max-width: 100px; }
+.mw-md { max-width: 200px; }
+.mw-lg { max-width: 400px; }
+
 /* ── Google Fonts ── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
 

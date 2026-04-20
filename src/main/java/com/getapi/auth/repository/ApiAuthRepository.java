@@ -11,6 +11,7 @@ import com.getapi.user.domain.Users;
 
 public interface ApiAuthRepository extends JpaRepository<ApiAuth, Long> {
     Optional<ApiAuth> findByRotationToken(String rotationToken);
+    Optional<ApiAuth> findByApiKey(String apiKey);
     Optional<ApiAuth> findByUser(Users user);
     List<ApiAuth> findByApiUpdatedAtBefore(LocalDateTime limit);
 }

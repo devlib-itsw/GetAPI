@@ -32,6 +32,9 @@ public class Api {
 
 	@Column(nullable=false)
 	private String name;
+	
+	@Column(nullable=false)
+	private String method;
 
 	@Column(columnDefinition="TEXT", nullable=false)
 	private String originalUrl; // AES
@@ -52,9 +55,15 @@ public class Api {
 
 //	private Long starCount=0L;
 
-	private String status; // pending -challenge-> active / blocked
+	private String status; // pending -> active / blocked
 
 	private boolean isCensored;
+
+	@Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+	private boolean hateoasEnabled;
+
+	@Column(columnDefinition = "TEXT")
+	private String hateoasLinks; // JSON: [{"rel":"self","uri":"/translate","method":"POST"}]
 
 	@Column(nullable=false)
 	private LocalDateTime createdAt;

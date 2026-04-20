@@ -41,7 +41,7 @@
                             </svg>
                             Community
                         </a>
-                        <a href="dashboard" class="nav-link">
+                        <a href="api/dashboard" class="nav-link">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <rect width="7" height="9" x="3" y="3" rx="1" />
@@ -88,7 +88,7 @@
                     <!-- 로그인됨 -->
                     <div class="profile-wrapper" th:if="${loggedIn}">
                         <button class="profile-btn" id="profile-btn" aria-label="프로필 메뉴">
-                            <img class="profile-avatar" th:src="${loginProfile?.profileImage}" alt="프로필">
+                            <img class="profile-avatar" th:src="|/user/avater/${loginProfile?.profileImage}|" alt="프로필">
                         </button>
                         <div class="profile-dropdown" id="profile-dropdown">
                             <div class="profile-dropdown-header">
@@ -188,7 +188,7 @@
                 <!-- 모바일: 로그인됨 -->
                 <div class="mobile-profile-section" th:if="${loggedIn}">
                     <div class="mobile-profile-info">
-                        <img class="mobile-profile-avatar" th:src="${loginProfile?.profileImage}" alt="프로필">
+                        <img class="mobile-profile-avatar" th:src="|/user/avater/${loginProfile?.profileImage}|" alt="프로필">
                         <div>
                             <div class="mobile-profile-name" th:text="${loginProfile?.name}"></div>
                             <div class="mobile-profile-email" th:text="${loginUser.email}"></div>
