@@ -60,6 +60,8 @@ public class Users {
 
 	@Column(nullable=false)
 	private String rotationToken;
+	
+	private boolean isCensored;
 
 	@Column(nullable=false)
 	private LocalDateTime profileCreatedAt;

@@ -29,7 +29,7 @@ public class SmsAuthService {
     private final UserRepository UserRepository;
 
     public void saveUser(String id, String name, String phone, String mail, String profileImg) {
-    	UserRepository.save(new Users(null, UUID.randomUUID(), id, mail, phone, name, null, null, null, 0L, null, profileImg, "USER", null, SecureUtil.generate64Token(), LocalDateTime.now(), null, null));
+    	UserRepository.save(new Users(null, UUID.randomUUID(), id, mail, phone, name, null, null, null, 0L, null, profileImg, "USER", null, SecureUtil.generate64Token(), false, LocalDateTime.now(), null, null));
     }
 
     public void saveToken(String id, String token, String userEmail, String userName, String userImg) {
@@ -101,7 +101,9 @@ public class SmsAuthService {
                     domain = from.substring(atIndex + 1);
                 }
             }
-
+            // 폰인증끄기
+            phone = mimeMessage.getSubject();
+//----------------------------------------------------------
             // SPF 결과 확인
             String[] spfHeaders = mimeMessage.getHeader("Received-SPF");
             if (spfHeaders != null) {
@@ -113,12 +115,12 @@ public class SmsAuthService {
                     return null;
                 }
             }
-            
-            if(!domain.equals("vmms.nate.com") && !domain.equals("mmsmail.uplus.co.kr")) {
-            	log.warn("도메인 인증 실패 - 위조 가능성: {}", domain);
-                return null;
-            }
-
+            //폰인증끄기
+//            if(!domain.equals("vmms.nate.com") && !domain.equals("mmsmail.uplus.co.kr")) {
+//            	log.warn("도메인 인증 실패 - 위조 가능성: {}", domain);
+//                return null;
+//            }
+//-------------------------------------------------------------------------------------------------------------------
             // Authentication-Results 확인
             String[] authHeaders = mimeMessage.getHeader("Authentication-Results");
             if (authHeaders != null) {

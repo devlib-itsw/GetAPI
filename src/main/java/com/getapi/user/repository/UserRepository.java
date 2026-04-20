@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface UserRepository extends JpaRepository<Users, Long> {
@@ -21,4 +24,14 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 	
 	// apiUpdatedAt 시간 기준으로 지난 날짜 사용자 선택
 	List<Users> findByApiUpdatedAtBefore(LocalDateTime limit);
+	
+	Page<Users> findAll(Pageable pageable);
+	Page<Users> findByNameContainingOrNicknameContainingOrEmailContaining(String name, String nickname, String email, Pageable pageable);
+	
+	Page<Users> findByIsCensoredTrue(Pageable pageable);
+	
+	@Query("SELECT SUM(u.point) FROM Users u WHERE u.profileDeletedAt IS NULL")
+	Long sumPointsByProfileDeletedAtIsNotNull();
+	
+	void deleteByUserUuidAndIsCensoredTrue(UUID uuid);
 }

@@ -509,7 +509,7 @@ code, pre {
   background-color: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 .card-header {
