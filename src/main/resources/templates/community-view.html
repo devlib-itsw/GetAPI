@@ -36,10 +36,10 @@
                         <div class="flex flex-wrap items-center gap-4 border-b pb-4 text-sm text-muted mb-6">
                             <a href="profile.html" class="flex items-center gap-2 hover\:text-primary">
 								<div class="avatar avatar-sm">
-									<img th:src="${post.user.profileImage}" alt="profileImage" style="border-radius: 50%;"/>
+									<img th:src="${post.user.profile.profileImage}" alt="profileImage" style="border-radius: 50%;"/>
 									
 								</div>
-                                <span class="font-medium text-foreground">[[${post.user.name}]]</span>
+                                <span class="font-medium text-foreground">[[${post.user.profile.name}]]</span>
                             </a>
                             <span class="flex items-center gap-1"><svg class="icon" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2">
@@ -115,11 +115,11 @@
                             <div class="card-content p-4">
                                 <div class="flex items-start gap-3">
 									<button class="profile-btn" id="profile-btn" aria-label="프로필 메뉴">
-			                            <img class="profile-avatar" th:src="${postComment.user.profileImage}" alt="프로필">
+			                            <img class="profile-avatar" th:src="${postComment.user.profile.profileImage}" alt="프로필">
 			                        </button>
                                     <div class="flex-1">
                                         <div class="flex items-center justify-between mb-1"><a href="profile.html"
-                                                class="font-medium text-foreground hover\:text-primary" th:text="${postComment.user.name}"></a><span
+                                                class="font-medium text-foreground hover\:text-primary" th:text="${postComment.user.profile.name}"></a><span
                                                 class="text-xs text-muted">[[${#temporals.format(postComment.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</span></div>
                                         <p class="text-sm leading-relaxed text-muted" th:text="${postComment.content}"></p>
                                         <div class="flex items-center gap-1 mt-2">
@@ -148,6 +148,9 @@
     </th:block>
     <th:block layout:fragment="script">
 		<script>
+			
+		
+		
 			const dElement = document.querySelectorAll(".comment-delete-btn");
 			const lElement = document.querySelector(".like-btn");
 			dElement.forEach(item => {

@@ -3,6 +3,7 @@ package com.getapi.post.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.getapi.admin.domain.AdminCensoredResponse;
 import com.getapi.errors.DataNotFoundException;
 import com.getapi.post.domain.Post;
 import com.getapi.post.domain.PostTagMapping;
@@ -20,6 +22,7 @@ import com.getapi.post.repository.PostRepository;
 import com.getapi.post.repository.PostTagMappingRepository;
 import com.getapi.tag.domain.Tag;
 import com.getapi.tag.repository.TagRepository;
+import com.getapi.user.domain.UserProfile;
 import com.getapi.user.domain.Users;
 
 import jakarta.persistence.criteria.Join;
@@ -61,7 +64,15 @@ public class PostService {
 	        List<Predicate> orConditions = new ArrayList<>();
 
 	        // 기본 join
+	        // 1. Post와 Users 조인 (기존과 동일)
 	        Join<Post, Users> u = p.join("user", JoinType.LEFT);
+
+	        // 2. 매핑이 없으므로 UserProfile을 직접 Root로 가져옴
+	        Root<UserProfile> up = query.from(UserProfile.class);
+
+	        // 3. ⭐ 중요: Users와 UserProfile을 잇는 강제 조인 조건 생성
+	        // UserProfile 엔티티에 Users를 참조하는 'user' 필드가 있다고 가정합니다.
+	        Predicate userJoinCondition = cb.equal(up.get("user"), u);
 
 	        boolean searchTitle = filters.contains("title");
 	        boolean searchContent = filters.contains("content");
@@ -77,8 +88,12 @@ public class PostService {
 	            orConditions.add(cb.like(p.get("content"), "%" + kw + "%"));
 	        }
 
+	     // 수정된 부분: u.get("name") -> up.get("name")
 	        if (isAll || searchUser) {
-	            orConditions.add(cb.like(u.get("name"), "%" + kw + "%"));
+	        	orConditions.add(cb.and(
+	        			userJoinCondition,
+	                    cb.like(up.get("name"), "%" + kw + "%") 
+	                )); 
 	        }
 
 	        if (isAll || searchTag) {
@@ -97,7 +112,7 @@ public class PostService {
 	        return cb.or(orConditions.toArray(new Predicate[0]));
 	    };
 
-	    return postRepository.findAll(spec, pageable);
+	    return this.postRepository.findAll(spec, pageable);
 	}
 	
 	@Transactional
@@ -204,5 +219,35 @@ public class PostService {
 
 	        return cb.or(predicates.toArray(new Predicate[0]));
 	    };
+	}
+	public Page<AdminCensoredResponse> getPostsByIsCensoredPage(int page){
+		Pageable pageable=PageRequest.of(page, 10, Sort.by("postId").descending());
+		
+		Page<Post> list=this.postRepository.findByIsCensoredTrue(pageable);
+		
+		Page<AdminCensoredResponse> dtolist=list.map(post->new AdminCensoredResponse(
+				post.getPostId(),
+				post.getTitle(),
+				post.getContent(),
+				post.getPostUuid().toString(),
+				post.getUpdatedAt(),
+				post.getUser()
+		));
+		
+		return dtolist;
+	}
+	
+	@Transactional
+	public void ignore(UUID uuid) { // admin page에서 검열된 아이템들을 볼 수 있는데 ai가 잘못 검열한 경우 검열을 풀어주는 메소
+		Optional<Post> optionalPost=this.postRepository.findByPostUuid(uuid);
+		if (optionalPost.isPresent()) {
+		    Post post = optionalPost.get();
+		    post.setCensored(false);
+		}
+	}
+	
+	@Transactional
+	public void delete(UUID uuid) { // 검열된 아이템을 삭제한다.
+		this.postRepository.deleteByPostUuidAndIsCensoredTrue(uuid);
 	}
 }

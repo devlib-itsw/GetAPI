@@ -15,7 +15,7 @@
     <th:block layout:fragment="content">
         <main class="main-content bg-muted-30">
             <div style="max-width:48rem; margin:0 auto; padding:2rem 1rem">
-                <a th:href="@{|/community/view/${postId}|}"
+                <a th:href="@{|/community/view/${postUuid}|}"
                     class="inline-flex items-center gap-2 text-sm text-muted mb-6 hover\:text-primary"
                     style="display:inline-flex">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -39,7 +39,7 @@
                                 <p class="text-xs text-muted">마크다운 문법을 지원합니다. (## 제목, **굵게**, - 목록 등)</p>
                             </div>
                             <div class="flex items-center justify-end gap-3 border-t pt-6">
-                                <a th:href="@{|/community/view/${postId}|}" class="btn btn-outline">취소</a>
+                                <a th:href="@{|/community/view/${postUuid}|}" class="btn btn-outline">취소</a>
                                 <button type="submit" class="btn btn-primary">게시하기</button>
                             </div>
                         </form>

@@ -12,7 +12,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     basePackages = {
         "com.getapi.post.repository",
         "com.getapi.tag.repository",
-        "com.getapi.comment.repository"
+        "com.getapi.comment.repository",
+        "com.getapi.user.repository",
+        "com.getapi.auth.repository",
+        "com.getapi.api.repository"
     }
 )
 @EnableRedisRepositories(basePackages = "com.getapi.redis")

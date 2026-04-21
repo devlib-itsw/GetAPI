@@ -180,10 +180,10 @@
 	                        <div class="post-meta">
 	                            <span class="post-meta-item">
 	                                <div class="avatar avatar-sm">
-										<img th:src="${post.user.profileImage}" alt="profileImage" style="border-radius: 50%;"/>
+										<img th:src="${post.user.profile.profileImage}" alt="profileImage" style="border-radius: 50%;"/>
 										
 									</div>
-	                                [[${post.user.name}]]
+	                                [[${post.user.profile.name}]]
 	                            </span>
 	                            <span class="post-meta-item">
 	                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -257,57 +257,57 @@
     </th:block>
     <th:block layout:fragment="script">
         <script>
-            (function () {
-                var btn = document.getElementById('community-filter-btn');
-                var dropdown = document.getElementById('community-filter-dropdown');
-                var countEl = document.getElementById('community-filter-count');
-                var items = dropdown.querySelectorAll('.filter-check-item');
-                var allItem = dropdown.querySelector('[data-filter="all"]');
+			(function () {
+			                var btn = document.getElementById('community-filter-btn');
+			                var dropdown = document.getElementById('community-filter-dropdown');
+			                var countEl = document.getElementById('community-filter-count');
+			                var items = dropdown.querySelectorAll('.filter-check-item');
+			                var allItem = dropdown.querySelector('[data-filter="all"]');
 
-                btn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    dropdown.classList.toggle('open');
-                    btn.classList.toggle('active');
-                });
+			                btn.addEventListener('click', function (e) {
+			                    e.stopPropagation();
+			                    dropdown.classList.toggle('open');
+			                    btn.classList.toggle('active');
+			                });
 
-                document.addEventListener('click', function (e) {
-                    if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
-                        dropdown.classList.remove('open');
-                        btn.classList.remove('active');
-                    }
-                });
+			                document.addEventListener('click', function (e) {
+			                    if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+			                        dropdown.classList.remove('open');
+			                        btn.classList.remove('active');
+			                    }
+			                });
 
-                function updateCount() {
-                    var count = dropdown.querySelectorAll('.filter-check-item.checked').length;
-                    countEl.textContent = count;
-                    countEl.style.display = count > 0 ? '' : 'none';
-                }
+			                function updateCount() {
+			                    var count = dropdown.querySelectorAll('.filter-check-item.checked').length;
+			                    countEl.textContent = count;
+			                    countEl.style.display = count > 0 ? '' : 'none';
+			                }
 
-                items.forEach(function (item) {
-                    item.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        var isAll = this.getAttribute('data-filter') === 'all';
-                        if (isAll) {
-                            var setTo = !this.classList.contains('checked');
-                            items.forEach(function (i) {
-                                i.classList.toggle('checked', setTo);
-                                i.querySelector('input').checked = setTo;
-                            });
-                        } else {
-                            this.classList.toggle('checked');
-                            this.querySelector('input').checked = this.classList.contains('checked');
-                            var others = dropdown.querySelectorAll('.filter-check-item:not([data-filter="all"])');
-                            var allChecked = Array.prototype.every.call(others, function (i) { return i.classList.contains('checked'); });
-                            allItem.classList.toggle('checked', allChecked);
-                            allItem.querySelector('input').checked = allChecked;
-                        }
-                        updateCount();
-                    });
-                });
+			                items.forEach(function (item) {
+			                    item.addEventListener('click', function (e) {
+			                        e.preventDefault();
+			                        e.stopPropagation();
+			                        var isAll = this.getAttribute('data-filter') === 'all';
+			                        if (isAll) {
+			                            var setTo = !this.classList.contains('checked');
+			                            items.forEach(function (i) {
+			                                i.classList.toggle('checked', setTo);
+			                                i.querySelector('input').checked = setTo;
+			                            });
+			                        } else {
+			                            this.classList.toggle('checked');
+			                            this.querySelector('input').checked = this.classList.contains('checked');
+			                            var others = dropdown.querySelectorAll('.filter-check-item:not([data-filter="all"])');
+			                            var allChecked = Array.prototype.every.call(others, function (i) { return i.classList.contains('checked'); });
+			                            allItem.classList.toggle('checked', allChecked);
+			                            allItem.querySelector('input').checked = allChecked;
+			                        }
+			                        updateCount();
+			                    });
+			                });
 
-                updateCount();
-            })();
+			                updateCount();
+			            })();
 			
 			const as = document.querySelectorAll(".page-link");
 			

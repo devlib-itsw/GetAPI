@@ -13,17 +13,17 @@ import lombok.RequiredArgsConstructor;
 public class RefreshTokenService {
 	private final RefreshTokenRepository refreshTokenRepository;
 
-	 public RefreshToken save(String sub, String ip, String userAgent) {
-	    	return refreshTokenRepository.save(new RefreshToken(SecureUtil.generate64Token(), sub, ip, userAgent));
+	 public RefreshToken save(String sub, String ip, String userAgent, String role) {
+	    	return refreshTokenRepository.save(new RefreshToken(SecureUtil.generate64Token(), sub, ip, userAgent, role));
 	    }
 
-	 public RefreshToken rotate(String oldToken, String ip, String userAgent) {
+	 public RefreshToken rotate(String oldToken, String ip, String userAgent, String role) {
 		 RefreshToken old = refreshTokenRepository.findById(oldToken).orElse(null);
 	      if (old == null) return null;
 
 	      refreshTokenRepository.deleteById(oldToken);
 	      return refreshTokenRepository.save(
-	          new RefreshToken(SecureUtil.generate64Token(), old.getId(), ip, userAgent)
+	          new RefreshToken(SecureUtil.generate64Token(), old.getId(), ip, userAgent, role)
 	      );
 	    }
 

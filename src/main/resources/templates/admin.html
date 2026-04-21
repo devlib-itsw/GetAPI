@@ -4,7 +4,7 @@
 <head>
     <title layout:fragment="title">관리자 - GetAPI</title>
     <th:block layout:fragment="metatags">
-        <meta name="description" content="관리자 백오피스 - 포인트 관리 및 신고 게시물 관리">
+        <meta name="description" content="관리자 백오피스 - 포인트 관리 및 검열 게시물 관리">
     </th:block>
     <th:block layout:fragment="style">
     </th:block>
@@ -39,7 +39,7 @@
                             <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
                             <line x1="4" x2="4" y1="22" y2="15" />
                         </svg>
-                        신고 게시물 관리
+                        검열 게시물 관리
                     </button>
                 </div>
 
@@ -59,7 +59,7 @@
                                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                                 </svg>
                             </div>
-                            <p class="stat-value">5,234</p>
+                            <p class="stat-value" th:text="${#numbers.formatInteger(totalUsers, 0, 'COMMA')}">5,234</p>
                             <p class="stat-label">전체 회원</p>
                         </div>
                         <div class="stat-card">
@@ -72,10 +72,10 @@
                                     <path d="m16.71 13.88.7.71-2.82 2.82" />
                                 </svg>
                             </div>
-                            <p class="stat-value">8,452,300 P</p>
-                            <p class="stat-label">총 유통 포인트</p>
+                            <p class="stat-value" th:text="${#numbers.formatInteger(totalPoints, 0, 'COMMA')}">8,452,300 P</p>
+                            <p class="stat-label">전체 보유 포인트</p>
                         </div>
-                        <div class="stat-card">
+                        <!--<div class="stat-card">
                             <div class="flex items-center justify-between">
                                 <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
@@ -86,13 +86,13 @@
                             </div>
                             <p class="stat-value">12</p>
                             <p class="stat-label">대기 중 충전 요청</p>
-                        </div>
+                        </div>-->
                     </div>
 
                     <!-- Search -->
                     <div class="card" style="margin-bottom:1.5rem">
                         <div class="card-body" style="padding:1rem">
-                            <div class="flex flex-wrap gap-3 items-center">
+                            <form action="#" id="userSearchForm" class="flex flex-wrap gap-3 items-center">
                                 <div style="position:relative; flex:1; min-width:16rem">
                                     <svg style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%)"
                                         class="icon text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -100,16 +100,16 @@
                                         <circle cx="11" cy="11" r="8" />
                                         <path d="m21 21-4.3-4.3" />
                                     </svg>
-                                    <input class="input" type="text" placeholder="회원 이름 또는 이메일 검색..."
+                                    <input id="adminUserSearch" name="adminUserSearch" class="input" type="text" placeholder="회원 이름 또는 이메일로 검색..."
                                         style="padding-left:2.5rem">
                                 </div>
-                                <button class="btn btn-primary">검색</button>
-                            </div>
+                                <button type="submit" class="btn btn-primary">검색</button>
+                            </form>
                         </div>
                     </div>
 
                     <!-- 충전 요청 대기 리스트 -->
-                    <div class="card" style="margin-bottom:1.5rem">
+                    <!--<div class="card" style="margin-bottom:1.5rem">
                         <div class="card-header">
                             <h2 class="card-title">충전 요청 대기</h2>
                             <p class="card-description">승인 대기 중인 포인트 충전 요청 목록</p>
@@ -224,7 +224,7 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </div>-->
 
                     <!-- 전체 회원 포인트 잔액 조회 -->
                     <div class="card">
@@ -245,19 +245,33 @@
                                         <th
                                             style="text-align:right; padding:0.75rem 1rem; color:var(--muted-foreground); font-weight:500">
                                             보유 포인트</th>
-                                        <th
+                                        <!--<th
                                             style="text-align:right; padding:0.75rem 1rem; color:var(--muted-foreground); font-weight:500">
                                             총 충전액</th>
                                         <th
                                             style="text-align:right; padding:0.75rem 1rem; color:var(--muted-foreground); font-weight:500">
-                                            총 사용액</th>
+                                            총 사용액</th>-->
                                         <th
                                             style="text-align:center; padding:0.75rem 1rem; color:var(--muted-foreground); font-weight:500">
                                             가입일</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr style="border-bottom:1px solid var(--border)" class="table-row-hover">
+                                <tbody class="point-users-body">
+									<tr th:each="user, loop: ${userList}" style="border-bottom:1px solid var(--border)" class="table-row-hover">
+                                        <td style="padding:0.75rem 1rem">
+                                            <div class="flex items-center gap-2">
+                                                <!--<div class="avatar avatar-sm">김</div>-->
+												<img class="avatar avatar-sm" th:src="${user.profileImage}" />
+                                                <span th:text="${user.nickname ?: user.name}" class="font-medium text-foreground">김개발</span>
+                                            </div>
+                                        </td>
+                                        <td th:text="${user.email}" style="padding:0.75rem 1rem; color:var(--muted-foreground)">kim@dev.com</td>
+                                        <td th:text="${#numbers.formatInteger(user.point, 0, 'COMMA')}" style="padding:0.75rem 1rem; text-align:right; font-weight:600; color:var(--primary)">125,400 P</td>
+                                        <!--<td style="padding:0.75rem 1rem; text-align:right; color:var(--foreground)">350,000 P</td>
+                                        <td style="padding:0.75rem 1rem; text-align:right; color:var(--muted-foreground)">224,600 P</td>-->
+                                        <td th:text="${#temporals.format(user.profileCreatedAt, 'yyyy-MM-dd hh:mm:ss')}" style="padding:0.75rem 1rem; text-align:center; color:var(--muted-foreground)">2025-08-12</td>
+                                    </tr>
+                                    <!--<tr style="border-bottom:1px solid var(--border)" class="table-row-hover">
                                         <td style="padding:0.75rem 1rem">
                                             <div class="flex items-center gap-2">
                                                 <div class="avatar avatar-sm">김</div>
@@ -358,7 +372,7 @@
                                         <td
                                             style="padding:0.75rem 1rem; text-align:center; color:var(--muted-foreground)">
                                             2025-11-08</td>
-                                    </tr>
+                                    </tr>-->
                                 </tbody>
                             </table>
                         </div>
@@ -366,17 +380,20 @@
 
                     <!-- Pagination -->
                     <div class="pagination">
-                        <button class="btn btn-outline btn-icon btn-sm" disabled><svg class="icon" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2">
+                        <button class="btn btn-outline btn-icon btn-sm" data-control="prev">
+							<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="m15 18-6-6 6-6" />
-                            </svg></button>
-                        <button class="btn btn-primary btn-icon btn-sm">1</button>
+                            </svg>
+						</button>
+						<button th:each="page: ${#numbers.sequence(0, userList.totalPages-1)}" th:text="${page}+1" th:data-page="${page}" th:classappend="${page==userList.number} ? 'btn-primary' : 'btn-outline'" class="btn btn-icon btn-sm"></button>
+                        <!--<button class="btn btn-primary btn-icon btn-sm">1</button>
                         <button class="btn btn-outline btn-icon btn-sm">2</button>
-                        <button class="btn btn-outline btn-icon btn-sm">3</button>
-                        <button class="btn btn-outline btn-icon btn-sm"><svg class="icon" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2">
+                        <button class="btn btn-outline btn-icon btn-sm">3</button>-->
+                        <button class="btn btn-outline btn-icon btn-sm" data-control="next">
+							<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="m9 18 6-6-6-6" />
-                            </svg></button>
+                            </svg>
+						</button>
                     </div>
                 </div>
 
@@ -394,10 +411,54 @@
                                     <line x1="4" x2="4" y1="22" y2="15" />
                                 </svg>
                             </div>
-                            <p class="stat-value">47</p>
-                            <p class="stat-label">총 신고 접수</p>
+                            <p class="stat-value" th:text="${censoredPostList.getTotalElements()}">47</p>
+                            <p class="stat-label">검열된 게시물 수</p>
                         </div>
                         <div class="stat-card">
+                            <div class="flex items-center justify-between">
+                                <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                                    <line x1="4" x2="4" y1="22" y2="15" />
+                                </svg>
+                            </div>
+                            <p class="stat-value" th:text="${censoredApiList.getTotalElements()}">47</p>
+                            <p class="stat-label">검열된 라이브러리 수</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between">
+                                <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                                    <line x1="4" x2="4" y1="22" y2="15" />
+                                </svg>
+                            </div>
+                            <p class="stat-value" th:text="${censoredPostCommentList.getTotalElements()}">47</p>
+                            <p class="stat-label">검열된 게시물 댓글 수</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between">
+                                <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                                    <line x1="4" x2="4" y1="22" y2="15" />
+                                </svg>
+                            </div>
+                            <p class="stat-value" th:text="${censoredApiCommentList.getTotalElements()}">47</p>
+                            <p class="stat-label">검열된 API 리뷰 수</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between">
+                                <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                                    <line x1="4" x2="4" y1="22" y2="15" />
+                                </svg>
+                            </div>
+                            <p class="stat-value" th:text="${censoredUserList.getTotalElements()}">47</p>
+                            <p class="stat-label">검열된 사용자 수</p>
+                        </div>
+                        <!--<div class="stat-card">
                             <div class="flex items-center justify-between">
                                 <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
@@ -419,58 +480,71 @@
                             </div>
                             <p class="stat-value">39</p>
                             <p class="stat-label">처리 완료</p>
-                        </div>
+                        </div>-->
                     </div>
 
-                    <!-- 신고 게시물 리스트 -->
+                    <!-- 검열 게시물 리스트 -->
                     <div class="card">
                         <div class="card-header flex items-center justify-between">
                             <div>
-                                <h2 class="card-title">신고된 게시물 / 댓글</h2>
+                                <h2 class="card-title">검열된 게시물</h2>
                                 <p class="card-description">커뮤니티에서 신고된 부적절한 콘텐츠 목록</p>
                             </div>
-                            <div class="custom-select" style="width:9rem">
+                            <div class="custom-select" style="width:9rem" data-cs-callback="onFilterChange">
                                 <button type="button" class="custom-select-trigger">
-                                    <span class="cs-value">전체</span>
+                                    <span class="cs-value">게시물</span>
                                     <svg class="cs-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="m6 9 6 6 6-6" />
                                     </svg>
                                 </button>
                                 <div class="custom-select-popover align-right">
-                                    <div class="custom-select-item selected" data-value="all"><svg class="cs-check"
+                                    <div class="custom-select-item selected" data-value="community"><svg class="cs-check"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="20 6 9 17 4 12" />
-                                        </svg><span class="cs-label">전체</span></div>
-                                    <div class="custom-select-item" data-value="pending"><svg class="cs-check"
+                                        </svg><span class="cs-label">게시물</span>
+									</div>
+                                    <div class="custom-select-item" data-value="library"><svg class="cs-check"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="20 6 9 17 4 12" />
-                                        </svg><span class="cs-label">대기 중</span></div>
-                                    <div class="custom-select-item" data-value="done"><svg class="cs-check"
+                                        </svg><span class="cs-label">라이브러리</span>
+									</div>
+                                    <div class="custom-select-item" data-value="postComment"><svg class="cs-check"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="20 6 9 17 4 12" />
-                                        </svg><span class="cs-label">처리 완료</span></div>
+                                        </svg><span class="cs-label">게시물 댓글</span>
+									</div>
+                                    <div class="custom-select-item" data-value="apiComment"><svg class="cs-check"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg><span class="cs-label">API 리뷰</span>
+									</div>
+                                    <div class="custom-select-item" data-value="user"><svg class="cs-check"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg><span class="cs-label">사용자</span>
+									</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body" style="display:flex; flex-direction:column; gap:1rem">
+                        <div class="report-items card-body" style="display:flex; flex-direction:column; gap:1rem; padding-top: 1.5rem;">
 
                             <!-- Report Item 1 -->
-                            <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem"
+                            <div th:each="post, loop: ${censoredPostList}" style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem"
                                 class="table-row-hover">
                                 <div class="flex flex-wrap items-center justify-between gap-3"
                                     style="margin-bottom:0.75rem">
-                                    <div class="flex items-center gap-2">
+                                    <!--<div class="flex items-center gap-2">
                                         <span class="badge"
                                             style="background:color-mix(in srgb, hsl(0,62.8%,50%) 15%, transparent); color:hsl(0,62.8%,50%)">게시글</span>
                                         <span class="badge"
                                             style="background:color-mix(in srgb, hsl(45, 93%, 47%) 15%, transparent); color:hsl(45, 93%, 47%)">대기</span>
-                                    </div>
-                                    <span class="text-xs text-muted">신고 3회 | 2026-02-07</span>
+                                    </div>-->
+                                    <span class="text-xs text-muted" th:text="${#temporals.format(post.date, 'yyyy-MM-dd')}"><!--신고 3회 | -->2026-02-07</span>
                                 </div>
-                                <h3 class="font-medium text-foreground" style="margin-bottom:0.5rem">욕설 및 비방이 포함된 게시글입니다
-                                </h3>
-                                <p class="text-sm text-muted" style="margin-bottom:0.75rem; line-height:1.6">해당 게시글에서 특정
+                                <a th:href="@{|/community/${post.uuid}|}"><h3 class="font-medium text-foreground" style="margin-bottom:0.5rem" th:text="${post.title}">욕설 및 비방이 포함된 게시글입니다
+                                </h3></a>
+                                <p class="text-sm text-muted" style="margin-bottom:0.75rem; line-height:1.6" th:text="${#strings.abbreviate(post.content, 50)}">해당 게시글에서 특정
                                     사용자를 비방하고 욕설을 사용하여 신고합니다. 커뮤니티 가이드라인에 위반되는 내용입니다...</p>
                                 <div class="flex flex-wrap items-center justify-between gap-3">
                                     <div class="flex items-center gap-4 text-sm text-muted">
@@ -480,28 +554,27 @@
                                                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                                                 <circle cx="12" cy="7" r="4" />
                                             </svg>
-                                            작성자: 문제유저1
+                                            <span th:text="|사용자: ${post.user.nickname ?: post.user.name ?: post.user}|">작성자: 문제유저1</span>
                                         </span>
-                                        <span class="flex items-center gap-1">
+                                        <!--<span class="flex items-center gap-1">
                                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                 stroke-width="2">
                                                 <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
                                                 <line x1="4" x2="4" y1="22" y2="15" />
                                             </svg>
                                             신고자: 김개발
-                                        </span>
+                                        </span>-->
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <button class="btn btn-outline btn-sm" onclick="dismissReport(this)">무시</button>
-                                        <button class="btn btn-sm"
-                                            style="background:hsl(0,62.8%,50%); color:var(--foreground); border:none"
-                                            onclick="deleteReport(this)">삭제</button>
+                                        <button th:data-uuid="${post.uuid}" data-action="PATCH" class="btn btn-outline btn-sm">무시</button>
+                                        <button th:data-uuid="${post.uuid}" data-action="DELETE" class="btn btn-sm"
+                                            style="background:hsl(0,62.8%,50%); color:var(--foreground); border:none">삭제</button>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Report Item 2 -->
-                            <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem"
+                            <!--<div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem"
                                 class="table-row-hover">
                                 <div class="flex flex-wrap items-center justify-between gap-3"
                                     style="margin-bottom:0.75rem">
@@ -544,7 +617,7 @@
                                 </div>
                             </div>
 
-                            <!-- Report Item 3 -->
+                             Report Item 3 
                             <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem"
                                 class="table-row-hover">
                                 <div class="flex flex-wrap items-center justify-between gap-3"
@@ -588,7 +661,7 @@
                                 </div>
                             </div>
 
-                            <!-- Report Item 4 (처리완료) -->
+                             Report Item 4 (처리완료) 
                             <div
                                 style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; opacity:0.6">
                                 <div class="flex flex-wrap items-center justify-between gap-3"
@@ -627,7 +700,7 @@
                                 </div>
                             </div>
 
-                            <!-- Report Item 5 (처리완료) -->
+                             Report Item 5 (처리완료) 
                             <div
                                 style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; opacity:0.6">
                                 <div class="flex flex-wrap items-center justify-between gap-3"
@@ -663,7 +736,7 @@
                                         </span>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
 
                         </div>
                     </div>
@@ -687,6 +760,10 @@
         </main>
     </th:block>
     <th:block layout:fragment="script">
+		<!--<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>-->
+		
         <script>
             /* ── Tab Switching ── */
             document.querySelectorAll('.tab-btn').forEach(function (btn) {
@@ -736,7 +813,112 @@
                 badges[1].style.color = 'var(--muted-foreground)';
                 btn.parentElement.innerHTML = '<span class="text-sm text-muted">처리 완료</span>';
             }
+			
+			/* ── select event ── */
+			/*const columns={
+				"post": ["title", "content"],
+				"library": ["name", "description"],
+				"postComment": [],
+				"apiComment": [],
+				"user": []
+			}*/
+			
+			const render=(items=[], type)=>{
+				document.querySelector(".report-items").innerHTML=items.map(item=>				`
+					<div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem"
+	                    class="table-row-hover">
+	                    <div class="flex flex-wrap items-center justify-between gap-3"
+	                        style="margin-bottom:0.75rem">
+	                        <!--<div class="flex items-center gap-2">
+	                            <span class="badge"
+	                                style="background:color-mix(in srgb, hsl(0,62.8%,50%) 15%, transparent); color:hsl(0,62.8%,50%)">게시글</span>
+	                            <span class="badge"
+	                                style="background:color-mix(in srgb, hsl(45, 93%, 47%) 15%, transparent); color:hsl(45, 93%, 47%)">대기</span>
+	                        </div>-->
+	                        <span class="text-xs text-muted">${item.date.split("T")[0]}</span>
+	                    </div>
+	                    <a href="/${type}/${item.uuid}"><h3 class="font-medium text-foreground" style="margin-bottom:0.5rem">${item.title}
+	                    </h3></a>
+	                    <p class="text-sm text-muted" style="margin-bottom:0.75rem; line-height:1.6">${item.content}</p>
+	                    <div class="flex flex-wrap items-center justify-between gap-3">
+	                        <div class="flex items-center gap-4 text-sm text-muted">
+	                            <span class="flex items-center gap-1">
+	                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+	                                    stroke-width="2">
+	                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+	                                    <circle cx="12" cy="7" r="4" />
+	                                </svg>
+	                                <span>사용자: ${item.user.nickname ?? item.user.name}</span>
+	                            </span>
+	                            <!--<span class="flex items-center gap-1">
+	                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+	                                    stroke-width="2">
+	                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+	                                    <line x1="4" x2="4" y1="22" y2="15" />
+	                                </svg>
+	                                신고자: 김개발
+	                            </span>-->
+	                        </div>
+	                        <div class="flex items-center gap-2">
+	                            <button data-uuid="${item.uuid}" data-action="PATCH" class="btn btn-outline btn-sm">무시</button>
+	                            <button data-uuid="${item.uuid}" data-action="DELETE" class="btn btn-sm"
+	                                style="background:hsl(0,62.8%,50%); color:var(--foreground); border:none">삭제</button>
+	                        </div>
+	                    </div>
+	                </div>
+				`);
+			}
+			
+			let type="post";
+			window.onFilterChange = async function(value, label, wrapper) {
+				type=value;
+			    console.log("select value:", type); // all, pending, done 등
+
+			    try{
+					const response=await fetch(`/admin/${type}/0`);
+										
+					if(!response.ok) throw new Error("get file error");
+					
+					const json=await response.json();
+					
+					console.log(json.content);
+					
+					render(json.content, type);
+				} catch(err){
+					console.log(err);
+				}
+			};
+			
+			/* ── 무시 / 삭제 이벤트 ── */
+			document.querySelector(".report-items").addEventListener("click", async e=>{
+				const uuid=e.target.dataset.uuid;
+				const action=e.target.dataset.action;
+				if(!uuid || !action) return;
+				console.log(uuid, action)
+				
+				try{
+					await fetch(`/admin/${type}/${uuid}`, {
+						method: action,
+						headers: {"Content-Type": "application/json"}
+					}).then(res=>{
+						if(res.ok){
+							if(action==="PATCH"){
+								alert("검열 해제 완료");
+							} else if(action==="DELETE"){
+								alert("삭제 완료");
+							}
+							location.reload();
+						}
+					})
+				} catch(err){
+					console.log("error: ", err);
+				}
+			})
         </script>
+		
+		<!--<script src="/js/markdown.js"></script>
+		<script src="/js/pagination_user.js"></script>
+		<script src="/js/pagination_report.js"></script>-->
     </th:block>
 </body>
 

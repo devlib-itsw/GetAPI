@@ -36,34 +36,12 @@ public class Users {
 	private String phone;
 
 	@Column(nullable=false)
-	private String name; // google name
-
-	private String nickname; // custom name
-
-	@Column(columnDefinition="TEXT")
-	private String introduction;
-
-	private String webUrl;
-
-	private Long point=0L;
-
-	@Column(unique=true)
-	private String apiKey;
-
-	@Column(nullable=false)
-	private String profileImage;
-
-	@Column(nullable=false)
 	private String role;
-
-	private String secretKey;
-
-	private String rotationToken;
 
 	@Column(nullable=false)
 	private LocalDateTime profileCreatedAt;
 
-	private LocalDateTime apiUpdatedAt;
-
 	private LocalDateTime profileDeletedAt;
+	
+	private LocalDateTime apiUpdatedAt;
 }

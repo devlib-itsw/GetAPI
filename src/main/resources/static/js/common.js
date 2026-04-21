@@ -311,6 +311,58 @@ function initCustomSelects() {
  *   data-max-tags="5" (최대 태그 수)
  */
 
+    if (!input || !list) return;
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        var val = this.value.trim().replace(/^#/, '');
+        if (val && tags.length < maxTags && tags.indexOf(val) === -1) {
+          tags.push(val);
+          renderTags();
+        }
+        this.value = '';
+      }
+      if (e.key === 'Backspace' && !this.value && tags.length > 0) {
+        tags.pop();
+        renderTags();
+      }
+    });
+
+    function renderTags() {
+      list.innerHTML = '';
+      tags.forEach(function (tag, i) {
+        var el = document.createElement('span');
+        el.className = 'badge badge-secondary';
+        el.style.cssText = 'display:inline-flex;align-items:center;gap:0.25rem;cursor:pointer';
+        el.innerHTML = '#' + tag + ' <svg style="width:0.625rem;height:0.625rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+        el.addEventListener('click', function () {
+          tags.splice(i, 1);
+          renderTags();
+        });
+        list.appendChild(el);
+      });
+    }
+/**
+ * 셀렉트 값이 바뀔 때마다 실행되는 함수
+ */
+/*window.onFilterChange = function(value, label, wrapper) {
+    console.log("선택된 값:", value); // all, pending, done 등
+    
+    // 예: 탭 메뉴처럼 특정 컨텐츠만 보여주기
+    // 모든 컨텐츠 섹션을 숨기고 선택된 ID만 보여주는 로직
+    if (value === 'all') {
+        document.querySelectorAll('.post-item').forEach(el => el.style.display = 'block');
+    } else {
+        document.querySelectorAll('.post-item').forEach(el => {
+            // 요소의 data-status 값과 비교하여 필터링
+            el.style.display = (el.getAttribute('data-status') === value) ? 'block' : 'none';
+        });
+    }
+
+    // 또는 서버에서 데이터를 새로 받아오고 싶다면?
+    // location.href = "/admin/posts?status=" + value;
+};*/
 
 /**
  * 공유 버튼 - 클립보드에 현재 URL 복사

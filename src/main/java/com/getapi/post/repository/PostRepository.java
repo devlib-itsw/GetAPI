@@ -21,6 +21,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
 //	@Query("select distinct p from Posts p left join p.userid u1 left join p.answerList a left join a.author u2 where p.title like concat('%', :kw, '%') or p.content like concat('%', :kw, '%') or u1.username like concat('%', :kw, '%') or a.content like concat('%', :kw, '%') or u2.username like concat('%', :kw, '%')")
 	Page<Post> findAll(Pageable pageable);
 	Optional<Post> findByPostUuid(UUID postUuid);
+//	Post findByPostUuid(UUID uuid);
 	
 	@Modifying
     @Transactional
@@ -39,18 +40,28 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
 	""")
 	List<Object[]> findPostsWithLikeCount();
 	
-	@Query("""
-	    SELECT DISTINCT p
-	    FROM Post p
-	    LEFT JOIN p.user u1
-	    WHERE p.title LIKE CONCAT('%', :kw, '%')
-	       OR u1.name LIKE CONCAT('%', :kw, '%')
-	""")
+	@Query(value = """
+		    SELECT p.* FROM post p
+		    LEFT JOIN users u ON p.user_id = u.user_id
+		    LEFT JOIN user_profile up ON u.user_id = up.user_id
+		    WHERE (:kw IS NULL OR :kw = '' 
+		       OR p.title LIKE CONCAT('%', :kw, '%') 
+		       OR up.name LIKE CONCAT('%', :kw, '%'))
+		    """, 
+		    countQuery = """
+		    SELECT COUNT(*) FROM post p
+		    LEFT JOIN users u ON p.user_id = u.user_id
+		    LEFT JOIN user_profile up ON u.user_id = up.user_id
+		    WHERE (:kw IS NULL OR :kw = '' 
+		       OR p.title LIKE CONCAT('%', :kw, '%') 
+		       OR up.name LIKE CONCAT('%', :kw, '%'))
+		    """, 
+		    nativeQuery = true)
 	Page<Post> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
 	
 	@Query(value = """
         SELECT p.* FROM post p
-        LEFT JOIN users u ON p.user_id = u.user_id
+        LEFT JOIN user_profile u ON p.user_id = u.user_id
         WHERE (:kw IS NULL OR :kw = '' 
            OR p.title LIKE %:kw% 
            OR p.content LIKE %:kw% 
@@ -60,7 +71,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
         """, 
         countQuery = """
         SELECT COUNT(DISTINCT p.post_id) FROM post p
-        LEFT JOIN users u ON p.user_id = u.user_id
+        LEFT JOIN user_profile u ON p.user_id = u.user_id
         WHERE (:kw IS NULL OR :kw = '' 
            OR p.title LIKE %:kw% 
            OR p.content LIKE %:kw% 
@@ -68,5 +79,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
         """, 
         nativeQuery = true)
     Page<Post> findAllOrderByLikes(@Param("kw") String kw, Pageable pageable);
+	
+	void deleteByPostUuidAndIsCensoredTrue(UUID uuid);
+	
+	Page<Post> findByIsCensoredTrue(Pageable page);
 	
 }

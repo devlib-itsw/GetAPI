@@ -47,9 +47,9 @@
                         <div class="card-body" style="display:flex; flex-direction:column; gap:1.5rem">
                             <!-- Avatar Row -->
                             <div class="flex items-center gap-4">
-                                <img class="avatar avatar-lg" th:src="${loginUser.profileImage}"></img>
+                                <img class="avatar avatar-lg" th:src="${loginProfile?.profileImage}"></img>
                                 <div>
-                                    <p class="font-medium text-foreground" th:text="${loginUser.name}">kim@example.com
+                                    <p class="font-medium text-foreground" th:text="${loginProfile?.name}">kim@example.com
                                     </p>
                                     <p class="text-sm text-muted" th:text="${loginUser.email}">가입일: 2025-10-15</p>
                                 </div>
@@ -58,21 +58,21 @@
                             <div style="display:flex; flex-direction:column; gap:1rem">
                                 <div class="form-group">
                                     <label class="form-label" for="name">사용자 이름</label>
-                                    <input class="form-input" type="text" id="name" th:value="${loginUser.name}"
-                                        placeholder="사용자 이름을 입력하세요">
+                                    <input class="form-input" type="text" id="name" name="nickname" th:value="${loginProfile?.nickname}"
+                                        th:placeholder="${loginProfile?.name}">
                                     <p class="form-hint">미입력 시 Google 계정 이름이 사용됩니다.</p>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="bio">소개</label>
-                                    <textarea class="form-input" id="bio" rows="3"
-                                        placeholder="자기소개를 입력하세요">풀스택 개발자 | API 전문가</textarea>
+                                    <textarea class="form-input" id="bio" name="introduction" rows="3"
+                                        placeholder="자기소개를 입력하세요" th:text="${loginProfile?.introduction}">풀스택 개발자 | API 전문가</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="website">웹사이트</label>
-                                    <input class="form-input" type="url" id="website" value="https://github.com/kimdev"
+                                    <input class="form-input" type="url" id="website" name="webUrl" th:value="${loginProfile?.webUrl}"
                                         placeholder="https://your-website.com">
                                 </div>
-                                <button class="btn btn-primary" style="align-self:flex-start">프로필 저장</button>
+                                <button class="btn btn-primary" id="btn-updateUser" th:data-uri="|/user/${loginUser.userUuid}|" style="align-self:flex-start">프로필 저장</button>
                             </div>
                         </div>
                     </div>
@@ -118,17 +118,16 @@
                                 </svg>
                                 API Key
                             </h2>
-                            <p class="card-description">API Key는 <strong>3개월</strong>마다, Rotation Token은 <strong>3개월 +
-                                    1주</strong>마다 갱신됩니다. 재발급 시 두 값이 함께 변경됩니다.</p>
+                            <!--<p class="card-description">API Key는 <strong>90일</strong>마다, Rotation Token은 <strong>100일</strong>마다 갱신됩니다.</p>-->
+                            <p class="card-description">API Key와 Rotation Token은 <strong>90일</strong>마다 갱신됩니다.</p>
                         </div>
-                        <div class="card-body" style="display:flex; flex-direction:column; gap:1rem">
+                        <div class="card-body" style="display:flex; flex-direction:column; gap:1rem; margin-top: .5rem;">
 
                             <!-- API Key -->
                             <div>
                                 <label class="form-label">현재 API Key</label>
                                 <div class="flex gap-3">
-                                    <code id="display-api-key"
-                                        style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all">로딩 중...</code>
+                                    <input th:type="${loginApiAuth?.apiKey!=null} ? 'password' : 'text'" id="display-api-key" th:value="${loginApiAuth?.apiKey ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default;"/>
                                     <button class="btn btn-outline btn-icon" id="copy-api-key" title="API Key 복사">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -137,15 +136,14 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <p class="form-hint" id="api-key-expiry">만료일: 확인 중... (3개월 주기)</p>
+                                <!--<p class="form-hint" id="api-key-expiry">만료일: 확인 중... (3개월 주기)</p>-->
                             </div>
 
                             <!-- Rotation Token -->
                             <div>
                                 <label class="form-label">Rotation Token</label>
                                 <div class="flex gap-3">
-                                    <code id="display-rotation-token"
-                                        style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all">로딩 중...</code>
+                                    <input th:type="${loginApiAuth?.rotationToken!=null} ? 'password' : 'text'" id="display-rotation-token" th:value="${loginApiAuth?.rotationToken ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default;"/>
                                     <button class="btn btn-outline btn-icon" id="copy-rotation-token"
                                         title="Rotation Token 복사">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -155,7 +153,7 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <p class="form-hint" id="rotation-token-expiry">이 토큰을 프록시 프로그램에 입력하세요. 만료 주기: 3개월 + 1주
+                                <!--<p class="form-hint" id="rotation-token-expiry">이 토큰을 프록시 프로그램에 입력하세요. 만료 주기: 3개월 + 1주-->
                                 </p>
                             </div>
 
@@ -166,7 +164,7 @@
 
                             <!-- Renew API Key Button -->
                             <div class="flex gap-3" style="align-self:flex-start">
-                                <button class="btn btn-outline gap-2" id="btn-renew-key">
+                                <button class="btn btn-outline gap-2" id="btn-renew-key" th:data-uri="|/user/apiKey/${loginUser.userUuid}|" th:text="${loginApiAuth?.apiKey!=null} ? 'API 재발급' : 'API 발급'">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
@@ -174,7 +172,7 @@
                                     </svg>
                                     API 재발급
                                 </button>
-                                <button class="btn btn-ghost gap-2" id="btn-check-expiry">
+                                <button class="btn btn-ghost gap-2" id="btn-check-expiry" th:data-uri="|/user/apiUpdatedAt/${loginUser.userUuid}|">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10" />
@@ -223,11 +221,12 @@
                         <div class="card-body" style="display:flex; flex-direction:column; gap:1rem">
                             <div>
                                 <label class="form-label">Secret Key</label>
-                                <code
-                                    style="display:block; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); color:var(--muted-foreground)">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</code>
+								<input th:type="${loginApiAuth?.secretKey!=null} ? 'password' : 'text'" id="display-secret-key" th:value="${loginApiAuth?.secretKey ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default; width: 100%;"/>
+                                <!--<code
+                                    style="display:block; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); color:var(--muted-foreground)">qwe</code>-->
                                 <p class="form-hint">절대 외부에 노출하지 마세요. 분실 시 재발급만 가능합니다.</p>
                             </div>
-                            <button class="btn btn-outline gap-2" id="btn-renew-secret" style="align-self:flex-start">
+                            <button class="btn btn-outline gap-2" id="btn-renew-secret" th:text="${loginApiAuth?.secretKey!=null} ? 'Secret Key 재발급' : 'Secret Key 발급'" th:data-uri="|/user/secretKey/${loginUser.userUuid}|" style="align-self:flex-start">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
@@ -322,6 +321,8 @@
                                 </div>
                             </div>
                             <div class="flex gap-3">
+                                <button class="btn btn-destructive" id="btn-withdraw"
+                                    th:data-uri="|/user/${loginUser.userUuid}|">회원 탈퇴</button>
                                 <button class="btn btn-outline gap-2">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -331,8 +332,6 @@
                                     </svg>
                                     로그아웃
                                 </button>
-                                <button class="btn btn-destructive" id="btn-withdraw"
-                                    th:data-uri="|/user/${loginUser.userUuid}|">회원 탈퇴</button>
                             </div>
                         </div>
                     </div>
@@ -346,7 +345,7 @@
             /* ── 복사 버튼 헬퍼 ── */
             function copyBtn(btnId, targetId, toastMsg) {
                 document.getElementById(btnId).addEventListener('click', function () {
-                    var text = document.getElementById(targetId).textContent.trim();
+                    var text = document.getElementById(targetId).value.trim();
                     if (!text || text === '(아직 발급되지 않음)') {
                         showToast('복사할 값이 없습니다.', 'error');
                         return;
@@ -367,6 +366,7 @@
             function hideSecretModal() {
                 document.getElementById('secret-modal-overlay').style.display = 'none';
                 document.getElementById('modal-secret-key').textContent = '';
+				location.reload();
             }
 
             /* ── 초기화 ── */
@@ -375,28 +375,71 @@
                 copyBtn('copy-rotation-token', 'display-rotation-token', 'Rotation Token이 복사되었습니다.');
 
                 /* ── API 재발급 ── */
-                document.getElementById('btn-renew-key').addEventListener('click', function () {
-                    var btn = this;
+                document.getElementById('btn-renew-key').addEventListener('click', async e=>{
+                    var btn = e.currentTarget;
                     btn.disabled = true;
                     btn.innerHTML = '<div style="width:1rem;height:1rem;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div> 재발급 중...';
-                    setTimeout(function () {
-                        btn.disabled = false;
-                        btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> API 재발급';
-                        showToast('API Key와 Rotation Token이 재발급되었습니다.', 'success');
-                    }, 1500);
+					
+					const targetUri=e.currentTarget.dataset.uri;
+					
+					const response=await fetch(targetUri, {method: "PUT"});
+					
+					try{
+						if(response.ok){
+							btn.disabled = false;
+	                        btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> API 재발급';
+	                        showToast('API Key와 Rotation Token이 발급되었습니다.', 'success');
+							location.reload();
+							/*document.querySelector("#display-api-key").value=await response.text();
+							document.querySelector("#display-api-key").type="password";
+							document.querySelector("#btn-renew-key").textContent="API 재발급";*/
+						} else{
+							const data = await response.json();
+		                    alert(data.message || 'API Key 처리 중 오류가 발생했습니다.');
+						}
+					} catch(error){
+		                   console.error("에러 발생:", error);
+		                   alert('서버와 통신 중 오류가 발생했습니다.');
+					}
+					
+                    // setTimeout(function () {
+                    //     btn.disabled = false;
+                    //     btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> API 재발급';
+                    //     showToast('API Key와 Rotation Token이 재발급되었습니다.', 'success');
+                    // }, 1500);
                 });
 
                 /* ── Secret Key 재발급 (모달) ── */
-                document.getElementById('btn-renew-secret').addEventListener('click', function () {
+                document.getElementById('btn-renew-secret').addEventListener('click', async e=>{
                     if (!confirm('Secret Key를 재발급하면 기존 키는 즉시 폐기됩니다. 계속하시겠습니까?')) return;
-                    var btn = this;
+                    var btn = e.currentTarget;
                     btn.disabled = true;
                     btn.innerHTML = '<div style="width:1rem;height:1rem;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div> 재발급 중...';
-                    setTimeout(function () {
+					
+					const targetUri=e.currentTarget.dataset.uri;
+					
+					try{
+						const response=await fetch(targetUri, {method: "PUT"});
+						
+						if(response.ok){
+							btn.disabled = false;
+		                    btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> Secret Key 재발급';
+							const text=await response.text();
+		                    showSecretModal(text);
+						} else{
+							const data = await response.json();
+		                    alert(data.message || '통신 처리 중 오류가 발생했습니다.');
+						}
+					} catch(error){
+						console.error("에러 발생:", error);
+	                    alert('서버와 통신 중 오류가 발생했습니다.');
+					}
+
+                    /*setTimeout(function () {
                         btn.disabled = false;
                         btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> Secret Key 재발급';
                         showSecretModal('sk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxx');
-                    }, 1500);
+                    }, 1500);*/
                 });
 
                 /* ── 모달 닫기 ── */
@@ -418,21 +461,66 @@
                 });
 
                 /* ── 만료일 확인 ── */
-                document.getElementById('btn-check-expiry').addEventListener('click', function () {
-                    showToast('서버에서 만료일 정보를 조회합니다.', 'success');
+                document.getElementById('btn-check-expiry').addEventListener('click', async e=>{
+					const targetUri=e.currentTarget.dataset.uri;
+					
+					try{
+						const response=await fetch(targetUri, {method: "GET"});
+						
+						if(response.ok){
+							const date=await response.json();
+							const dateText=new Date(date).toLocaleDateString("ko-KR");
+		                    showToast(`API Key의 만료일은 ${dateText}입니다`, 'success');
+						} else{
+							const data = await response.json();
+		                    alert(data.message || '통신 처리 중 오류가 발생했습니다.');
+						}
+					} catch(error){
+						console.error("에러 발생:", error);
+	                    alert('서버와 통신 중 오류가 발생했습니다.');
+					}
                 });
 
 
             })();
 
             /* ── Profile Save ── */
-            document.querySelectorAll('.btn-primary').forEach(function (btn) {
+            /*document.querySelectorAll('.btn-primary').forEach(function (btn) {
                 if (btn.textContent.trim() === '프로필 저장') {
                     btn.addEventListener('click', function () {
                         showToast('프로필이 저장되었습니다.', 'success');
                     });
                 }
-            });
+            });*/
+			document.querySelector("#btn-updateUser").addEventListener("click", async e=>{
+				e.preventDefault();
+				
+				const targetUri=e.currentTarget.dataset.uri;
+				
+				const updateData={
+					nickname: document.querySelector("#name").value.trim(),
+					introduction: document.querySelector("#bio").value.trim(),
+					website: document.querySelector("#website").value.trim()
+				}
+				
+				try{
+					const response=await fetch(targetUri, {
+						method: "PATCH",
+						headers: {"Content-Type": "application/json"},
+						body: JSON.stringify(updateData)
+					});
+					
+					if(response.ok){
+						showToast('회원 정보 수정이 완료되었습니다.', 'success');
+					} else{
+						const data = await response.json();
+	                    alert(data.message || '수정 처리 중 오류가 발생했습니다.');
+					}
+				} catch(error){
+                    console.error("에러 발생:", error);
+                    alert('서버와 통신 중 오류가 발생했습니다.');
+				}
+			})
 
             /* ── Withdraw Dialog ── */
             document.getElementById('btn-withdraw').addEventListener('click', async (e) => {

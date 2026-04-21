@@ -17,7 +17,9 @@ import com.getapi.comment.domain.PostComment;
 import com.getapi.comment.service.PostCommentService;
 import com.getapi.post.domain.Post;
 import com.getapi.post.service.PostService;
+import com.getapi.user.domain.UserProfile;
 import com.getapi.user.domain.Users;
+import com.getapi.user.service.UserProfileService;
 import com.getapi.user.service.UserService;
 
 import jakarta.validation.Valid;
@@ -31,6 +33,7 @@ public class PostCommentController {
 	private final PostCommentService postCommentService;
 	private final UserService userService;
 	private final PostService postService;
+	private final UserProfileService userProfileService;
 	
 	@PostMapping("/write/{id}")
 	@PreAuthorize("isAuthenticated()")
@@ -44,8 +47,9 @@ public class PostCommentController {
 //		}
 		
 		Post post = this.postService.findById(id);
-		
 		Users user = this.userService.getProviderId(sub);
+
+		
 		
 		PostComment postComment = this.postCommentService.create(postCommentForm.getContent(), user, post);
 		
