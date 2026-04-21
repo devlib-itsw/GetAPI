@@ -1,7 +1,6 @@
 package com.getapi.admin.domain;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import com.getapi.user.domain.Users;
 

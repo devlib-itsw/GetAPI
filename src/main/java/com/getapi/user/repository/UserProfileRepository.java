@@ -20,6 +20,10 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     Optional<UserProfile> findByUser(Users user);
     List<UserProfile> findByUserIn(List<Users> users);
     
+    Optional<UserProfile> findByName(String name);
+    
+    Optional<UserProfile> findByUser_UserId(Long userId);
+    
     Page<UserProfile> findByIsCensoredTrue(Pageable pageable);
     
     // Users의 userUuid를 통해 delete

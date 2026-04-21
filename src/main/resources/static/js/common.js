@@ -310,12 +310,6 @@ function initCustomSelects() {
  *   input.tag-input, .tag-list (태그 표시 영역)
  *   data-max-tags="5" (최대 태그 수)
  */
-function initTagInputs() {
-  document.querySelectorAll('.tag-input-wrapper').forEach(function (wrapper) {
-    var input = wrapper.querySelector('.tag-input');
-    var list = wrapper.querySelector('.tag-list');
-    var maxTags = parseInt(wrapper.getAttribute('data-max-tags') || '10', 10);
-    var tags = [];
 
     if (!input || !list) return;
 
@@ -349,8 +343,6 @@ function initTagInputs() {
         list.appendChild(el);
       });
     }
-  });
-}
 /**
  * 셀렉트 값이 바뀔 때마다 실행되는 함수
  */

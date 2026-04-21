@@ -12,6 +12,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 /* ── Design Tokens (Dark Theme - default) ── */
@@ -434,6 +435,13 @@ code, pre {
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.page-item.disabled .page-link.btn {
+	pointer-events: none;
+	opacity: 0.5;
+	user-select: none;
+    cursor: not-allowed !important;
 }
 
 .btn-primary {

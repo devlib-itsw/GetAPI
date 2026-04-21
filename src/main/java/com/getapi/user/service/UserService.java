@@ -17,11 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.getapi.admin.domain.AdminCensoredResponse;
-
 import com.getapi.auth.domain.ApiAuth;
 import com.getapi.auth.repository.ApiAuthRepository;
-
 import com.getapi.auth.util.SecureUtil;
+import com.getapi.errors.DataNotFoundException;
 import com.getapi.user.domain.UserProfile;
 import com.getapi.user.domain.UserUpdateDTO;
 import com.getapi.user.domain.Users;
@@ -48,6 +47,12 @@ public class UserService {
 		// null일 상황에 맞춰 에러페이지 제작
 		return user;
 	}
+	
+	
+	public Users getProviderId(String providerId) {
+		Users user = this.userRepository.findByProviderId(providerId);
+		return user;
+	}
 
 	public List<Users> getUsersBeforeApiUpdatedAt() {
 		LocalDateTime limit = LocalDateTime.now().minusDays(90).with(LocalTime.MAX);
@@ -58,7 +63,6 @@ public class UserService {
 	public String get64Token() {
 		return SecureUtil.generate64Token();
 	}
-
 	// 사용자 요청으로 통한 임시 삭제
 	public void softDelete(Users user) {
 		user.setProfileDeletedAt(LocalDateTime.now());
@@ -71,6 +75,18 @@ public class UserService {
 		
 		this.userProfileRepository.deleteByUserProfileDeletedAtBefore(limit);
 		this.userRepository.deleteByProfileDeletedAtBefore(limit);
+	}
+	
+	public Users getByName(String name) {
+		Optional<UserProfile> profile = this.userProfileRepository.findByName(name);
+		UserProfile userProfile = profile.orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+		
+		Users user = userProfile.getUser();
+		return user;
+//		if(userProfile) {
+//		} else {
+//			throw new DataNotFoundException("siteuser no found");
+//		}
 	}
 
 	// 유저 정보 수정
