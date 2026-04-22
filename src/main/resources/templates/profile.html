@@ -12,7 +12,7 @@
   <main class="main-content" style="background:color-mix(in srgb, var(--muted) 30%, transparent)">
     <div class="container" style="max-width:64rem; padding-top:2rem; padding-bottom:2rem">
 
-      <a href="library.html" class="back-link">
+      <a th:href="@{/user/mypage}" class="back-link">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
         돌아가기
       </a>
@@ -22,14 +22,21 @@
         <div class="card-body" style="padding:1.5rem">
           <div style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:1rem">
             <div class="flex items-center gap-4">
-              <div class="avatar" style="width:5rem; height:5rem; font-size:1.5rem">김</div>
+				<div class="profile-wrapper" th:if="${loggedIn}">
+
+				  <img class="profile-avatar"
+				       th:src="${loginUser.profileImage}" 
+					   alt="프로필"
+					  style="width:5rem; height:5rem; border-radius:50%; object-fit:cover;" >
+
+				</div>
               <div>
-                <h1 style="font-size:1.5rem; font-weight:700; color:var(--foreground)">김개발</h1>
-                <p style="margin-top:0.25rem; color:var(--muted-foreground)">풀스택 개발자 | API 전문가</p>
+                <h1 style="font-size:1.5rem; font-weight:700; color:var(--foreground)" name="nickname" th:text="${loginUser.nickname}"></h1>
+                <p style="margin-top:0.25rem; color:var(--muted-foreground)" name="introduction" th:text="${loginUser.introduction}"></p>
                 <div style="margin-top:0.5rem; display:flex; flex-wrap:wrap; align-items:center; gap:1rem; font-size:0.875rem; color:var(--muted-foreground)">
-                  <a href="https://github.com/kimdev" target="_blank" rel="noopener" class="flex items-center gap-1" style="color:var(--muted-foreground)">
+					<a th:href="${loginUser.webUrl}" target="_blank" rel="noopener" class="flex items-center gap-1" style="color:var(--muted-foreground)">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-                    github.com/kimdev
+					<span th:text="${loginUser.webUrl}"></span>
                     <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                   </a>
                   <span class="flex items-center gap-1">
@@ -178,7 +185,7 @@
   </th:block>
 
   <th:block layout:fragment="script">
-	<script>
+	<script th:inline="javascript">
 	  /* ── Profile Tab Switching ── */
 	  document.querySelectorAll('.tab-btn').forEach(function(btn) {
 	    btn.addEventListener('click', function() {
@@ -191,5 +198,6 @@
 	  });
 	</script>
   </th:block>
+  
 </body>
 </html>

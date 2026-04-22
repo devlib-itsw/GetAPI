@@ -30,6 +30,11 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 	@Transactional
 	void deleteByProfileDeletedAtBefore(LocalDateTime limit);
 
+// <<<<<<< siwoo
+	Users findByEmail(String email);
+	
+	   
+// =======
 	// apiUpdatedAt 시간 기준으로 지난 날짜 사용자 선택
 //	@Query("SELECT u FROM Users u JOIN UserProfile p ON u.userId=p.user.userId WHERE p.apiUpdatedAt<:limit")
 	List<Users> findByApiUpdatedAtBefore(@Param("limit") LocalDateTime limit);
@@ -59,4 +64,6 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 	// 검열된 사용자들 반환
 	@Query("SELECT u FROM Users u JOIN UserProfile p ON u.userId=p.user.userId WHERE p.isCensored=true")
 	Page<Users> findByIsCensoredTrue(Pageable pageable);
+// >>>>>>> develop
 }
+

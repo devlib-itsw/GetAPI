@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,7 @@ import com.getapi.user.domain.UserUpdateDTO;
 import com.getapi.user.domain.Users;
 import com.getapi.user.repository.UserProfileRepository;
 import com.getapi.user.repository.UserRepository;
-
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -76,6 +77,26 @@ public class UserService {
 		this.userProfileRepository.deleteByUserProfileDeletedAtBefore(limit);
 		this.userRepository.deleteByProfileDeletedAtBefore(limit);
 	}
+// <<<<<<< siwoo
+	@Transactional // 데이터 수정을 위해 필수! 이시우
+	public void updateUserInfo(UUID uuid, String nickname, String introduction, String webUrl) {
+	    // 1. 기존 유저 조회
+	    Users user = this.userRepository.findByUserUuid(uuid);
+	    
+	    if (user != null) {
+	        // 2. 엔티티 내부 메서드로 값 변경
+	        user.updateMyPage(nickname, introduction, webUrl);
+	        
+	        // 3. JPA의 Dirty Checking 덕분에 save()를 명시적으로 안 써도 되지만, 
+	        // 기존 스타일을 유지하신다면 아래 코드를 남겨두셔도 됩니다.
+	        this.userRepository.save(user);
+	    }
+	}
+	
+	
+
+
+// =======
 	
 	public Users getByName(String name) {
 		Optional<UserProfile> profile = this.userProfileRepository.findByName(name);
@@ -191,4 +212,5 @@ public class UserService {
 		this.userProfileRepository.deleteByUserUuidAndIsCensoredTrue(uuid);
 		this.userRepository.deleteByUserUuid(uuid);
 	}
+// >>>>>>> develop
 }

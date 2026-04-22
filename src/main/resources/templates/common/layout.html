@@ -19,12 +19,12 @@
         <header class="site-header">
             <div class="header-inner">
                 <div class="flex items-center gap-8">
-                    <a href="index.html" class="logo">
+                    <a th:href="@{/}" class="logo">
                         <div class="logo-icon"><span>API</span></div>
                         <span class="logo-text">GetAPI</span>
                     </a>
                     <nav class="nav-links">
-                        <a href="library.html" class="nav-link">
+                        <a th:href="@{/library}" class="nav-link">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m16 6 4 14" />
@@ -34,7 +34,11 @@
                             </svg>
                             Library
                         </a>
+<!-- <<<<<<< siwoo -->
+                        <a th:href="@{/community/list}" class="nav-link">
+<!-- ======= -->
                         <a th:href="@{/community}" class="nav-link">
+<!-- >>>>>>> develop -->
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -92,7 +96,11 @@
                         </button>
                         <div class="profile-dropdown" id="profile-dropdown">
                             <div class="profile-dropdown-header">
+<!-- <<<<<<< siwoo -->
+                                <div class="profile-dropdown-name" th:text="${loginUser.nickname}"></div>
+<!-- ======= -->
                                 <div class="profile-dropdown-name" th:text="${loginProfile?.name}"></div>
+<!-- >>>>>>> develop -->
                                 <div class="profile-dropdown-email" th:text="${loginUser.email}"></div>
                             </div>
                             <a th:href="@{/user/mypage}" class="profile-dropdown-item">
@@ -133,7 +141,7 @@
                 </button>
             </div>
             <div class="mobile-menu" id="mobile-menu">
-                <a href="library.html" class="mobile-nav-link">
+                <a th:href="@{/library}" class="mobile-nav-link">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="m16 6 4 14" />
@@ -190,7 +198,11 @@
                     <div class="mobile-profile-info">
                         <img class="mobile-profile-avatar" th:src="${loginProfile?.profileImage}" alt="프로필">
                         <div>
+<!-- <<<<<<< siwoo -->
+                            <div class="mobile-profile-name" th:text="${loginUser.nickname}"></div>
+<!-- ======= -->
                             <div class="mobile-profile-name" th:text="${loginProfile?.name}"></div>
+<!-- >>>>>>> develop -->
                             <div class="mobile-profile-email" th:text="${loginUser.email}"></div>
                         </div>
                     </div>
@@ -258,7 +270,8 @@
             </div>
         </footer>
     </div>
-
+	
+	<script src="https://js.tosspayments.com/v1/payment"></script>
     <script th:src="@{/js/icons.js}"></script>
     <script th:src="@{/js/common.js}"></script>
     <th:block layout:fragment="script"></th:block>

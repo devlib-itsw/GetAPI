@@ -36,6 +36,27 @@ public class Users {
 	private String phone;
 
 	@Column(nullable=false)
+// <<<<<<< siwoo
+	private String name; // google name
+
+	private String nickname; // custom name
+
+	@Column(columnDefinition="TEXT")
+	private String introduction;
+
+	private String webUrl;
+
+	private Long point=0L;
+	
+	@Column(unique=true)
+	private String apiKey;
+
+	@Column(nullable=false)
+	private String profileImage;
+
+	@Column(nullable=false)
+// =======
+// >>>>>>> develop
 	private String role;
 
 	@Column(nullable=false)
@@ -43,5 +64,17 @@ public class Users {
 
 	private LocalDateTime profileDeletedAt;
 	
+// <<<<<<< siwoo
+	public void updateMyPage(String nickname, String introduction, String webUrl) {
+	    this.nickname = nickname;
+	    this.introduction = introduction;
+	    this.webUrl = webUrl;
+	    
+	}//이시우 마이페이지 업데이트
+	
+	
+}
+// =======
 	private LocalDateTime apiUpdatedAt;
 }
+// >>>>>>> develop

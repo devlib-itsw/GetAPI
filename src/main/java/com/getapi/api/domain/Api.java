@@ -12,8 +12,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -25,7 +28,11 @@ public class Api {
 
 	@Column(unique=true)
 	private UUID apiUuid;
-
+	
+	
+	@OneToMany(mappedBy = "api") //4월14일
+	private List<ApiTagMapping> apiTagMappings = new ArrayList<>();
+	
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable=false)
 	private Users user;
