@@ -12,6 +12,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 /* ── Design Tokens (Dark Theme - default) ── */
@@ -436,6 +437,13 @@ code, pre {
   cursor: not-allowed;
 }
 
+.page-item.disabled .page-link.btn {
+	pointer-events: none;
+	opacity: 0.5;
+	user-select: none;
+    cursor: not-allowed !important;
+}
+
 .btn-primary {
   background-color: var(--primary);
   color: var(--primary-foreground);
@@ -509,7 +517,7 @@ code, pre {
   background-color: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 .card-header {

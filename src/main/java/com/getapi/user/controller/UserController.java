@@ -1,5 +1,8 @@
 package com.getapi.user.controller;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,6 +28,7 @@ import org.springframework.ui.Model;
 
 import com.getapi.auth.service.RefreshTokenService;
 import com.getapi.auth.util.SecureUtil;
+import com.getapi.user.domain.UserUpdateDTO;
 import com.getapi.user.domain.Users;
 import com.getapi.user.dto.UserUpdateDto;
 import com.getapi.user.repository.UserRepository;
@@ -167,5 +172,46 @@ public class UserController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 	                             .body(Map.of("message", "서버 오류가 발생했습니다."));
 	    }
+	}
+	
+	// 유저 정보 수정
+	@PatchMapping("/{id}")
+	@ResponseBody
+	public void updateUser(@PathVariable("id") UUID uuid, @RequestBody UserUpdateDTO dto) {
+		Users user=this.userService.getUserByUUID(uuid);
+		
+		this.userService.updateUser(user, dto);
+	}
+	
+	// api key 발급
+	@PutMapping("/apiKey/{id}")
+	@ResponseBody
+	public void setApiKey(@PathVariable("id") UUID uuid) {
+		Users user=this.userService.getUserByUUID(uuid);
+
+		List<Users> users=new ArrayList<>();
+		users.add(user);
+		
+		this.userService.setApiKey(users);
+	}
+	
+	// secret key 발급
+	@PutMapping("/secretKey/{id}")
+	@ResponseBody
+	public String setSecretKey(@PathVariable("id") UUID uuid) {
+		Users user=this.userService.getUserByUUID(uuid);
+		String key=SecureUtil.generate64Token();
+		
+		this.userService.setSecretKey(user, key);
+		
+		return key;
+	}
+	
+	// 만료 날짜 확인
+	@GetMapping("/apiUpdatedAt/{id}")
+	@ResponseBody
+	public LocalDateTime lastApiUpdatedAt(@PathVariable("id") UUID uuid) {
+		Users user=this.userService.getUserByUUID(uuid);
+		return userService.getApiExpiryDate(user);
 	}
 }

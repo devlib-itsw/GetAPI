@@ -5,6 +5,8 @@ import com.getapi.auth.service.RefreshTokenService;
 import com.getapi.auth.service.SmsAuthService;
 import com.getapi.auth.util.JwtUtil;
 import com.getapi.auth.util.SecureUtil;
+import com.getapi.user.domain.Users;
+import com.getapi.user.repository.UserRepository;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -21,15 +23,16 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final RefreshTokenService refreshTokenService;
-
 	private final JwtUtil jwtUtil;
 	private final SmsAuthService smsAuthService;
+	private final UserRepository userRepository;
 
 	public OAuth2SuccessHandler(JwtUtil jwtUtil, SmsAuthService smsAuthService,
-			RefreshTokenService refreshTokenService) {
+			RefreshTokenService refreshTokenService, UserRepository userRepository) {
 		this.jwtUtil = jwtUtil;
 		this.smsAuthService = smsAuthService;
 		this.refreshTokenService = refreshTokenService;
+		this.userRepository = userRepository;
 	}
 
 	@Override
@@ -49,8 +52,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			getRedirectStrategy().sendRedirect(request, response, "/?error=email_not_verified");
 			return;
 		} else if (smsAuthService.existsBySub(sub)) {
-			// 기존 유저: 바로 JWT 로그인
-			String jwt = jwtUtil.generateToken(sub);
+			Users user = smsAuthService.updateProfile(sub, name, picture);
+			String jwt = jwtUtil.generateToken(sub, user.getRole());
 
 			Cookie cookie = new Cookie("JWT-TOKEN", jwt);
 			cookie.setHttpOnly(true);
@@ -58,7 +61,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			cookie.setMaxAge(1800); // 30분
 			response.addCookie(cookie);
 
-			RefreshToken rt = refreshTokenService.save(sub, request.getRemoteAddr(), request.getHeader("User-Agent"));
+			RefreshToken rt = refreshTokenService.save(sub, request.getRemoteAddr(), request.getHeader("User-Agent"), user.getRole());
 			String token = rt.getToken(); // 쿠키에 넣을 값
 
 			Cookie refreshCookie = new Cookie("REFRESH-TOKEN", token);

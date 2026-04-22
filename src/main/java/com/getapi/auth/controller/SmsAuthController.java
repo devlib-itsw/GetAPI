@@ -98,9 +98,9 @@ public class SmsAuthController {
 	}
 
 	// 인증 완료 시 JWT 생성 + SSE 알림
-	public void notifyVerified(String token, String sub) {
+	public void notifyVerified(String token, String sub, String role) {
 		// JWT 생성 후 임시 저장 (프론트에서 /smsVerify/complete로 요청 시 쿠키로 설정)
-		String jwt = jwtUtil.generateToken(sub);
+		String jwt = jwtUtil.generateToken(sub, role);
 		pendingJwts.put(token, jwt);
 
 		SseEmitter emitter = emitters.get(token);
@@ -135,7 +135,8 @@ public class SmsAuthController {
 
 		// 리프레시 토큰 발급
 		String sub = jwtUtil.getSubFromToken(jwt);
-		RefreshToken rt = refreshTokenService.save(sub, request.getRemoteAddr(), request.getHeader("User-Agent"));
+		String role = jwtUtil.getRoleFromToken(jwt);
+		RefreshToken rt = refreshTokenService.save(sub, request.getRemoteAddr(), request.getHeader("User-Agent"), role);
 		Cookie refreshCookie = new Cookie("REFRESH-TOKEN", rt.getToken());
 		refreshCookie.setHttpOnly(true);
 		refreshCookie.setPath("/");

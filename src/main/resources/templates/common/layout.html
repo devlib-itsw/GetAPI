@@ -34,7 +34,11 @@
                             </svg>
                             Library
                         </a>
+<!-- <<<<<<< siwoo -->
                         <a th:href="@{/community/list}" class="nav-link">
+<!-- ======= -->
+                        <a th:href="@{/community}" class="nav-link">
+<!-- >>>>>>> develop -->
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -88,11 +92,15 @@
                     <!-- 로그인됨 -->
                     <div class="profile-wrapper" th:if="${loggedIn}">
                         <button class="profile-btn" id="profile-btn" aria-label="프로필 메뉴">
-                            <img class="profile-avatar" th:src="${loginUser.profileImage}" alt="프로필">
+                            <img class="profile-avatar" th:src="${loginProfile?.profileImage}" alt="프로필">
                         </button>
                         <div class="profile-dropdown" id="profile-dropdown">
                             <div class="profile-dropdown-header">
+<!-- <<<<<<< siwoo -->
                                 <div class="profile-dropdown-name" th:text="${loginUser.nickname}"></div>
+<!-- ======= -->
+                                <div class="profile-dropdown-name" th:text="${loginProfile?.name}"></div>
+<!-- >>>>>>> develop -->
                                 <div class="profile-dropdown-email" th:text="${loginUser.email}"></div>
                             </div>
                             <a th:href="@{/user/mypage}" class="profile-dropdown-item">
@@ -188,9 +196,13 @@
                 <!-- 모바일: 로그인됨 -->
                 <div class="mobile-profile-section" th:if="${loggedIn}">
                     <div class="mobile-profile-info">
-                        <img class="mobile-profile-avatar" th:src="${loginUser.profileImage}" alt="프로필">
+                        <img class="mobile-profile-avatar" th:src="${loginProfile?.profileImage}" alt="프로필">
                         <div>
+<!-- <<<<<<< siwoo -->
                             <div class="mobile-profile-name" th:text="${loginUser.nickname}"></div>
+<!-- ======= -->
+                            <div class="mobile-profile-name" th:text="${loginProfile?.name}"></div>
+<!-- >>>>>>> develop -->
                             <div class="mobile-profile-email" th:text="${loginUser.email}"></div>
                         </div>
                     </div>

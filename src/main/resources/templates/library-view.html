@@ -32,7 +32,7 @@
                         <!-- Title & Description -->
                         <div class="mb-6">
                             <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
-                                <h1 class="text-3xl font-bold text-foreground">Translation API</h1>
+                                <h1 class="text-3xl font-bold text-foreground" th:text="${api.name}">Translation API</h1>
                                 <button class="btn btn-outline btn-sm gap-2" data-like>
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
@@ -42,7 +42,7 @@
                                     Star
                                 </button>
                             </div>
-                            <p class="leading-relaxed text-muted">100개 이상의 언어를 지원하는 고품질 번역 API입니다. 자연스러운 번역과 빠른 응답 속도를
+                            <p class="leading-relaxed text-muted" th:text="${api.description}">100개 이상의 언어를 지원하는 고품질 번역 API입니다. 자연스러운 번역과 빠른 응답 속도를
                                 제공합니다. 딥러닝 기반의 신경망 번역 모델을 사용하여 문맥을 파악한 자연스러운 번역 결과를 제공합니다.</p>
                             <div class="flex flex-wrap gap-2 mt-4">
                                 <span class="badge badge-secondary">번역</span>
@@ -62,8 +62,8 @@
                             </div>
 
                             <!-- Tab: Docs -->
-                            <div class="tab-content active" data-tab-content="docs">
-                                <div class="card">
+                            <div class="tab-content active" data-tab-content="docs" th:data-path="${api.docUrl}">
+                                <div class="card" style="padding: 1rem;">
                                     <div class="card-header">
                                         <h2 class="card-title">API 사용법</h2>
                                     </div>
@@ -432,7 +432,7 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                             <path d="M7 6h1v4" />
                                             <path d="m16.71 13.88.7.71-2.82 2.82" />
                                         </svg>
-                                        1P
+                                        <span th:text="|${api.price}P|">1P</span>
                                     </div>
                                     <p class="text-sm text-muted">호출당 소비 포인트</p>
                                     <button class="btn btn-primary w-full gap-2 mt-6" id="use-api-btn">사용 시작하기</button> 
@@ -450,7 +450,7 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                                 <circle cx="12" cy="7" r="4" />
                                             </svg> 개발자</span>
                                         <a href="profile.html"
-                                            class="font-medium text-foreground hover\:text-primary">김개발</a>
+                                            class="font-medium text-foreground hover\:text-primary" th:text="${api.user.name}">김개발</a>
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <span class="flex items-center gap-2 text-sm text-muted"><svg class="icon"
@@ -458,7 +458,7 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                                                 <circle cx="12" cy="12" r="3" />
                                             </svg> 조회수</span>
-                                        <span class="font-medium text-foreground">15,420</span>
+                                        <span class="font-medium text-foreground" th:text="${#numbers.formatInteger(api.viewCount, 0, 'COMMA')}">15,420</span>
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <span class="flex items-center gap-2 text-sm text-muted"><svg class="icon"
@@ -509,8 +509,14 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
         </main>
     </th:block>
     <th:block layout:fragment="script">
+		<script src="/js/marked.min.js"></script>
+		<script src="/js/prism.js"></script>
+		<link rel="stylesheet" href="/css/prism.css" />
+		<script src="/js/markdown.js"></script>
+		
         <script>
             /* API 테스트 시뮬레이션 */
+// <<<<<<< siwoo
 			
 			document.getElementById('use-api-btn').addEventListener('click', async function() {
 			    const responseDisplay = document.getElementById('test-response');
@@ -537,6 +543,18 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
 			        this.disabled = false;
 			    }
 			});
+// =======
+            document.getElementById('test-api-btn').addEventListener('click', function () {
+                var responseEl = document.getElementById('test-response');
+                responseEl.innerHTML = '<div class="flex items-center gap-2 text-sm text-muted"><div style="width:1rem;height:1rem;border:2px solid var(--primary);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div> Processing request...</div>';
+                setTimeout(function () {
+                    responseEl.innerHTML = '<pre class="code-block" style="width:100%;text-align:left;white-space:pre-wrap">{\n  "success": true,\n  "data": {\n    "original": "안녕하세요, 반갑습니다.",\n    "translated": "Hello, nice to meet you.",\n    "source_lang": "ko",\n    "target_lang": "en",\n    "confidence": 0.98\n  },\n  "usage": {\n    "points_used": 1,\n    "remaining": 12499\n  }\n}</pre>';
+                }, 1500);
+            });
+			
+			/* md parsing */
+			const markdown=new Markdown(document.querySelector("[data-tab-content='docs']").dataset.path);
+// >>>>>>> develop
         </script>
     </th:block>
 </body>

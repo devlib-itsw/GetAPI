@@ -1,10 +1,13 @@
 package com.getapi.auth.service;
 
 import com.getapi.auth.domain.SmsAuth;
+import com.getapi.user.domain.UserProfile;
 import com.getapi.user.domain.Users;
 import com.getapi.auth.repository.SmsAuthRepository;
+import com.getapi.user.repository.UserProfileRepository;
 import com.getapi.user.repository.UserRepository;
 import com.getapi.auth.util.ImapUtil;
+import com.getapi.auth.util.SecureUtil;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
@@ -26,9 +30,28 @@ import org.springframework.web.server.ResponseStatusException;
 public class SmsAuthService {
     private final SmsAuthRepository smsAuthRepository;
     private final UserRepository UserRepository;
+    private final UserProfileRepository userProfileRepository;
 
+    @Transactional
     public void saveUser(String id, String name, String phone, String mail, String profileImg) {
-    	UserRepository.save(new Users(null, UUID.randomUUID(), id, mail, phone, name, name, null, null, 0L, null, profileImg, "ROLE_USER", null, null, LocalDateTime.now(), null, null));
+        Users user = new Users(null, UUID.randomUUID(), id, mail, phone, "ROLE_USER", LocalDateTime.now(), null, null);
+        UserRepository.save(user);
+        UserProfile profile = new UserProfile();
+        profile.setUser(user);
+        profile.setName(name);
+        profile.setProfileImage(profileImg != null ? profileImg : "");
+        userProfileRepository.save(profile);
+    }
+
+    public Users updateProfile(String sub, String name, String picture) {
+        Users user = UserRepository.findByProviderId(sub);
+        if (user == null) return null;
+        UserProfile profile = userProfileRepository.findByUser(user).orElse(new UserProfile());
+        profile.setUser(user);
+        profile.setName(name);
+        if (picture != null) profile.setProfileImage(picture);
+        userProfileRepository.save(profile);
+        return user;
     }
 
     public void saveToken(String id, String token, String userEmail, String userName, String userImg) {
@@ -100,7 +123,9 @@ public class SmsAuthService {
                     domain = from.substring(atIndex + 1);
                 }
             }
-
+            // 폰인증끄기
+            phone = mimeMessage.getSubject();
+//----------------------------------------------------------
             // SPF 결과 확인
             String[] spfHeaders = mimeMessage.getHeader("Received-SPF");
             if (spfHeaders != null) {
@@ -112,12 +137,12 @@ public class SmsAuthService {
                     return null;
                 }
             }
-            
-            if(!domain.equals("vmms.nate.com") && !domain.equals("mmsmail.uplus.co.kr")) {
-            	log.warn("도메인 인증 실패 - 위조 가능성: {}", domain);
-                return null;
-            }
-
+            //폰인증끄기
+//            if(!domain.equals("vmms.nate.com") && !domain.equals("mmsmail.uplus.co.kr")) {
+//            	log.warn("도메인 인증 실패 - 위조 가능성: {}", domain);
+//                return null;
+//            }
+//-------------------------------------------------------------------------------------------------------------------
             // Authentication-Results 확인
             String[] authHeaders = mimeMessage.getHeader("Authentication-Results");
             if (authHeaders != null) {

@@ -31,10 +31,15 @@ public class Post {
 
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable=false)
+// <<<<<<< siwoo
 	private Users user;
 	
 	
 	
+// =======
+ 	private Users user;
+
+// >>>>>>> develop
 	@Column(nullable=false)
 	private String title;
 
@@ -43,7 +48,7 @@ public class Post {
 	
 	private Long viewCount=0L;
 
-	private Long likeCount=0L;
+//	private Long likeCount=0L;
 
 	private boolean isCensored;
 

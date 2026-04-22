@@ -8,12 +8,17 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 
 @Configuration
+// <<<<<<< siwoo
 //아래와 같이 스캔 범위를 확장하세요
 @EnableRedisRepositories(basePackages = {
  "com.getapi.auth.repository", 
  "com.getapi.payments"  // PaymentsRepository가 있는 위치 추가
 })
 @EnableJpaRepositories(basePackages = "com.getapi.user.repository")
+// =======
+@EnableRedisRepositories(basePackages = "com.getapi.auth.repository")
+// @EnableJpaRepositories(basePackages = {"com.getapi.user.repository", "com.getapi.auth.repository"})
+// >>>>>>> develop
 public class RedisConfig {
 
  @Bean

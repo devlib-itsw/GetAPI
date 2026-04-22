@@ -36,6 +36,7 @@ public class Users {
 	private String phone;
 
 	@Column(nullable=false)
+// <<<<<<< siwoo
 	private String name; // google name
 
 	private String nickname; // custom name
@@ -54,19 +55,16 @@ public class Users {
 	private String profileImage;
 
 	@Column(nullable=false)
+// =======
+// >>>>>>> develop
 	private String role;
-
-	private String secretKey;
-
-	private String rotationToken;
 
 	@Column(nullable=false)
 	private LocalDateTime profileCreatedAt;
 
-	private LocalDateTime apiUpdatedAt;
-
 	private LocalDateTime profileDeletedAt;
 	
+// <<<<<<< siwoo
 	public void updateMyPage(String nickname, String introduction, String webUrl) {
 	    this.nickname = nickname;
 	    this.introduction = introduction;
@@ -76,3 +74,7 @@ public class Users {
 	
 	
 }
+// =======
+	private LocalDateTime apiUpdatedAt;
+}
+// >>>>>>> develop
