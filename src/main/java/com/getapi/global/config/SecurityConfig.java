@@ -10,9 +10,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 @Configuration
 @EnableWebSecurity
@@ -32,6 +34,13 @@ public class SecurityConfig {
     }
 
     @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowUrlEncodedDoubleSlash(true);
+        return web -> web.httpFirewall(firewall);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
@@ -43,6 +52,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
             	.requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
                 .requestMatchers("/", "/login**", "/error**", "/oauth2/**", "/login/oauth2/**", "/phoneVerify/**", "/auth/api-key").permitAll()
+                .requestMatchers("/api/verify/stream/**").permitAll()
+                .requestMatchers("/lib/**").permitAll()
+                .requestMatchers("/auth/device/**").permitAll()
+                .requestMatchers("/download", "/download/**").permitAll()
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated()
             ) 
@@ -61,7 +74,8 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // JWT 필터 추가
             .exceptionHandling(exception -> exception
         		.accessDeniedHandler((req, res, exp) -> res.sendRedirect("/"))
-    		); // 권한 거부 시 index page로 이동
+        		.authenticationEntryPoint((req, res, exp) -> res.sendRedirect("/login"))
+    		); // 권한 거부 시 index, 미인증 시 login으로 이동
         
         return http.build();
     }

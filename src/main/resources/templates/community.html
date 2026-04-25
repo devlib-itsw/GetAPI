@@ -173,17 +173,17 @@
                 <div class="space-y-3">
 					<div class="w-100 h-100" th:each="post, loop : ${paging}">
 	                    <a th:href="@{|/community/view/${post.postUuid}|}" class="post-item">
-	                        <h3 class="post-title" th:text="${post.title}"></h3>
+	                        <h3 class="post-title ellipsis" th:text="${post.title}"></h3>
 	                        <!--<div class="flex flex-wrap gap-2">-->
 	                            <!--<span class="badge badge-secondary text-xs"></span>-->
 	                        <!--</div>-->
 	                        <div class="post-meta">
 	                            <span class="post-meta-item">
 	                                <div class="avatar avatar-sm">
-										<img th:src="${post.user.profile.profileImage}" alt="profileImage" style="border-radius: 50%;"/>
-										
+										<img th:src="@{/user/avatar/{uuid}(uuid=${post.userProfile.user.userUuid})}" alt="profileImage" style="border-radius: 50%;"/>
+
 									</div>
-	                                [[${post.user.profile.name}]]
+	                                [[${post.userProfile.isCensored ? '검열됨' : (post.userProfile.nickname ?: post.userProfile.name)}]]
 	                            </span>
 	                            <span class="post-meta-item">
 	                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"

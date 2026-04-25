@@ -55,14 +55,14 @@ document.addEventListener("DOMContentLoaded", function () {
 		    <a href="/library/view/${item.apiUuid}" class="card-interactive">
 		        <div class="p-5">
 		            <div class="flex items-start justify-between mb-3">
-		                <h3 class="text-lg font-semibold text-foreground">${item.title}</h3>
+		                <h3 class="ellipsis text-lg font-semibold text-foreground">${item.title}</h3>
 		                <span class="price-tag" title="${item.price}P / 호출">
 		                    ${priceIcon()}
 		                    ${item.price}P / 호출
 		                </span>
 		            </div>
 
-		            <p class="text-sm leading-relaxed text-muted line-clamp-2 mb-4">${item.description}</p>
+		            <p class="ellipsis text-sm leading-relaxed text-muted line-clamp-2 mb-4">${item.description}</p>
 
 		            <div class="flex flex-wrap gap-1 mb-4">
 		                ${(item.tags || []).map(tag => `<span class="badge badge-secondary text-xs">${tag}</span>`).join("")}

@@ -12,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -33,6 +34,22 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		this.smsAuthService = smsAuthService;
 		this.refreshTokenService = refreshTokenService;
 		this.userRepository = userRepository;
+	}
+
+	private String extractDeviceRedirectCookie(HttpServletRequest request, HttpServletResponse response) {
+		if (request.getCookies() == null) return null;
+		return Arrays.stream(request.getCookies())
+				.filter(c -> "_device_redirect".equals(c.getName()))
+				.findFirst()
+				.map(c -> {
+					// 쿠키 삭제
+					Cookie expired = new Cookie("_device_redirect", "");
+					expired.setMaxAge(0);
+					expired.setPath("/");
+					response.addCookie(expired);
+					return c.getValue();
+				})
+				.orElse(null);
 	}
 
 	@Override
@@ -70,7 +87,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			refreshCookie.setMaxAge(2592000); // 30일
 			response.addCookie(refreshCookie);
 
-			getRedirectStrategy().sendRedirect(request, response, "/");
+			String redirectTo = extractDeviceRedirectCookie(request, response);
+			getRedirectStrategy().sendRedirect(request, response, redirectTo != null ? redirectTo : "/");
 		} else {
 			// 신규 유저: 번호인증 진행
 			smsAuthService.saveToken(sub, secureToken, email, name, picture);

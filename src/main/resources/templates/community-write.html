@@ -15,7 +15,7 @@
     <th:block layout:fragment="content">
         <main class="main-content bg-muted-30">
             <div style="max-width:48rem; margin:0 auto; padding:2rem 1rem">
-                <a href="community.html"
+                <a href="javascript:history.back()"
                     class="inline-flex items-center gap-2 text-sm text-muted mb-6 hover\:text-primary"
                     style="display:inline-flex">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -50,7 +50,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center justify-end gap-3 border-t pt-6">
-                                <a th:href="@{/community/list}" class="btn btn-outline">취소</a>
+                                <a th:href="@{/community}" class="btn btn-outline">취소</a>
                                 <button type="submit" class="btn btn-primary">게시하기</button>
                             </div>
                         </form>
@@ -60,6 +60,28 @@
         </main>
     </th:block>
     <th:block layout:fragment="script">
+    <script>
+      document.querySelector('form').addEventListener('submit', function(e) {
+        var errors = [];
+        var title = document.getElementById('title');
+        var content = document.getElementById('content');
+
+        if (!title.value.trim()) {
+          errors.push('제목을 입력해주세요.');
+        } else if (title.value.trim().length > 200) {
+          errors.push('제목은 200자 이하로 입력해주세요.');
+        }
+
+        if (!content.value.trim()) {
+          errors.push('내용을 입력해주세요.');
+        }
+
+        if (errors.length > 0) {
+          e.preventDefault();
+          alert(errors.join('\n'));
+        }
+      });
+    </script>
     </th:block>
 </body>
 

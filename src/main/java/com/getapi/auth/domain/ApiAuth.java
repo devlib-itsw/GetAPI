@@ -40,4 +40,6 @@ public class ApiAuth {
     private LocalDate expiredDate;
 
     private LocalDateTime apiUpdatedAt;
+
+    private LocalDateTime rotationTokenUpdatedAt;
 }

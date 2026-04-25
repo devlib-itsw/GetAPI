@@ -18,70 +18,74 @@ import com.getapi.post.domain.Post;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificationExecutor<Post>{
-//	@Query("select distinct p from Posts p left join p.userid u1 left join p.answerList a left join a.author u2 where p.title like concat('%', :kw, '%') or p.content like concat('%', :kw, '%') or u1.username like concat('%', :kw, '%') or a.content like concat('%', :kw, '%') or u2.username like concat('%', :kw, '%')")
-	Page<Post> findAll(Pageable pageable);
+	Page<Post> findByIsCensoredFalse(Pageable pageable);
 	Optional<Post> findByPostUuid(UUID postUuid);
-//	Post findByPostUuid(UUID uuid);
-	
+
 	@Modifying
     @Transactional
     @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.postId = :id")
     void increaseViewCount(@Param("id") Long id);
-	
+
 	@Modifying
 	@Query("update Post p set p.viewCount = p.viewCount + 1 where p.postUuid = :postUuid")
 	void increaseViewCountByUuid(@Param("postUuid") UUID postUuid);
-	
+
 	@Query("""
 	SELECT p, COUNT(l)
 	FROM Post p
 	LEFT JOIN Like l ON l.post = p
+	WHERE p.isCensored = false
 	GROUP BY p
 	""")
 	List<Object[]> findPostsWithLikeCount();
-	
+
 	@Query(value = """
 		    SELECT p.* FROM post p
 		    LEFT JOIN users u ON p.user_id = u.user_id
 		    LEFT JOIN user_profile up ON u.user_id = up.user_id
-		    WHERE (:kw IS NULL OR :kw = '' 
-		       OR p.title LIKE CONCAT('%', :kw, '%') 
+		    WHERE p.is_censored = false
+		      AND (:kw IS NULL OR :kw = ''
+		       OR p.title LIKE CONCAT('%', :kw, '%')
 		       OR up.name LIKE CONCAT('%', :kw, '%'))
-		    """, 
+		    """,
 		    countQuery = """
 		    SELECT COUNT(*) FROM post p
 		    LEFT JOIN users u ON p.user_id = u.user_id
 		    LEFT JOIN user_profile up ON u.user_id = up.user_id
-		    WHERE (:kw IS NULL OR :kw = '' 
-		       OR p.title LIKE CONCAT('%', :kw, '%') 
+		    WHERE p.is_censored = false
+		      AND (:kw IS NULL OR :kw = ''
+		       OR p.title LIKE CONCAT('%', :kw, '%')
 		       OR up.name LIKE CONCAT('%', :kw, '%'))
-		    """, 
+		    """,
 		    nativeQuery = true)
 	Page<Post> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
-	
+
 	@Query(value = """
         SELECT p.* FROM post p
-        LEFT JOIN user_profile u ON p.user_id = u.user_id
-        WHERE (:kw IS NULL OR :kw = '' 
-           OR p.title LIKE %:kw% 
-           OR p.content LIKE %:kw% 
+        LEFT JOIN user_profile u ON p.user_profile_id = u.profile_id
+        WHERE p.is_censored = false
+          AND (:kw IS NULL OR :kw = ''
+           OR p.title LIKE %:kw%
+           OR p.content LIKE %:kw%
            OR u.name LIKE %:kw%)
-        GROUP BY p.post_id, p.content, p.created_at, p.is_censored, p.post_uuid, p.title, p.updated_at, p.user_id, p.view_count
+        GROUP BY p.post_id, p.content, p.created_at, p.is_censored, p.post_uuid, p.title, p.updated_at, p.user_profile_id, p.view_count
         ORDER BY (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.post_id) DESC, p.created_at DESC
-        """, 
+        """,
         countQuery = """
         SELECT COUNT(DISTINCT p.post_id) FROM post p
-        LEFT JOIN user_profile u ON p.user_id = u.user_id
-        WHERE (:kw IS NULL OR :kw = '' 
-           OR p.title LIKE %:kw% 
-           OR p.content LIKE %:kw% 
+        LEFT JOIN user_profile u ON p.user_profile_id = u.profile_id
+        WHERE p.is_censored = false
+          AND (:kw IS NULL OR :kw = ''
+           OR p.title LIKE %:kw%
+           OR p.content LIKE %:kw%
            OR u.name LIKE %:kw%)
-        """, 
+        """,
         nativeQuery = true)
     Page<Post> findAllOrderByLikes(@Param("kw") String kw, Pageable pageable);
-	
+
 	void deleteByPostUuidAndIsCensoredTrue(UUID uuid);
-	
+
+	List<Post> findByUserProfileAndIsCensoredFalse(com.getapi.user.domain.UserProfile userProfile);
+
 	Page<Post> findByIsCensoredTrue(Pageable page);
-	
 }

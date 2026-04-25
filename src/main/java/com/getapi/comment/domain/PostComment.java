@@ -4,8 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.getapi.post.domain.Post;
-import com.getapi.user.domain.Users;
-
+import com.getapi.user.domain.UserProfile;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,8 +31,8 @@ public class PostComment {
 	private Post post;
 
 	@ManyToOne
-	@JoinColumn(name="user_id", nullable=false)
-	private Users user;
+	 @JoinColumn(name = "user_profile_id")
+	  private UserProfile userProfile;
 
 	@Column(columnDefinition="TEXT")
 	private String content;

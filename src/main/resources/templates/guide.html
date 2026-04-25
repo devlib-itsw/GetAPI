@@ -2,13 +2,12 @@
 <html lang="ko" layout:decorate="~{common/layout}">
 
 <head>
-    <title layout:fragment="title">서비스 가이드 - GetAPI</title>
+    <title layout:fragment="title">이용 가이드 - GetAPI</title>
     <th:block layout:fragment="metatags">
-        <meta name="description" content="GetAPI 서비스 이용 가이드. API 서명, 프록시 설정, 키 관리 방법을 안내합니다.">
+        <meta name="description" content="GetAPI 서비스 A to Z 이용 가이드. 회원가입부터 API 등록, 클라이언트 프록시 사용법까지 안내합니다.">
     </th:block>
     <th:block layout:fragment="style">
         <style>
-            /* Guide-specific layout */
             .guide-layout {
                 display: grid;
                 grid-template-columns: 15rem 1fr;
@@ -20,17 +19,10 @@
                 .guide-layout {
                     grid-template-columns: 1fr;
                 }
-
-                .guide-sidebar {
-                    display: none;
-                }
-
-                .guide-mobile-toc {
-                    display: block;
-                }
+                .guide-sidebar { display: none; }
+                .guide-mobile-toc { display: block; }
             }
 
-            /* Sidebar TOC */
             .guide-sidebar {
                 position: sticky;
                 top: 5rem;
@@ -58,8 +50,7 @@
                 color: var(--foreground);
             }
 
-            /* 대분류 사이 여백 (하위항목 직전 제외) */
-            .toc-list li:has(> .toc-item:not(.toc-sub))+li:has(> .toc-item:not(.toc-sub)) {
+            .toc-list li:has(> .toc-item:not(.toc-sub)) + li:has(> .toc-item:not(.toc-sub)) {
                 margin-top: 0.375rem;
                 padding-top: 0.375rem;
                 border-top: 1px solid var(--border);
@@ -81,9 +72,7 @@
                 background: color-mix(in srgb, var(--primary) 8%, transparent);
             }
 
-            .toc-sub.active::before {
-                background: var(--primary);
-            }
+            .toc-sub.active::before { background: var(--primary); }
 
             .toc-sub {
                 padding-left: 1.75rem;
@@ -101,13 +90,8 @@
                 background: var(--border);
             }
 
-            /* Mobile TOC */
-            .guide-mobile-toc {
-                display: none;
-                margin-bottom: 1.5rem;
-            }
+            .guide-mobile-toc { display: none; margin-bottom: 1.5rem; }
 
-            /* Guide sections */
             .guide-section {
                 scroll-margin-top: 5rem;
                 padding-bottom: 2rem;
@@ -131,17 +115,18 @@
                 gap: 0.5rem;
             }
 
-            /* 하위 섹션(2-1 등) 본문 스타일 */
             .guide-section-sub {
                 border-left: 3px solid var(--primary);
                 padding-left: 1.25rem;
                 margin-left: 0.25rem;
+                margin-top: 1.5rem;
             }
 
-            .guide-section-sub h2 {
-                font-size: 1.125rem;
+            .guide-section-sub h3 {
+                font-size: 1rem;
                 font-weight: 600;
                 color: var(--primary);
+                margin-bottom: 0.75rem;
             }
 
             .guide-section h3 {
@@ -158,8 +143,7 @@
                 margin-bottom: 0.75rem;
             }
 
-            .guide-section ol,
-            .guide-section ul {
+            .guide-section ol, .guide-section ul {
                 padding-left: 1.25rem;
                 display: flex;
                 flex-direction: column;
@@ -170,13 +154,8 @@
                 margin-bottom: 1rem;
             }
 
-            .guide-section ol {
-                list-style: decimal;
-            }
-
-            .guide-section ul {
-                list-style: disc;
-            }
+            .guide-section ol { list-style: decimal; }
+            .guide-section ul { list-style: disc; }
 
             .guide-code {
                 display: block;
@@ -186,7 +165,7 @@
                 font-size: 0.8125rem;
                 font-family: var(--font-mono);
                 overflow-x: auto;
-                white-space: pre-wrap;
+                white-space: pre;
                 color: var(--muted-foreground);
                 margin-bottom: 1rem;
                 border: 1px solid var(--border);
@@ -230,521 +209,669 @@
                 color: var(--primary);
             }
 
-            .header-table {
+            .guide-table {
                 width: 100%;
                 border-collapse: collapse;
                 font-size: 0.8125rem;
                 margin-bottom: 1rem;
             }
 
-            .header-table th,
-            .header-table td {
+            .guide-table th, .guide-table td {
                 text-align: left;
                 padding: 0.625rem 0.75rem;
                 border-bottom: 1px solid var(--border);
             }
 
-            .header-table th {
+            .guide-table th {
                 color: var(--foreground);
                 font-weight: 600;
                 background: color-mix(in srgb, var(--muted) 50%, transparent);
             }
 
-            .header-table td {
+            .guide-table td { color: var(--muted-foreground); }
+            .guide-table code { color: var(--primary); font-family: var(--font-mono); font-size: 0.8125rem; }
+
+            .step-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 1.5rem;
+                height: 1.5rem;
+                border-radius: 50%;
+                background: var(--primary);
+                color: #000;
+                font-size: 0.75rem;
+                font-weight: 700;
+                flex-shrink: 0;
+            }
+
+            .step-row {
+                display: flex;
+                gap: 0.75rem;
+                align-items: flex-start;
+                margin-bottom: 1rem;
+            }
+
+            .step-row-content { flex: 1; }
+            .step-row-content p { margin-bottom: 0.25rem; }
+
+            .flow-diagram {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+                padding: 1rem;
+                background: var(--muted);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                margin-bottom: 1rem;
+                font-size: 0.8125rem;
                 color: var(--muted-foreground);
             }
 
-            .header-table code {
-                color: var(--primary);
+            .flow-node {
+                background: color-mix(in srgb, var(--primary) 10%, transparent);
+                border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+                color: var(--foreground);
+                padding: 0.375rem 0.75rem;
+                border-radius: var(--radius);
                 font-family: var(--font-mono);
-                font-size: 0.8125rem;
+                font-size: 0.75rem;
+                font-weight: 500;
             }
+
+            .flow-arrow { color: var(--primary); font-weight: 700; }
         </style>
     </th:block>
-    <style>
-        /* Guide-specific layout */
-        .guide-layout {
-            display: grid;
-            grid-template-columns: 15rem 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
-
-        @media (max-width: 768px) {
-            .guide-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .guide-sidebar {
-                display: none;
-            }
-
-            .guide-mobile-toc {
-                display: block;
-            }
-        }
-
-        /* Sidebar TOC */
-        .guide-sidebar {
-            position: sticky;
-            top: 5rem;
-        }
-
-        .toc-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.125rem;
-        }
-
-        .toc-item {
-            display: block;
-            padding: 0.5rem 0.75rem;
-            border-radius: var(--radius);
-            font-size: 0.8125rem;
-            color: var(--muted-foreground);
-            transition: all 0.15s;
-            border-left: 2px solid transparent;
-        }
-
-        .toc-item:not(.toc-sub) {
-            font-weight: 600;
-            color: var(--foreground);
-        }
-
-        /* 대분류 사이 여백 (하위항목 직전 제외) */
-        .toc-list li:has(> .toc-item:not(.toc-sub))+li:has(> .toc-item:not(.toc-sub)) {
-            margin-top: 0.375rem;
-            padding-top: 0.375rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .toc-item:hover {
-            color: var(--foreground);
-            background: color-mix(in srgb, var(--muted) 50%, transparent);
-        }
-
-        .toc-item.active {
-            color: var(--primary);
-            border-left-color: var(--primary);
-            background: color-mix(in srgb, var(--primary) 5%, transparent);
-        }
-
-        .toc-sub.active {
-            border-left-color: transparent;
-            background: color-mix(in srgb, var(--primary) 8%, transparent);
-        }
-
-        .toc-sub.active::before {
-            background: var(--primary);
-        }
-
-        .toc-sub {
-            padding-left: 1.75rem;
-            font-size: 0.75rem;
-            position: relative;
-        }
-
-        .toc-sub::before {
-            content: '';
-            position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            width: 0.5rem;
-            height: 1px;
-            background: var(--border);
-        }
-
-        /* Mobile TOC */
-        .guide-mobile-toc {
-            display: none;
-            margin-bottom: 1.5rem;
-        }
-
-        /* Guide sections */
-        .guide-section {
-            scroll-margin-top: 5rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 2rem;
-        }
-
-        .guide-section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .guide-section h2 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--foreground);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* 하위 섹션(2-1 등) 본문 스타일 */
-        .guide-section-sub {
-            border-left: 3px solid var(--primary);
-            padding-left: 1.25rem;
-            margin-left: 0.25rem;
-        }
-
-        .guide-section-sub h2 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .guide-section h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--foreground);
-            margin: 1.5rem 0 0.75rem;
-        }
-
-        .guide-section p {
-            font-size: 0.875rem;
-            color: var(--muted-foreground);
-            line-height: 1.7;
-            margin-bottom: 0.75rem;
-        }
-
-        .guide-section ol,
-        .guide-section ul {
-            padding-left: 1.25rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--muted-foreground);
-            line-height: 1.7;
-            margin-bottom: 1rem;
-        }
-
-        .guide-section ol {
-            list-style: decimal;
-        }
-
-        .guide-section ul {
-            list-style: disc;
-        }
-
-        .guide-code {
-            display: block;
-            border-radius: var(--radius-lg);
-            background: var(--muted);
-            padding: 1rem;
-            font-size: 0.8125rem;
-            font-family: var(--font-mono);
-            overflow-x: auto;
-            white-space: pre-wrap;
-            color: var(--muted-foreground);
-            margin-bottom: 1rem;
-            border: 1px solid var(--border);
-        }
-
-        .guide-callout {
-            border-radius: var(--radius-lg);
-            padding: 1rem;
-            font-size: 0.8125rem;
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 0.75rem;
-            align-items: flex-start;
-        }
-
-        .guide-callout-info {
-            background: color-mix(in srgb, var(--primary) 8%, transparent);
-            border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
-            color: var(--muted-foreground);
-        }
-
-        .guide-callout-warning {
-            background: hsla(38, 92%, 50%, 0.08);
-            border: 1px solid hsla(38, 92%, 50%, 0.25);
-            color: var(--muted-foreground);
-        }
-
-        .guide-callout-icon {
-            flex-shrink: 0;
-            width: 1.25rem;
-            height: 1.25rem;
-            margin-top: 0.1rem;
-        }
-
-        .inline-code {
-            background: var(--muted);
-            padding: 0.125rem 0.375rem;
-            border-radius: var(--radius);
-            font-family: var(--font-mono);
-            font-size: 0.8125rem;
-            color: var(--primary);
-        }
-
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8125rem;
-            margin-bottom: 1rem;
-        }
-
-        .header-table th,
-        .header-table td {
-            text-align: left;
-            padding: 0.625rem 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .header-table th {
-            color: var(--foreground);
-            font-weight: 600;
-            background: color-mix(in srgb, var(--muted) 50%, transparent);
-        }
-
-        .header-table td {
-            color: var(--muted-foreground);
-        }
-
-        .header-table code {
-            color: var(--primary);
-            font-family: var(--font-mono);
-            font-size: 0.8125rem;
-        }
-    </style>
 </head>
 
 <body>
-    <!-- MAIN -->
     <th:block layout:fragment="content">
-        <main class="main-content">
+        <main class="main-content bg-muted-30">
+            <div class="container py-8">
 
-            <!-- Hero Section -->
-            <section class="hero">
-                <div class="container" style="text-align:center">
-                    <div class="hero-badge mb-6">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
-                        </svg>
-                        <span>개발자를 위한 API 마켓플레이스</span>
-                    </div>
+                <!-- 헤더 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-foreground">GetAPI 서비스 이용 가이드</h1>
+                </div>
 
-                    <h1
-                        style="font-size:2.25rem; font-weight:700; color:var(--foreground); line-height:1.2; letter-spacing:-0.02em">
-                        API를 쉽게 찾고,<br>
-                        <span class="text-primary">판매하고, 공유하세요</span>
-                    </h1>
+                <div class="guide-layout">
 
-                    <p
-                        style="max-width:40rem; margin:1.5rem auto 0; font-size:1.125rem; line-height:1.7; color:var(--muted-foreground)">
-                        검증된 API를 활용하여 개발 생산성을 높이고, 직접 만든 API로 수익을 창출하세요.
-                        개발자들의 기술 생태계를 함께 만들어갑니다.
-                    </p>
-
-                    <div
-                        style="margin-top:2.5rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:1rem">
-                        <a href="library.html" class="btn btn-primary btn-lg gap-2">
-                            API 둘러보기
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M5 12h14" />
-                                <path d="m12 5 7 7-7 7" />
-                            </svg>
-                        </a>
-                        <a href="dashboard.html" class="btn btn-outline btn-lg">API 판매 시작하기</a>
-                    </div>
-
-                    <!-- Feature Cards -->
-                    <div
-                        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; max-width:56rem; margin:4rem auto 0">
-                        <div class="card" style="display:flex; align-items:center; gap:0.75rem; padding:1rem">
-                            <div
-                                style="width:2.5rem; height:2.5rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
-                                <svg class="icon-md text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="16 18 22 12 16 6" />
-                                    <polyline points="8 6 2 12 8 18" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-foreground">간편한 연동</p>
-                                <p class="text-xs text-muted">프록시 URI 자동 생성</p>
-                            </div>
+                    <!-- ─── 사이드바 TOC ─── -->
+                    <aside class="guide-sidebar">
+                        <div class="card p-4">
+                            <p class="text-xs font-semibold text-muted mb-3" style="text-transform:uppercase; letter-spacing:0.05em">목차</p>
+                            <ul class="toc-list">
+                                <li><a href="#intro" class="toc-item">1. 서비스 소개</a></li>
+                                <li><a href="#login" class="toc-item">2. 로그인 · 프로필</a></li>
+                                <li><a href="#phone-verify" class="toc-item toc-sub">전화번호 인증</a></li>
+                                <li><a href="#profile-edit" class="toc-item toc-sub">프로필 편집</a></li>
+                                <li><a href="#profile-public" class="toc-item toc-sub">공개 프로필</a></li>
+                                <li><a href="#profile-mypage" class="toc-item toc-sub">마이페이지</a></li>
+                                <li><a href="#profile-delete" class="toc-item toc-sub">회원 탈퇴</a></li>
+                                <li><a href="#points" class="toc-item">3. 포인트</a></li>
+                                <li><a href="#points-charge" class="toc-item toc-sub">충전</a></li>
+                                <li><a href="#points-withdraw" class="toc-item toc-sub">환전</a></li>
+                                <li><a href="#library" class="toc-item">4. API 라이브러리</a></li>
+                                <li><a href="#library-browse" class="toc-item toc-sub">탐색 · 검색</a></li>
+                                <li><a href="#library-health" class="toc-item toc-sub">서버 상태 표시</a></li>
+                                <li><a href="#library-star" class="toc-item toc-sub">즐겨찾기(Star)</a></li>
+                                <li><a href="#library-comment" class="toc-item toc-sub">댓글</a></li>
+                                <li><a href="#use-api" class="toc-item">5. API 사용하기</a></li>
+                                <li><a href="#use-secretkey" class="toc-item toc-sub">Secret Key 발급</a></li>
+                                <li><a href="#use-install" class="toc-item toc-sub">프록시 설치</a></li>
+                                <li><a href="#use-run" class="toc-item toc-sub">실행 · 인증</a></li>
+                                <li><a href="#use-call" class="toc-item toc-sub">API 호출</a></li>
+                                <li><a href="#use-security" class="toc-item toc-sub">보안 구조</a></li>
+                                <li><a href="#sell-api" class="toc-item">6. API 판매하기</a></li>
+                                <li><a href="#sell-register" class="toc-item toc-sub">API 등록</a></li>
+                                <li><a href="#sell-verify" class="toc-item toc-sub">Well-Known 검증</a></li>
+                                <li><a href="#sell-manage" class="toc-item toc-sub">API 관리</a></li>
+                                <li><a href="#sell-hateoas" class="toc-item toc-sub">HATEOAS 설정</a></li>
+                                <li><a href="#community" class="toc-item">7. 커뮤니티</a></li>
+                            </ul>
                         </div>
-                        <div class="card" style="display:flex; align-items:center; gap:0.75rem; padding:1rem">
-                            <div
-                                style="width:2.5rem; height:2.5rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
-                                <svg class="icon-md text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path
-                                        d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-                                </svg>
+                    </aside>
+
+                    <!-- ─── 본문 ─── -->
+                    <div>
+
+                        <!-- 1. 서비스 소개 -->
+                        <section class="guide-section" id="intro">
+                            <h2>
+                                <svg class="icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+                                1. 서비스 소개
+                            </h2>
+                            <p>GetAPI는 개발자가 자신의 API를 등록·판매하고, 다른 개발자의 API를 포인트로 구매해 사용할 수 있는 <strong>API 마켓플레이스</strong>입니다.</p>
+                            <p>API 제공자는 자신의 서버를 그대로 유지하면서 GetAPI 플랫폼에 연결하기만 하면 됩니다. API 사용자는 로컬에서 실행되는 경량 프록시 클라이언트를 통해 <span class="inline-code">http://getapi/{slug}</span> 형태의 URL로 인증 없이 API를 호출할 수 있습니다.</p>
+
+                            <div class="flow-diagram">
+                                <span class="flow-node">내 앱</span>
+                                <span class="flow-arrow">→</span>
+                                <span class="flow-node">http://getapi/{slug}</span>
+                                <span class="flow-arrow">→</span>
+                                <span class="flow-node">getapi-proxy</span>
+                                <span class="flow-arrow">→ 서명 자동 추가 →</span>
+                                <span class="flow-node">GetAPI 서버</span>
+                                <span class="flow-arrow">→</span>
+                                <span class="flow-node">원본 API 서버</span>
                             </div>
-                            <div>
-                                <p class="text-sm font-medium text-foreground">안전한 거래</p>
-                                <p class="text-xs text-muted">포인트 기반 결제 시스템</p>
+
+                            <table class="guide-table">
+                                <thead><tr><th>역할</th><th>주요 기능</th></tr></thead>
+                                <tbody>
+                                    <tr><td><strong>API 판매자</strong></td><td>대시보드에서 API 등록 → Well-Known 검증 → 수익 확인</td></tr>
+                                    <tr><td><strong>API 사용자</strong></td><td>라이브러리에서 API 탐색 → 포인트 충전 → 프록시 설치 후 호출</td></tr>
+                                </tbody>
+                            </table>
+                        </section>
+
+                        <!-- 2. 로그인 · 프로필 -->
+                        <section class="guide-section" id="login">
+                            <h2>
+                                <svg class="icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+                                2. 로그인 · 프로필
+                            </h2>
+                            <p>GetAPI는 <strong>Google OAuth2</strong> 소셜 로그인만 지원합니다. 별도의 회원가입 절차 없이 구글 계정으로 즉시 시작할 수 있습니다.</p>
+                            <ol>
+                                <li>우측 상단의 <strong>로그인</strong> 버튼을 클릭합니다.</li>
+                                <li>Google 계정을 선택하고 권한을 허용합니다.</li>
+                                <li>첫 로그인 시 자동으로 계정이 생성됩니다.</li>
+                            </ol>
+
+                            <div class="guide-section-sub" id="phone-verify">
+                                <h3>전화번호 인증 (최초 1회)</h3>
+                                <p>처음 Google 로그인을 완료하면 전화번호 인증 페이지로 자동 이동됩니다. GetAPI는 전화번호 1개당 계정 1개만 허용하며, 인증은 최초 가입 시 <strong>1회만</strong> 진행됩니다.</p>
+
+                                <div class="step-row">
+                                    <span class="step-badge">1</span>
+                                    <div class="step-row-content">
+                                        <p style="font-weight:600; color:var(--foreground)">전화번호 입력</p>
+                                        <p>인증 페이지에 본인의 휴대폰 번호를 입력합니다. <span class="inline-code">010-XXXX-XXXX</span> 형식으로 입력하세요 (하이픈 생략 가능).</p>
+                                    </div>
+                                </div>
+
+                                <div class="step-row">
+                                    <span class="step-badge">2</span>
+                                    <div class="step-row-content">
+                                        <p style="font-weight:600; color:var(--foreground)">인증 문자 발송 요청</p>
+                                        <p>번호 입력 후 <strong>인증 문자 발송</strong> 버튼을 클릭합니다. 입력한 번호로 인증 코드가 포함된 문자가 발송됩니다.</p>
+                                    </div>
+                                </div>
+
+                                <div class="step-row">
+                                    <span class="step-badge">3</span>
+                                    <div class="step-row-content">
+                                        <p style="font-weight:600; color:var(--foreground)">SMS 답장으로 인증 완료</p>
+                                        <p>받은 문자 메시지에 표시된 코드를 <strong>그대로 답장(Reply)</strong>으로 전송합니다. 문자 내용을 수정하지 말고 그대로 보내야 합니다.</p>
+                                        <code class="guide-code">수정하지말고 그대로 전송해주세요.
+(XXXXXXXXXXXXXXXX)</code>
+                                        <p>답장을 보내면 페이지가 자동으로 인증 완료 상태로 전환되며 로그인이 완료됩니다.</p>
+                                    </div>
+                                </div>
+
+                                <div class="guide-callout guide-callout-warning">
+                                    <svg class="guide-callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsla(38,92%,50%,1)"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                    <div>
+                                        <strong>인증 시 주의사항</strong>
+                                        <ul style="margin-top:0.5rem; padding-left:1rem; list-style:disc">
+                                            <li>인증 코드는 <strong>5분 30초</strong> 이내에 답장을 보내야 합니다.</li>
+                                            <li>이미 다른 계정에 등록된 전화번호로는 가입할 수 없습니다.</li>
+                                            <li>답장 문자 내용을 수정하면 인증에 실패합니다.</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="card" style="display:flex; align-items:center; gap:0.75rem; padding:1rem">
-                            <div
-                                style="width:2.5rem; height:2.5rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
-                                <svg class="icon-md text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path
-                                        d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
-                                </svg>
+
+                            <div class="guide-section-sub" id="profile-edit">
+                                <h3>프로필 편집</h3>
+                                <p><a href="/user/mypage" class="text-primary">마이페이지</a> → <strong>프로필 편집</strong> 탭에서 아래 정보를 변경할 수 있습니다.</p>
+                                <table class="guide-table">
+                                    <thead><tr><th>항목</th><th>설명</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>프로필 사진</td><td>Google 계정 아바타가 자동으로 사용되며 <strong>변경 불가</strong>입니다</td></tr>
+                                        <tr><td>닉네임</td><td>사이트 내 표시 이름 (다른 사용자에게 공개)</td></tr>
+                                        <tr><td>자기소개</td><td>공개 프로필 페이지에 표시되는 소개 문구</td></tr>
+                                    </tbody>
+                                </table>
+                                <div class="guide-callout guide-callout-info">
+                                    <svg class="guide-callout-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                    <div>프로필 사진은 Google 계정에 등록된 이미지가 자동으로 적용됩니다. 사진을 변경하려면 Google 계정의 프로필 사진을 수정한 뒤 다시 로그인하세요.</div>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-sm font-medium text-foreground">실시간 모니터링</p>
-                                <p class="text-xs text-muted">트래픽 & 사용량 대시보드</p>
+
+                            <div class="guide-section-sub" id="profile-public">
+                                <h3>공개 프로필</h3>
+                                <p>모든 사용자는 고유한 공개 프로필 페이지를 가집니다. URL은 <span class="inline-code">/user/profile/{uuid}</span> 형식이며, 다른 사용자가 직접 방문할 수 있습니다.</p>
+                                <p>공개 프로필에는 다음 정보가 노출됩니다.</p>
+                                <ul>
+                                    <li>닉네임 · 이메일 주소 · 프로필 사진 · 자기소개</li>
+                                    <li>등록한 API 목록 (활성 상태인 것만 표시)</li>
+                                    <li>작성한 커뮤니티 게시글</li>
+                                    <li>가입일 · API 수 · 총 호출수 · 게시글 수</li>
+                                </ul>
                             </div>
-                        </div>
+
+                            <div class="guide-section-sub" id="profile-mypage">
+                                <h3>마이페이지</h3>
+                                <p>우측 상단 아바타 → <strong>마이페이지</strong>에서 본인 계정의 전체 현황을 확인할 수 있습니다.</p>
+                                <table class="guide-table">
+                                    <thead><tr><th>탭</th><th>내용</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>프로필 편집</td><td>닉네임, 자기소개 변경</td></tr>
+                                        <tr><td>포인트</td><td>잔액 확인, 충전·환전 이동</td></tr>
+                                        <tr><td>API 키 관리</td><td>Secret Key 발급, API Key 재발급, 만료일 확인</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="guide-section-sub" id="profile-delete">
+                                <h3>회원 탈퇴</h3>
+                                <p>마이페이지 하단 <strong>회원 탈퇴</strong> 버튼을 통해 탈퇴할 수 있습니다.</p>
+                                <div class="guide-callout guide-callout-warning">
+                                    <svg class="guide-callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsla(38,92%,50%,1)"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                    <div>탈퇴 시 계정은 즉시 비활성화되며 데이터는 <strong>90일간 보관</strong> 후 완전 삭제됩니다. 탈퇴 후에는 동일 Google 계정으로 재가입이 가능합니다.</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 3. 포인트 -->
+                        <section class="guide-section" id="points">
+                            <h2>
+                                <svg class="icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>
+                                3. 포인트 시스템
+                            </h2>
+                            <p>GetAPI는 <strong>포인트(P)</strong> 기반으로 API 호출 비용을 결제합니다. API를 호출할 때마다 해당 API에 설정된 포인트가 차감되며, 판매자에게 수익으로 누적됩니다.</p>
+
+                            <div class="guide-section-sub" id="points-charge">
+                                <h3>포인트 충전</h3>
+                                <p>상단 네비게이션 → <strong>포인트</strong> 메뉴 또는 <a href="/payments/charge" class="text-primary">충전 페이지</a>에서 토스페이먼츠로 결제합니다.</p>
+                                <ol>
+                                    <li>충전 금액을 선택하거나 직접 입력합니다.</li>
+                                    <li>결제 수단(카드, 간편결제 등)을 선택합니다.</li>
+                                    <li>결제 완료 후 포인트가 즉시 잔액에 추가됩니다.</li>
+                                </ol>
+                            </div>
+
+                            <div class="guide-section-sub" id="points-withdraw">
+                                <h3>포인트 환전</h3>
+                                <p><a href="/payments/withdraw" class="text-primary">환전 페이지</a>에서 누적된 수익 포인트를 현금으로 환전할 수 있습니다. 환전은 관리자 승인 후 처리됩니다.</p>
+                            </div>
+
+                            <div class="guide-callout guide-callout-warning" style="margin-top:1rem">
+                                <svg class="guide-callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsla(38,92%,50%,1)"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                <div>포인트가 부족한 상태에서 API를 호출하면 <span class="inline-code">402 Payment Required</span> 오류가 반환됩니다. 호출 전 잔액을 확인하세요.</div>
+                            </div>
+                        </section>
+
+                        <!-- 4. API 라이브러리 -->
+                        <section class="guide-section" id="library">
+                            <h2>
+                                <svg class="icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg>
+                                4. API 라이브러리
+                            </h2>
+                            <p>등록된 모든 API를 탐색하고, 원하는 API의 문서를 확인하거나 즐겨찾기할 수 있습니다.</p>
+
+                            <div class="guide-section-sub" id="library-browse">
+                                <h3>탐색 · 검색 · 정렬</h3>
+                                <ul>
+                                    <li>상단 검색창에 키워드를 입력하고 <kbd style="background:var(--muted);padding:0.1rem 0.4rem;border-radius:4px;font-size:0.75rem;border:1px solid var(--border)">Enter</kbd>를 누르면 API 이름·설명으로 검색됩니다.</li>
+                                    <li>태그 버튼으로 카테고리를 필터링하거나, 정렬 드롭다운으로 <strong>최신순 / 인기순 / 호출수순</strong>을 변경할 수 있습니다.</li>
+                                    <li>API 카드를 클릭하면 상세 페이지로 이동합니다.</li>
+                                </ul>
+                            </div>
+
+                            <div class="guide-section-sub" id="library-health">
+                                <h3>서버 상태 표시</h3>
+                                <p>API 상세 페이지의 API 이름 옆에 작은 원형 상태 표시등이 있습니다. 페이지 진입 시 원본 서버에 자동으로 헬스 체크를 수행하며, 결과에 따라 색상이 바뀝니다.</p>
+                                <table class="guide-table" style="margin-top:0.75rem">
+                                    <thead><tr><th>색상</th><th>의미</th></tr></thead>
+                                    <tbody>
+                                        <tr><td><span style="display:inline-block;width:0.65rem;height:0.65rem;border-radius:50%;background:#d1d5db;vertical-align:middle;margin-right:0.4rem"></span>회색</td><td>확인 중 (페이지 로딩 직후)</td></tr>
+                                        <tr><td><span style="display:inline-block;width:0.65rem;height:0.65rem;border-radius:50%;background:#22c55e;vertical-align:middle;margin-right:0.4rem"></span>초록</td><td>서버 정상 응답</td></tr>
+                                        <tr><td><span style="display:inline-block;width:0.65rem;height:0.65rem;border-radius:50%;background:#ef4444;vertical-align:middle;margin-right:0.4rem"></span>빨강</td><td>서버 응답 없음 또는 오류</td></tr>
+                                    </tbody>
+                                </table>
+                                <p style="margin-top:0.5rem">상태가 빨강이어도 API 등록 자체가 삭제되는 것은 아닙니다. 원본 서버가 일시적으로 다운됐거나 방화벽으로 외부 헬스 체크를 막고 있을 수 있습니다.</p>
+                            </div>
+
+                            <div class="guide-section-sub" id="library-star">
+                                <h3>즐겨찾기(Star)</h3>
+                                <p>API 상세 페이지 우측 상단의 <strong>★ Star</strong> 버튼을 클릭하면 즐겨찾기에 추가됩니다. 다시 클릭하면 해제됩니다. 마이페이지에서 즐겨찾기 목록을 확인할 수 있습니다.</p>
+                            </div>
+
+                            <div class="guide-section-sub" id="library-comment">
+                                <h3>댓글</h3>
+                                <p>API 상세 페이지 하단에서 사용 후기나 질문을 댓글로 남길 수 있습니다. 자신이 작성한 댓글은 수정·삭제할 수 있습니다.</p>
+                            </div>
+                        </section>
+
+                        <!-- 5. API 사용하기 -->
+                        <section class="guide-section" id="use-api">
+                            <h2>
+                                <svg class="icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                                5. API 사용하기 (getapi-proxy)
+                            </h2>
+                            <p>GetAPI의 API를 호출하려면 로컬에서 실행하는 경량 프록시 클라이언트(<strong>getapi-proxy</strong>)가 필요합니다. 프록시가 인증 헤더를 자동으로 처리하므로, 내 앱 코드에는 인증 로직이 전혀 필요하지 않습니다.</p>
+
+                            <div class="guide-section-sub" id="use-secretkey">
+                                <h3>① Secret Key 발급</h3>
+                                <p>프록시 실행에 앞서 Secret Key를 먼저 발급받아야 합니다. Secret Key는 HMAC-SHA256 서명에 사용되며 한 번만 발급됩니다.</p>
+                                <ol>
+                                    <li><strong>마이페이지</strong> → <strong>API 키 관리</strong> 탭으로 이동합니다.</li>
+                                    <li><strong>Secret Key 발급</strong> 버튼을 클릭합니다.</li>
+                                    <li>표시되는 키를 안전한 곳에 복사해두세요. <strong>이후에는 다시 확인할 수 없습니다.</strong></li>
+                                </ol>
+                                <div class="guide-callout guide-callout-warning">
+                                    <svg class="guide-callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsla(38,92%,50%,1)"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                    <div>Secret Key를 분실하면 재발급이 필요합니다. 재발급 시 기존 키로 실행 중인 프록시는 더 이상 인증되지 않으니 주의하세요.</div>
+                                </div>
+                            </div>
+
+                            <div class="guide-section-sub" id="use-install">
+                                <h3>② getapi-proxy 설치</h3>
+                                <p>OS에 맞는 바이너리를 <a href="/download" class="text-primary">다운로드 페이지</a>에서 받거나, 아래 터미널 명령어로 바로 내려받을 수 있습니다.</p>
+
+                                <p style="font-weight:600; color:var(--foreground)">Linux (amd64)</p>
+                                <code class="guide-code" id="g-cmd-linux-amd64"></code>
+
+                                <p style="font-weight:600; color:var(--foreground)">Linux (arm64)</p>
+                                <code class="guide-code" id="g-cmd-linux-arm64"></code>
+
+                                <p style="font-weight:600; color:var(--foreground)">macOS (Apple Silicon)</p>
+                                <code class="guide-code" id="g-cmd-darwin-arm64"></code>
+
+                                <p style="font-weight:600; color:var(--foreground)">macOS (Intel)</p>
+                                <code class="guide-code" id="g-cmd-darwin-amd64"></code>
+
+                                <p style="font-weight:600; color:var(--foreground)">Windows (PowerShell — 관리자로 실행)</p>
+                                <code class="guide-code" id="g-cmd-windows-amd64"></code>
+
+                                <p style="font-weight:600; color:var(--foreground)">소스 직접 빌드</p>
+                                <code class="guide-code">git clone https://github.com/devlib-itsw/getapi-client.git
+cd getapi-client
+go build -o getapi-proxy ./proxy.go</code>
+                            </div>
+
+                            <div class="guide-section-sub" id="use-run">
+                                <h3>③ 실행 및 Device Flow 인증</h3>
+                                <p>프록시는 포트 80을 사용하므로 <strong>관리자(root) 권한</strong>이 필요합니다.</p>
+
+                                <p style="font-weight:600; color:var(--foreground)">Linux / macOS</p>
+                                <code class="guide-code">sudo ./getapi-proxy</code>
+
+                                <p style="font-weight:600; color:var(--foreground)">Windows</p>
+                                <code class="guide-code">.\getapi-proxy.exe   # 관리자 권한으로 실행</code>
+
+                                <p>실행하면 다음 순서로 초기 설정이 진행됩니다.</p>
+
+                                <div class="step-row">
+                                    <span class="step-badge">1</span>
+                                    <div class="step-row-content">
+                                        <p style="font-weight:600; color:var(--foreground)">로깅 여부 선택</p>
+                                        <p>로그를 파일로 저장할지 선택합니다. <span class="inline-code">y</span>를 입력하면 로그 경로를 지정할 수 있으며, 기본값은 <span class="inline-code">.getapi-log/</span>입니다.</p>
+                                        <code class="guide-code">로깅 사용? (y/n): y
+로그 경로 (엔터: .getapi-log/): [엔터]
+[✓] 로그 파일: .getapi-log/2026-04-25.log</code>
+                                    </div>
+                                </div>
+
+                                <div class="step-row">
+                                    <span class="step-badge">2</span>
+                                    <div class="step-row-content">
+                                        <p style="font-weight:600; color:var(--foreground)">Device Flow 인증 (RFC 8628)</p>
+                                        <p>브라우저가 자동으로 열리며 인증 코드가 클립보드에 복사됩니다.</p>
+                                        <code class="guide-code">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Visit: http://localhost:8080/auth/device/activate
+  Code:  ABCD-1234  (클립보드에 복사됨)
+  유효시간: 600초
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</code>
+                                        <p>브라우저에서 GetAPI에 로그인한 뒤, 표시된 <strong>8자리 코드</strong>를 입력하고 승인하면 인증이 완료됩니다.</p>
+                                    </div>
+                                </div>
+
+                                <div class="step-row">
+                                    <span class="step-badge">3</span>
+                                    <div class="step-row-content">
+                                        <p style="font-weight:600; color:var(--foreground)">프록시 시작</p>
+                                        <p>인증 완료 후 <span class="inline-code">/etc/hosts</span>에 <span class="inline-code">getapi</span> 도메인이 자동 등록되며 프록시가 포트 80에서 실행됩니다.</p>
+                                        <code class="guide-code">[✓] 인증 완료. 만료일: 2026-05-02
+Running on http://getapi:80</code>
+                                    </div>
+                                </div>
+
+                                <div class="guide-callout guide-callout-info">
+                                    <svg class="guide-callout-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                    <div>프록시를 종료하면(<span class="inline-code">Ctrl+C</span>) <span class="inline-code">/etc/hosts</span> 항목이 자동으로 삭제됩니다. API Key와 Secret Key는 <strong>메모리에만 보관</strong>되며 파일에 저장되지 않습니다.</div>
+                                </div>
+                            </div>
+
+                            <div class="guide-section-sub" id="use-call">
+                                <h3>④ API 호출</h3>
+                                <p>프록시 실행 후 기존 호출 URL 대신 <span class="inline-code">http://getapi/{slug}</span>로 요청합니다. 인증 헤더는 프록시가 자동으로 추가합니다.</p>
+
+                                <code class="guide-code"># GET 요청
+curl http://getapi/weather-api/v1/current?city=Seoul
+
+# POST 요청
+curl -X POST http://getapi/my-api/v1/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello World"}'</code>
+
+                                <table class="guide-table">
+                                    <thead><tr><th>자동으로 추가되는 헤더</th><th>설명</th></tr></thead>
+                                    <tbody>
+                                        <tr><td><code>X-GetAPI-Key</code></td><td>발급된 API Key</td></tr>
+                                        <tr><td><code>X-GetAPI-Timestamp</code></td><td>UTC ISO 8601 타임스탬프</td></tr>
+                                        <tr><td><code>X-GetAPI-Signature</code></td><td>HMAC-SHA256 서명 (body + timestamp)</td></tr>
+                                    </tbody>
+                                </table>
+
+                                <p>API Key는 7일마다 자동 갱신됩니다. 갱신은 자정에 백그라운드에서 처리되므로 별도 작업이 필요 없습니다.</p>
+                            </div>
+
+                            <div class="guide-section-sub" id="use-security">
+                                <h3>⑤ 보안 구조</h3>
+                                <table class="guide-table">
+                                    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>서명 알고리즘</td><td>HMAC-SHA256 (body + timestamp)</td></tr>
+                                        <tr><td>타임스탬프 유효 범위</td><td>±5분 (Replay Attack 방지)</td></tr>
+                                        <tr><td>API Key 유효 기간</td><td>7일 (Rotation Token으로 자동 갱신)</td></tr>
+                                        <tr><td>키 저장 방식</td><td>메모리에만 보관 (파일 저장 없음)</td></tr>
+                                        <tr><td>hosts 자동 정리</td><td>프록시 종료 시 <code>/etc/hosts</code> 항목 자동 삭제</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <!-- 6. API 판매하기 -->
+                        <section class="guide-section" id="sell-api">
+                            <h2>
+                                <svg class="icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                                6. API 판매하기
+                            </h2>
+                            <p>본인이 운영하는 API 서버를 GetAPI 플랫폼에 연결하면, 다른 개발자들이 포인트로 API를 사용하고 수익이 누적됩니다.</p>
+
+                            <div class="guide-section-sub" id="sell-register">
+                                <h3>① API 등록</h3>
+                                <p><a href="/api/dashboard" class="text-primary">대시보드</a> → <strong>새 API 등록</strong> 버튼을 클릭합니다.</p>
+
+                                <table class="guide-table">
+                                    <thead><tr><th>필드</th><th>설명</th><th>예시</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>API 이름</td><td>라이브러리에 표시될 이름</td><td>날씨 API</td></tr>
+                                        <tr><td>HTTP 메서드</td><td>원본 API의 기본 메서드</td><td>GET</td></tr>
+                                        <tr><td>URL Slug</td><td>프록시 경로 식별자 (비워두면 자동생성)</td><td><code>weather-api</code></td></tr>
+                                        <tr><td>원본 API URL</td><td>실제 API 서버의 엔드포인트</td><td><code>https://api.example.com/weather</code></td></tr>
+                                        <tr><td>설명</td><td>API 기능 설명 (라이브러리 표시)</td><td>실시간 날씨 데이터 제공</td></tr>
+                                        <tr><td>API 문서</td><td>Markdown 형식의 .md 파일</td><td>README.md</td></tr>
+                                        <tr><td>태그</td><td>콤마(,)로 구분해서 입력</td><td>날씨, 기상청, open-data</td></tr>
+                                        <tr><td>호출당 포인트</td><td>1회 호출 시 차감될 포인트</td><td>10</td></tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="guide-callout guide-callout-info">
+                                    <svg class="guide-callout-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                    <div>URL Slug는 <span class="inline-code">http://getapi/{slug}</span>의 경로 부분입니다. 영문·숫자·하이픈을 권장하며, 한 번 등록하면 신중하게 변경하세요.</div>
+                                </div>
+                            </div>
+
+                            <div class="guide-section-sub" id="sell-verify">
+                                <h3>② Well-Known 소유권 검증</h3>
+                                <p>API 등록 후 원본 서버의 소유권을 검증해야 합니다. GetAPI가 생성한 토큰을 원본 서버의 특정 경로에 노출시키는 방식입니다.</p>
+
+                                <div class="step-row">
+                                    <span class="step-badge">1</span>
+                                    <div class="step-row-content">
+                                        <p style="font-weight:600; color:var(--foreground)">검증 토큰 확인</p>
+                                        <p>등록 완료 후 검증 페이지에서 토큰을 확인합니다.</p>
+                                        <code class="guide-code">토큰 예시: getapi_verify_a3f8d29c...</code>
+                                    </div>
+                                </div>
+
+                                <div class="step-row">
+                                    <span class="step-badge">2</span>
+                                    <div class="step-row-content">
+                                        <p style="font-weight:600; color:var(--foreground)">원본 서버에 Well-Known 경로 추가</p>
+                                        <p>원본 API 서버의 <strong>루트 도메인</strong> 기준으로 다음 경로에서 토큰 문자열만 반환하도록 설정합니다.</p>
+                                        <code class="guide-code">GET https://api.example.com/.well-known/getapi-verify
+→ 응답 본문: getapi_verify_a3f8d29c...</code>
+
+                                        <p style="font-weight:600; color:var(--foreground); margin-top:0.75rem">Spring Boot 예시</p>
+                                        <code class="guide-code">@GetMapping("/.well-known/getapi-verify")
+@ResponseBody
+public String verify() {
+    return "getapi_verify_a3f8d29c...";
+}</code>
+
+                                        <p style="font-weight:600; color:var(--foreground); margin-top:0.75rem">Express (Node.js) 예시</p>
+                                        <code class="guide-code">app.get('/.well-known/getapi-verify', (req, res) => {
+  res.send('getapi_verify_a3f8d29c...');
+});</code>
+
+                                        <p style="font-weight:600; color:var(--foreground); margin-top:0.75rem">Nginx 정적 파일 예시</p>
+                                        <code class="guide-code">location /.well-known/getapi-verify {
+    return 200 'getapi_verify_a3f8d29c...';
+    add_header Content-Type text/plain;
+}</code>
+                                    </div>
+                                </div>
+
+                                <div class="step-row">
+                                    <span class="step-badge">3</span>
+                                    <div class="step-row-content">
+                                        <p style="font-weight:600; color:var(--foreground)">검증 요청</p>
+                                        <p>검증 페이지에서 <strong>검증하기</strong> 버튼을 클릭합니다. GetAPI 서버가 원본 서버의 well-known 경로를 호출해 토큰을 비교합니다. 일치하면 API가 즉시 활성화됩니다.</p>
+                                    </div>
+                                </div>
+
+                                <div class="guide-callout guide-callout-warning">
+                                    <svg class="guide-callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsla(38,92%,50%,1)"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                    <div>검증 토큰은 등록 후 <strong>10분간만 유효</strong>합니다. 시간 내에 검증을 완료하지 못하면 API를 다시 등록해야 합니다.</div>
+                                </div>
+                            </div>
+
+                            <div class="guide-section-sub" id="sell-manage">
+                                <h3>③ API 관리</h3>
+                                <p>대시보드 → API 카드를 클릭하면 상세 관리 페이지로 이동합니다.</p>
+                                <ul>
+                                    <li><strong>통계</strong>: 총 호출수, 오늘 호출수, 총 수익, 최근 호출 로그 50건</li>
+                                    <li><strong>정보 수정</strong>: 이름, 설명, 가격, URL Slug 변경 가능</li>
+                                    <li><strong>문서 업데이트</strong>: 새 .md 파일을 업로드하면 즉시 반영됩니다</li>
+                                    <li><strong>삭제</strong>: API를 영구 삭제합니다. 복구할 수 없습니다</li>
+                                </ul>
+                            </div>
+
+                            <div class="guide-section-sub" id="sell-hateoas">
+                                <h3>④ HATEOAS 설정 (선택)</h3>
+                                <p>원본 API가 JSON을 반환하는 경우, GetAPI 프록시가 응답에 <span class="inline-code">_links</span> 필드를 자동으로 주입할 수 있습니다.</p>
+                                <ol>
+                                    <li>API 관리 페이지 → <strong>HATEOAS</strong> 탭으로 이동합니다.</li>
+                                    <li>토글로 활성화 후, <strong>rel</strong>(관계명), <strong>URI</strong>, <strong>Method</strong>를 입력해 링크를 추가합니다.</li>
+                                    <li>저장하면 이후 API 응답에 자동으로 주입됩니다.</li>
+                                </ol>
+                                <code class="guide-code">// 응답 예시 (_links 자동 주입)
+{
+  "id": 1,
+  "name": "Seoul",
+  "temp": 22.5,
+  "_links": {
+    "forecast": { "href": "/weather/forecast", "method": "GET" },
+    "history":  { "href": "/weather/history",  "method": "GET" }
+  }
+}</code>
+                                <div class="guide-callout guide-callout-info">
+                                    <svg class="guide-callout-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                    <div>HATEOAS 활성화는 원본 API가 <span class="inline-code">application/json</span>을 반환해야 합니다. JSON이 아닌 응답에는 주입되지 않습니다.</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 7. 커뮤니티 -->
+                        <section class="guide-section" id="community">
+                            <h2>
+                                <svg class="icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                7. 커뮤니티
+                            </h2>
+                            <p>커뮤니티에서 API 홍보, 제작 외주 요청, 개발 관련 정보를 공유하세요.</p>
+                            <ul>
+                                <li><strong>글 작성</strong>: 제목, 내용, 태그를 입력해 게시글을 등록합니다. 마크다운을 지원합니다.</li>
+                                <li><strong>좋아요</strong>: 게시글 하단의 좋아요 버튼으로 좋아요를 추가하거나 취소합니다.</li>
+                                <li><strong>댓글</strong>: 게시글에 댓글을 달고, 자신의 댓글은 수정·삭제할 수 있습니다.</li>
+                                <li><strong>검색 · 정렬</strong>: 키워드 검색, 태그 필터링, 최신순/인기순 정렬이 가능합니다.</li>
+                            </ul>
+                            <div class="guide-callout guide-callout-info">
+                                <svg class="guide-callout-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                <div>커뮤니티 게시글과 API는 AI 자동 검열 시스템을 통해 부적절한 내용이 필터링됩니다. 문제가 없는 경우에도 일시적으로 검토 중 상태가 될 수 있습니다.</div>
+                            </div>
+                        </section>
+
                     </div>
                 </div>
-            </section>
 
-            <!-- Features Section -->
-            <section style="border-top:1px solid var(--border); padding:5rem 0">
-                <div class="container">
-                    <div style="text-align:center; max-width:40rem; margin:0 auto">
-                        <h2 style="font-size:1.875rem; font-weight:700; color:var(--foreground)">
-                            개발자를 위한 <span class="text-primary">모든 기능</span>
-                        </h2>
-                        <p style="margin-top:1rem; font-size:1.125rem; color:var(--muted-foreground)">
-                            API 판매자와 구매자 모두를 위한 통합 플랫폼
-                        </p>
-                    </div>
-
-                    <div
-                        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:2rem; max-width:64rem; margin:4rem auto 0">
-                        <!-- Feature 1 -->
-                        <div class="card p-6 transition-all" style="cursor:default">
-                            <div
-                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
-                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
-                                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                                    <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
-                                    <path d="M2 7h20" />
-                                    <path
-                                        d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" />
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-foreground">API Library</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted">다양한 카테고리의 검증된 API를 탐색하고, 호출당 포인트로 간편하게
-                                이용하세요.</p>
-                        </div>
-                        <!-- Feature 2 -->
-                        <div class="card p-6 transition-all" style="cursor:default">
-                            <div
-                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
-                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-foreground">Community</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted">API 홍보, 제작 외주 요청, 개발자 네트워킹을 위한 커뮤니티
-                                공간입니다.</p>
-                        </div>
-                        <!-- Feature 3 -->
-                        <div class="card p-6 transition-all" style="cursor:default">
-                            <div
-                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
-                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 3v18h18" />
-                                    <path d="M18 17V9" />
-                                    <path d="M13 17V5" />
-                                    <path d="M8 17v-3" />
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-foreground">Dashboard</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted">판매 중인 API의 트래픽, 수익, 구매자 현황을 실시간으로
-                                모니터링하세요.</p>
-                        </div>
-                        <!-- Feature 4 -->
-                        <div class="card p-6 transition-all" style="cursor:default">
-                            <div
-                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
-                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
-                                    <path d="m21 2-9.6 9.6" />
-                                    <circle cx="7.5" cy="15.5" r="5.5" />
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-foreground">API Key 관리</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted">자동 재발급되는 API Key와 자동 서명기술로 안전하게 API를
-                                이용하세요.</p>
-                        </div>
-                        <!-- Feature 5 -->
-                        <div class="card p-6 transition-all" style="cursor:default">
-                            <div
-                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
-                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-foreground">피드백 시스템</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted">댓글과 평점을 통해 API 품질을 개선하고 더 나은 서비스를 제공하세요.
-                            </p>
-                        </div>
-                        <!-- Feature 6 -->
-                        <div class="card p-6 transition-all" style="cursor:default">
-                            <div
-                                style="width:3rem; height:3rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:1rem">
-                                <svg class="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect width="20" height="14" x="2" y="5" rx="2" />
-                                    <line x1="2" x2="22" y1="10" y2="10" />
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-foreground">포인트 시스템</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted">포인트 충전, 환전, 정기결제 연결로 유연한 결제 환경을 제공합니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Stats Section -->
-            <section style="border-top:1px solid var(--border); padding:4rem 0">
-                <div class="container">
-                    <div
-                        style="display:grid; grid-template-columns:repeat(2, 1fr); gap:2rem; max-width:56rem; margin:0 auto; text-align:center">
-                        <div>
-                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">1,200+</p>
-                            <p class="mt-2 text-sm text-muted">등록된 API</p>
-                        </div>
-                        <div>
-                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">5,000+</p>
-                            <p class="mt-2 text-sm text-muted">개발자</p>
-                        </div>
-                        <div>
-                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">10M+</p>
-                            <p class="mt-2 text-sm text-muted">월간 API 호출</p>
-                        </div>
-                        <div>
-                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">99.9%</p>
-                            <p class="mt-2 text-sm text-muted">가동률</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            </div>
         </main>
     </th:block>
-    <th:block layout:fragment="script">
 
+    <th:block layout:fragment="script">
+        <script>
+        /* 다운로드 curl 명령어 — 현재 호스트 기준 */
+        (function() {
+            const base = window.location.origin;
+            const linuxCmd = (arch) =>
+                `curl -OL "${base}/download/proxy?os=linux&arch=${arch}"\ntar xzf getapi-proxy_linux_${arch}.tar.gz\nsudo ./getapi-proxy`;
+            const darwinCmd = (arch) =>
+                `curl -OL "${base}/download/proxy?os=darwin&arch=${arch}"\ntar xzf getapi-proxy_darwin_${arch}.tar.gz\nsudo ./getapi-proxy`;
+            const winCmd =
+                `Invoke-WebRequest -Uri "${base}/download/proxy?os=windows&arch=amd64" -OutFile proxy.zip\nExpand-Archive proxy.zip\n.\\getapi-proxy.exe`;
+
+            const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+            set('g-cmd-linux-amd64',  linuxCmd('amd64'));
+            set('g-cmd-linux-arm64',  linuxCmd('arm64'));
+            set('g-cmd-darwin-arm64', darwinCmd('arm64'));
+            set('g-cmd-darwin-amd64', darwinCmd('amd64'));
+            set('g-cmd-windows-amd64', winCmd);
+        })();
+
+        /* TOC 활성화 스크롤 감지 */
+        const tocLinks = document.querySelectorAll('.toc-item');
+        const sections = Array.from(tocLinks)
+            .map(a => document.querySelector(a.getAttribute('href')))
+            .filter(Boolean);
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    tocLinks.forEach(a => a.classList.remove('active'));
+                    const active = document.querySelector(`.toc-item[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+        sections.forEach(s => observer.observe(s));
+        </script>
     </th:block>
 </body>
 

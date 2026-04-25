@@ -34,7 +34,11 @@ public class SmsAuthService {
 
     @Transactional
     public void saveUser(String id, String name, String phone, String mail, String profileImg) {
-        Users user = new Users(null, UUID.randomUUID(), id, mail, phone, "ROLE_USER", LocalDateTime.now(), null, null);
+        if (UserRepository.existsByPhone(phone)) {
+            log.warn("이미 가입된 전화번호 - 저장 생략: {}", phone);
+            return;
+        }
+        Users user = new Users(null, UUID.randomUUID(), id, mail, phone, "ROLE_USER", LocalDateTime.now(), null, 0L);
         UserRepository.save(user);
         UserProfile profile = new UserProfile();
         profile.setUser(user);
@@ -126,7 +130,7 @@ public class SmsAuthService {
             // 폰인증끄기
             phone = mimeMessage.getSubject();
 //----------------------------------------------------------
-            // SPF 결과 확인
+//             SPF 결과 확인
             String[] spfHeaders = mimeMessage.getHeader("Received-SPF");
             if (spfHeaders != null) {
                 String spf = spfHeaders[0];
@@ -137,7 +141,7 @@ public class SmsAuthService {
                     return null;
                 }
             }
-            //폰인증끄기
+//            폰인증끄기
 //            if(!domain.equals("vmms.nate.com") && !domain.equals("mmsmail.uplus.co.kr")) {
 //            	log.warn("도메인 인증 실패 - 위조 가능성: {}", domain);
 //                return null;

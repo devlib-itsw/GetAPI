@@ -256,21 +256,8 @@
                                             가입일</th>
                                     </tr>
                                 </thead>
-                                <tbody class="point-users-body">
-									<tr th:each="user, loop: ${userList}" style="border-bottom:1px solid var(--border)" class="table-row-hover">
-                                        <td style="padding:0.75rem 1rem">
-                                            <div class="flex items-center gap-2">
-                                                <!--<div class="avatar avatar-sm">김</div>-->
-												<img class="avatar avatar-sm" th:src="${user.profileImage}" />
-                                                <span th:text="${user.nickname ?: user.name}" class="font-medium text-foreground">김개발</span>
-                                            </div>
-                                        </td>
-                                        <td th:text="${user.email}" style="padding:0.75rem 1rem; color:var(--muted-foreground)">kim@dev.com</td>
-                                        <td th:text="${#numbers.formatInteger(user.point, 0, 'COMMA')}" style="padding:0.75rem 1rem; text-align:right; font-weight:600; color:var(--primary)">125,400 P</td>
-                                        <!--<td style="padding:0.75rem 1rem; text-align:right; color:var(--foreground)">350,000 P</td>
-                                        <td style="padding:0.75rem 1rem; text-align:right; color:var(--muted-foreground)">224,600 P</td>-->
-                                        <td th:text="${#temporals.format(user.profileCreatedAt, 'yyyy-MM-dd hh:mm:ss')}" style="padding:0.75rem 1rem; text-align:center; color:var(--muted-foreground)">2025-08-12</td>
-                                    </tr>
+                                <tbody id="user-table-body">
+                                    <tr><td colspan="4" style="padding:2rem; text-align:center; color:var(--muted-foreground)">불러오는 중...</td></tr>
                                     <!--<tr style="border-bottom:1px solid var(--border)" class="table-row-hover">
                                         <td style="padding:0.75rem 1rem">
                                             <div class="flex items-center gap-2">
@@ -378,23 +365,7 @@
                         </div>
                     </div>
 
-                    <!-- Pagination -->
-                    <div class="pagination">
-                        <button class="btn btn-outline btn-icon btn-sm" data-control="prev">
-							<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="m15 18-6-6 6-6" />
-                            </svg>
-						</button>
-						<button th:each="page: ${#numbers.sequence(0, userList.totalPages-1)}" th:text="${page}+1" th:data-page="${page}" th:classappend="${page==userList.number} ? 'btn-primary' : 'btn-outline'" class="btn btn-icon btn-sm"></button>
-                        <!--<button class="btn btn-primary btn-icon btn-sm">1</button>
-                        <button class="btn btn-outline btn-icon btn-sm">2</button>
-                        <button class="btn btn-outline btn-icon btn-sm">3</button>-->
-                        <button class="btn btn-outline btn-icon btn-sm" data-control="next">
-							<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="m9 18 6-6-6-6" />
-                            </svg>
-						</button>
-                    </div>
+                    <div class="pagination mt-4" id="user-nav"></div>
                 </div>
 
                 <!-- ===== Tab: 신고 게시물 관리 ===== -->
@@ -542,7 +513,7 @@
                                     </div>-->
                                     <span class="text-xs text-muted" th:text="${#temporals.format(post.date, 'yyyy-MM-dd')}"><!--신고 3회 | -->2026-02-07</span>
                                 </div>
-                                <a th:href="@{|/community/${post.uuid}|}"><h3 class="font-medium text-foreground" style="margin-bottom:0.5rem" th:text="${post.title}">욕설 및 비방이 포함된 게시글입니다
+                                <a th:href="@{|/community/view/${post.uuid}|}"><h3 class="font-medium text-foreground" style="margin-bottom:0.5rem" th:text="${post.title}">욕설 및 비방이 포함된 게시글입니다
                                 </h3></a>
                                 <p class="text-sm text-muted" style="margin-bottom:0.75rem; line-height:1.6" th:text="${#strings.abbreviate(post.content, 50)}">해당 게시글에서 특정
                                     사용자를 비방하고 욕설을 사용하여 신고합니다. 커뮤니티 가이드라인에 위반되는 내용입니다...</p>
@@ -554,7 +525,7 @@
                                                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                                                 <circle cx="12" cy="7" r="4" />
                                             </svg>
-                                            <span th:text="|사용자: ${post.user.nickname ?: post.user.name ?: post.user}|">작성자: 문제유저1</span>
+                                            <span th:text="|사용자: ${post.user.email}|">작성자: 문제유저1</span>
                                         </span>
                                         <!--<span class="flex items-center gap-1">
                                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -568,7 +539,7 @@
                                     <div class="flex items-center gap-2">
                                         <button th:data-uuid="${post.uuid}" data-action="PATCH" class="btn btn-outline btn-sm">무시</button>
                                         <button th:data-uuid="${post.uuid}" data-action="DELETE" class="btn btn-sm"
-                                            style="background:hsl(0,62.8%,50%); color:var(--foreground); border:none">삭제</button>
+                                            style="background:hsl(0,62.8%,50%); color:var(--foreground); border:none">검열</button>
                                     </div>
                                 </div>
                             </div>
@@ -741,29 +712,14 @@
                         </div>
                     </div>
 
-                    <!-- Pagination -->
-                    <div class="pagination">
-                        <button class="btn btn-outline btn-icon btn-sm" disabled><svg class="icon" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="m15 18-6-6 6-6" />
-                            </svg></button>
-                        <button class="btn btn-primary btn-icon btn-sm">1</button>
-                        <button class="btn btn-outline btn-icon btn-sm">2</button>
-                        <button class="btn btn-outline btn-icon btn-sm"><svg class="icon" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="m9 18 6-6-6-6" />
-                            </svg></button>
-                    </div>
+                    <div class="pagination mt-4" id="report-nav"></div>
                 </div>
 
             </div>
         </main>
     </th:block>
     <th:block layout:fragment="script">
-		<!--<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>-->
-		
+	<script src="/js/Pagination.js"></script>
         <script>
             /* ── Tab Switching ── */
             document.querySelectorAll('.tab-btn').forEach(function (btn) {
@@ -823,102 +779,136 @@
 				"user": []
 			}*/
 			
-			const render=(items=[], type)=>{
-				document.querySelector(".report-items").innerHTML=items.map(item=>				`
-					<div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem"
-	                    class="table-row-hover">
-	                    <div class="flex flex-wrap items-center justify-between gap-3"
-	                        style="margin-bottom:0.75rem">
-	                        <!--<div class="flex items-center gap-2">
-	                            <span class="badge"
-	                                style="background:color-mix(in srgb, hsl(0,62.8%,50%) 15%, transparent); color:hsl(0,62.8%,50%)">게시글</span>
-	                            <span class="badge"
-	                                style="background:color-mix(in srgb, hsl(45, 93%, 47%) 15%, transparent); color:hsl(45, 93%, 47%)">대기</span>
-	                        </div>-->
-	                        <span class="text-xs text-muted">${item.date.split("T")[0]}</span>
-	                    </div>
-	                    <a href="/${type}/${item.uuid}"><h3 class="font-medium text-foreground" style="margin-bottom:0.5rem">${item.title}
-	                    </h3></a>
-	                    <p class="text-sm text-muted" style="margin-bottom:0.75rem; line-height:1.6">${item.content}</p>
-	                    <div class="flex flex-wrap items-center justify-between gap-3">
-	                        <div class="flex items-center gap-4 text-sm text-muted">
-	                            <span class="flex items-center gap-1">
-	                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-	                                    stroke-width="2">
-	                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-	                                    <circle cx="12" cy="7" r="4" />
-	                                </svg>
-	                                <span>사용자: ${item.user.nickname ?? item.user.name}</span>
-	                            </span>
-	                            <!--<span class="flex items-center gap-1">
-	                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-	                                    stroke-width="2">
-	                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-	                                    <line x1="4" x2="4" y1="22" y2="15" />
-	                                </svg>
-	                                신고자: 김개발
-	                            </span>-->
-	                        </div>
-	                        <div class="flex items-center gap-2">
-	                            <button data-uuid="${item.uuid}" data-action="PATCH" class="btn btn-outline btn-sm">무시</button>
-	                            <button data-uuid="${item.uuid}" data-action="DELETE" class="btn btn-sm"
-	                                style="background:hsl(0,62.8%,50%); color:var(--foreground); border:none">삭제</button>
-	                        </div>
-	                    </div>
-	                </div>
-				`);
-			}
-			
-			let type="post";
-			window.onFilterChange = async function(value, label, wrapper) {
-				type=value;
-			    console.log("select value:", type); // all, pending, done 등
+			/* ── 포인트 탭: 회원 검색 + 페이지네이션 ── */
+			const userPaginator = new DataPaginator({
+				apiUrl: '/admin/js/searchUsers',
+				bodyContainer: '#user-table-body',
+				navContainer: '#user-nav',
+				getSearchParams: () => ({
+					keyword: document.getElementById('adminUserSearch').value.trim()
+				}),
+				renderRow: (user) => `
+					<tr style="border-bottom:1px solid var(--border); cursor:pointer" class="table-row-hover" onclick="location.href='/user/profile/${user.userUuid}'">
+						<td style="padding:0.75rem 1rem">
+							<div class="flex items-center gap-2">
+								<img class="avatar avatar-sm" src="/user/avatar/${user.userUuid}" style="border-radius:50%" onerror="this.style.display='none'"/>
+								<span class="font-medium text-foreground">${user.nickname ?? user.name ?? '-'}</span>
+							</div>
+						</td>
+						<td style="padding:0.75rem 1rem; color:var(--muted-foreground)">${user.email}</td>
+						<td style="padding:0.75rem 1rem; text-align:right; font-weight:600; color:var(--primary)">${(user.point ?? 0).toLocaleString()} P</td>
+						<td style="padding:0.75rem 1rem; text-align:center; color:var(--muted-foreground)">${user.profileCreatedAt ? user.profileCreatedAt.substring(0,10) : '-'}</td>
+					</tr>`
+			});
+			userPaginator.load(0);
 
-			    try{
-					const response=await fetch(`/admin/${type}/0`);
-										
-					if(!response.ok) throw new Error("get file error");
-					
-					const json=await response.json();
-					
-					console.log(json.content);
-					
-					render(json.content, type);
-				} catch(err){
-					console.log(err);
+			document.getElementById('userSearchForm').addEventListener('submit', function(e) {
+				e.preventDefault();
+				userPaginator.load(0);
+			});
+
+			/* ── 검열 탭: 타입 필터 + 페이지네이션 ── */
+			let reportType = 'community';
+			let reportPage = 0;
+			let reportTotalPages = 1;
+
+			const typeUrl = (type, uuid) => {
+				if (type === 'community') return `/community/view/${uuid}`;
+				if (type === 'library') return `/library/view/${uuid}`;
+				if (type === 'user') return `/user/profile/${uuid}`;
+				return null;
+			};
+
+			const renderReportNav = () => {
+				const nav = document.getElementById('report-nav');
+				if (reportTotalPages <= 1) { nav.innerHTML = ''; return; }
+				nav.innerHTML = `
+					<button class="btn btn-outline btn-icon btn-sm" data-control="prev">
+						<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+					</button>
+					${Array.from({length: reportTotalPages}, (_, i) =>
+						`<button class="btn btn-icon btn-sm ${i === reportPage ? 'btn-primary' : 'btn-outline'}" data-page="${i}">${i + 1}</button>`
+					).join('')}
+					<button class="btn btn-outline btn-icon btn-sm" data-control="next">
+						<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+					</button>`;
+				nav.querySelectorAll('button').forEach(btn => {
+					btn.addEventListener('click', () => {
+						const ctrl = btn.dataset.control;
+						const max = reportTotalPages - 1;
+						if (ctrl === 'prev') reportPage = Math.max(reportPage - 1, 0);
+						else if (ctrl === 'next') reportPage = Math.min(reportPage + 1, max);
+						else reportPage = Number(btn.dataset.page);
+						loadReportPage();
+					});
+				});
+			};
+
+			const renderReports = (items) => {
+				document.querySelector('.report-items').innerHTML = items.length === 0
+					? '<p class="text-sm text-muted">항목이 없습니다.</p>'
+					: items.map(item => `
+					<div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem" class="table-row-hover">
+						<div class="flex flex-wrap items-center justify-between gap-3" style="margin-bottom:0.75rem">
+							<span class="text-xs text-muted">${item.date ? item.date.split('T')[0] : '-'}</span>
+						</div>
+						${typeUrl(reportType, item.uuid) ? `<a href="${typeUrl(reportType, item.uuid)}">` : ''}
+						<h3 class="font-medium text-foreground" style="margin-bottom:0.5rem">${item.title ?? ''}</h3>
+						${typeUrl(reportType, item.uuid) ? '</a>' : ''}
+						<p class="text-sm text-muted" style="margin-bottom:0.75rem; line-height:1.6">${item.content ? item.content.substring(0, 100) : ''}</p>
+						<div class="flex flex-wrap items-center justify-between gap-3">
+							<span class="flex items-center gap-1 text-sm text-muted">
+								<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+								</svg>
+								사용자: ${item.user?.email ?? '-'}
+							</span>
+							<div class="flex items-center gap-2">
+								<button data-uuid="${item.uuid}" data-action="PATCH" class="btn btn-outline btn-sm">무시</button>
+								<button data-uuid="${item.uuid}" data-action="DELETE" class="btn btn-sm"
+									style="background:hsl(0,62.8%,50%); color:var(--foreground); border:none">검열</button>
+							</div>
+						</div>
+					</div>`).join('');
+			};
+
+			const loadReportPage = async () => {
+				try {
+					const res = await fetch(`/admin/${reportType}/${reportPage}`);
+					if (!res.ok) throw new Error();
+					const json = await res.json();
+					reportTotalPages = json.totalPages || 1;
+					renderReports(json.content || []);
+					renderReportNav();
+				} catch (e) {
+					document.querySelector('.report-items').innerHTML = '<p class="text-sm text-muted">불러오기 실패</p>';
 				}
 			};
-			
-			/* ── 무시 / 삭제 이벤트 ── */
-			document.querySelector(".report-items").addEventListener("click", async e=>{
-				const uuid=e.target.dataset.uuid;
-				const action=e.target.dataset.action;
-				if(!uuid || !action) return;
-				console.log(uuid, action)
-				
-				try{
-					await fetch(`/admin/${type}/${uuid}`, {
-						method: action,
-						headers: {"Content-Type": "application/json"}
-					}).then(res=>{
-						if(res.ok){
-							if(action==="PATCH"){
-								alert("검열 해제 완료");
-							} else if(action==="DELETE"){
-								alert("삭제 완료");
-							}
-							location.reload();
-						}
-					})
-				} catch(err){
-					console.log("error: ", err);
+
+			window.onFilterChange = function(value) {
+				reportType = value;
+				reportPage = 0;
+				loadReportPage();
+			};
+
+			/* ── 무시 / 검열 이벤트 ── */
+			document.querySelector('.report-items').addEventListener('click', async e => {
+				const uuid = e.target.dataset.uuid;
+				const action = e.target.dataset.action;
+				if (!uuid || !action) return;
+				const res = await fetch(`/admin/${reportType}/${uuid}`, {
+					method: action,
+					headers: {'Content-Type': 'application/json'}
+				});
+				if (res.ok) {
+					alert(action === 'PATCH' ? '검열 해제 완료' : '삭제 완료');
+					loadReportPage();
 				}
-			})
+			});
+
+			/* 초기 로딩 */
+			loadReportPage();
         </script>
-		
-		<!--<script src="/js/markdown.js"></script>
-		<script src="/js/pagination_user.js"></script>
-		<script src="/js/pagination_report.js"></script>-->
     </th:block>
 </body>
 

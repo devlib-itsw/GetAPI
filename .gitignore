@@ -161,3 +161,7 @@ out/
 
 ### Environment ###
 .env
+
+### md ###
+error-report.md
+GUIDE.md

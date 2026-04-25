@@ -55,6 +55,7 @@ dependencies {
     
     // dotenv
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 
     //IMAP
     implementation 'org.springframework.boot:spring-boot-starter-mail'
@@ -70,9 +71,13 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+bootRun {
+    jvmArgs = ['-Dspring.devtools.restart.enabled=false']
+}
+
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.3"
     }
 }
-

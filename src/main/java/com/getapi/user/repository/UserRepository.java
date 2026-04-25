@@ -1,8 +1,6 @@
 package com.getapi.user.repository;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -18,6 +16,8 @@ import com.getapi.user.domain.Users;
 public interface UserRepository extends JpaRepository<Users, Long> {
 	boolean existsByEmail(String email);
 
+	boolean existsByPhone(String phone);
+
 	boolean existsByProviderId(String providerId);
 
 	Users findByProviderId(String providerId);
@@ -30,21 +30,14 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 	@Transactional
 	void deleteByProfileDeletedAtBefore(LocalDateTime limit);
 
-// <<<<<<< siwoo
 	Users findByEmail(String email);
 	
-	   
-// =======
-	// apiUpdatedAt 시간 기준으로 지난 날짜 사용자 선택
-//	@Query("SELECT u FROM Users u JOIN UserProfile p ON u.userId=p.user.userId WHERE p.apiUpdatedAt<:limit")
-	List<Users> findByApiUpdatedAtBefore(@Param("limit") LocalDateTime limit);
-
 	Page<Users> findAll(Pageable pageable);
 
 //	Page<Users> findByIsCensoredTrue(Pageable pageable);
 
 	// 전체 포인트
-	@Query("SELECT SUM(p.point) FROM UserProfile p JOIN Users u ON p.profileId=u.userId WHERE u.profileDeletedAt IS NULL")
+	@Query("SELECT SUM(u.point) FROM Users u WHERE u.profileDeletedAt IS NULL")
 	Long sumPointsByProfileDeletedAtIsNotNull();
 
 	// uuid를 활요해서 delete
@@ -64,6 +57,5 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 	// 검열된 사용자들 반환
 	@Query("SELECT u FROM Users u JOIN UserProfile p ON u.userId=p.user.userId WHERE p.isCensored=true")
 	Page<Users> findByIsCensoredTrue(Pageable pageable);
-// >>>>>>> develop
 }
 

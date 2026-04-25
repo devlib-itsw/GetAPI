@@ -7,16 +7,15 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 import com.getapi.comment.controller.PostCommentForm;
 import com.getapi.comment.domain.PostComment;
@@ -166,7 +165,7 @@ public class PostController {
 
 	    if (user != null) {
 	        liked = likes.stream()
-	            .anyMatch(like -> like.getUser().getUserId().equals(user.getUserId()));
+	            .anyMatch(like -> like.getUserProfile().getUser().getUserId().equals(user.getUserId()));
 	    }
 
 	    model.addAttribute("liked", liked);
@@ -174,7 +173,40 @@ public class PostController {
 	    model.addAttribute("post", post);
 	    model.addAttribute("likes", likes);
 	    model.addAttribute("postComments", postComments);
+	    model.addAttribute("loginUser", user);
 
 	    return "community-view";
+	}
+
+	@PatchMapping("/{postUuid}")
+	@ResponseBody
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<?> updatePost(@PathVariable("postUuid") UUID postUuid,
+	                                    @RequestBody Map<String, String> body,
+	                                    @AuthenticationPrincipal String sub) {
+	    Users user = this.userService.getProviderId(sub);
+	    if (user == null) return ResponseEntity.status(401).build();
+	    try {
+	        Post post = this.postService.findByUuid(postUuid);
+	        this.postService.update(post, body.get("title"), body.get("content"), user);
+	        return ResponseEntity.ok().build();
+	    } catch (SecurityException e) {
+	        return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
+	    }
+	}
+
+	@DeleteMapping("/{postUuid}")
+	@ResponseBody
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<?> deletePost(@PathVariable("postUuid") UUID postUuid,
+	                                    @AuthenticationPrincipal String sub) {
+	    Users user = this.userService.getProviderId(sub);
+	    if (user == null) return ResponseEntity.status(401).build();
+	    try {
+	        this.postService.deleteByOwner(postUuid, user);
+	        return ResponseEntity.ok().build();
+	    } catch (SecurityException e) {
+	        return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
+	    }
 	}
 }

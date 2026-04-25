@@ -96,22 +96,24 @@ function initDropdowns() {
 }
 
 /* ── Profile Dropdown Toggle ── */
-var profileBtn = document.getElementById('profile-btn');
-var profileDropdown = document.getElementById('profile-dropdown');
+function initProfileDropdown() {
+  var profileBtn = document.getElementById('profile-btn');
+  var profileDropdown = document.getElementById('profile-dropdown');
 
-if (profileBtn && profileDropdown) {
-  profileBtn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    profileDropdown.classList.toggle('open');
-  });
-  document.addEventListener('click', function (e) {
-    if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
-      profileDropdown.classList.remove('open');
-    }
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') profileDropdown.classList.remove('open');
-  });
+  if (profileBtn && profileDropdown) {
+    profileBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      profileDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', function (e) {
+      if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileDropdown.classList.remove('open');
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') profileDropdown.classList.remove('open');
+    });
+  }
 }
 
 /**
@@ -149,7 +151,7 @@ function initDialogs() {
  * .switch 클래스 요소 클릭 시 .active 토글
  */
 function initSwitches() {
-  document.querySelectorAll('.switch').forEach(function (sw) {
+  document.querySelectorAll('.switch:not([data-managed])').forEach(function (sw) {
     sw.addEventListener('click', function () {
       this.classList.toggle('active');
     });
@@ -310,6 +312,12 @@ function initCustomSelects() {
  *   input.tag-input, .tag-list (태그 표시 영역)
  *   data-max-tags="5" (최대 태그 수)
  */
+function initTagInputs() {
+  document.querySelectorAll('.tag-input-wrapper').forEach(function (wrapper) {
+    var input = wrapper.querySelector('.tag-input');
+    var list = wrapper.querySelector('.tag-list');
+    var maxTags = parseInt(wrapper.getAttribute('data-max-tags')) || 5;
+    var tags = [];
 
     if (!input || !list) return;
 
@@ -343,6 +351,15 @@ function initCustomSelects() {
         list.appendChild(el);
       });
     }
+
+    var form = wrapper.closest('form');
+    if (form) {
+      form.addEventListener('submit', function () {
+        input.value = tags.join(',');
+      });
+    }
+  });
+}
 /**
  * 셀렉트 값이 바뀔 때마다 실행되는 함수
  */
@@ -515,6 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initMobileMenu();
   initTabs();
   initDropdowns();
+  initProfileDropdown();
   initDialogs();
   initSwitches();
   initCopyButtons();

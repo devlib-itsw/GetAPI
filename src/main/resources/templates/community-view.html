@@ -15,7 +15,7 @@
     <th:block layout:fragment="content">
         <main class="main-content bg-muted-30">
             <div class="container-md" style="max-width:56rem; margin:0 auto; padding:2rem 1rem">
-                <a th:href="@{/community}"
+                <a href="javascript:history.back()"
                     class="inline-flex items-center gap-2 text-sm text-muted mb-6 hover\:text-primary"
                     style="display:inline-flex">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -31,15 +31,15 @@
                         <div class="flex flex-wrap gap-2 mb-4" >
                             <span class="badge badge-secondary text-xs" th:each="tag, loop : ${tags}" th:text="${tag.tag}"></span>
                         </div>
-                        <h1 class="text-2xl font-bold text-foreground mb-4" th:text="${post.title}"></h1>
+                        <h1 class="ellipsis text-2xl font-bold text-foreground mb-4" th:text="${post.title}"></h1>
 
                         <div class="flex flex-wrap items-center gap-4 border-b pb-4 text-sm text-muted mb-6">
-                            <a href="profile.html" class="flex items-center gap-2 hover\:text-primary">
+                            <a th:href="@{/user/profile/{uuid}(uuid=${post.userProfile.user.userUuid})}" class="flex items-center gap-2 hover\:text-primary">
 								<div class="avatar avatar-sm">
-									<img th:src="${post.user.profile.profileImage}" alt="profileImage" style="border-radius: 50%;"/>
-									
+									<img th:src="@{/user/avatar/{uuid}(uuid=${post.userProfile.user.userUuid})}" alt="profileImage" style="border-radius: 50%;"/>
+
 								</div>
-                                <span class="font-medium text-foreground">[[${post.user.profile.name}]]</span>
+                                <span class="font-medium text-foreground">[[${post.userProfile.isCensored ? '검열됨' : (post.userProfile.nickname ?: post.userProfile.name)}]]</span>
                             </a>
                             <span class="flex items-center gap-1"><svg class="icon" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2">
@@ -59,12 +59,33 @@
 
                         <!-- Post Content -->
                         <div class="space-y-4" style="color:var(--foreground)">
-                            <p class="leading-relaxed" th:text="${post.content}"></p>
+                            <div id="post-view-area">
+                                <h1 id="post-title-view ellipsis" class="text-2xl font-bold text-foreground mb-2" th:text="${post.title}"></h1>
+                                <p class="leading-relaxed ellipsis" th:text="${post.content}"></p>
+                            </div>
+                            <div id="post-edit-area" style="display:none">
+                                <input id="post-title-input" class="input mb-2" type="text" th:value="${post.title}" style="width:100%"/>
+                                <textarea id="post-content-input" class="textarea mb-2" rows="6" style="width:100%;resize:vertical;" th:text="${post.content}"></textarea>
+                                <div class="flex gap-2 justify-end">
+                                    <button id="post-edit-cancel" class="btn btn-outline btn-sm">취소</button>
+                                    <button id="post-edit-save" class="btn btn-primary btn-sm">저장</button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Actions -->
                         <div class="flex flex-wrap items-center gap-3 border-t pt-4 mt-8">
-							
+							<th:block th:if="${loginUser != null and loginUser.userId == post.userProfile.user.userId}">
+								<button id="post-edit-btn" class="btn btn-outline btn-sm gap-2">
+									<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+									수정
+								</button>
+								<button id="post-delete-btn" class="btn btn-sm gap-2" style="color:var(--destructive); border:1px solid var(--destructive); background-color: #ffffff00;">
+									<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+									삭제
+								</button>
+							</th:block>
+
                             <button class="btn btn-outline btn-sm gap-2 like-btn" th:data-uri="@{|/post/like/add/${post.postId}|}" th:if="${!liked}">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
@@ -114,29 +135,38 @@
                         <div class="card" th:each="postComment : ${postComments}">
                             <div class="card-content p-4">
                                 <div class="flex items-start gap-3">
-									<button class="profile-btn" id="profile-btn" aria-label="프로필 메뉴">
-			                            <img class="profile-avatar" th:src="${postComment.user.profile.profileImage}" alt="프로필">
-			                        </button>
+									<a th:href="@{/user/profile/{uuid}(uuid=${postComment.userProfile?.user?.userUuid})}">
+			                            <img class="profile-avatar" th:src="@{/user/avatar/{uuid}(uuid=${postComment.userProfile?.user?.userUuid})}" alt="프로필" style="border-radius:50%; cursor:pointer">
+			                        </a>
                                     <div class="flex-1">
-                                        <div class="flex items-center justify-between mb-1"><a href="profile.html"
-                                                class="font-medium text-foreground hover\:text-primary" th:text="${postComment.user.profile.name}"></a><span
-                                                class="text-xs text-muted">[[${#temporals.format(postComment.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</span></div>
-                                        <p class="text-sm leading-relaxed text-muted" th:text="${postComment.content}"></p>
-                                        <div class="flex items-center gap-1 mt-2">
-											<a th:href="@{|/comment/modify/${post.postUuid}/${postComment.commentUuid}|}" th:if="${loginUser.userId == postComment.user.userId}" class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path
-                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                                </svg> 수정</a><button th:if="${loginUser.userId == postComment.user.userId}" class="btn btn-ghost btn-sm comment-delete-btn" th:data-uri="|/comment/delete/${post.postId}/${postComment.commentId}|"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M3 6h18" />
-                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                </svg> 삭제</button></div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <a th:href="@{/user/profile/{uuid}(uuid=${postComment.userProfile?.user?.userUuid})}"
+                                                class="font-medium text-foreground hover\:text-primary"
+                                                th:text="${postComment.userProfile?.isCensored ? '검열됨' : (postComment.userProfile?.nickname ?: postComment.userProfile?.name)}"></a>
+                                            <span class="text-xs text-muted">[[${#temporals.format(postComment.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</span>
+                                        </div>
+                                        <p class="text-sm leading-relaxed text-muted comment-content" th:text="${postComment.content}"></p>
+                                        <div class="comment-edit-area" style="display:none">
+                                            <textarea class="textarea comment-edit-input mb-1" rows="2" style="width:100%;resize:none;" th:text="${postComment.content}"></textarea>
+                                            <div class="flex gap-1 justify-end">
+                                                <button class="btn btn-outline btn-sm comment-edit-cancel" style="font-size:0.75rem">취소</button>
+                                                <button class="btn btn-primary btn-sm comment-edit-save" th:data-uuid="${postComment.commentUuid}" style="font-size:0.75rem">저장</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1 mt-2" th:if="${loginUser != null and loginUser.userId == postComment.userProfile?.user?.userId}">
+                                            <button class="btn btn-ghost btn-sm comment-edit-btn"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem">
+                                                <svg style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                                                </svg> 수정
+                                            </button>
+                                            <button class="btn btn-ghost btn-sm comment-delete-btn" th:data-uuid="${postComment.commentUuid}"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)">
+                                                <svg style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                                </svg> 삭제
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -148,26 +178,96 @@
     </th:block>
     <th:block layout:fragment="script">
 		<script>
-			
-		
-		
-			const dElement = document.querySelectorAll(".comment-delete-btn");
+			const postUuid = "[[${post.postUuid}]]";
+
+			/* ── 좋아요 ── */
 			const lElement = document.querySelector(".like-btn");
-			dElement.forEach(item => {
-				item.addEventListener("click", e => {
-					if(confirm("정말로 삭제하시겠습니까??")) {
-						location.href = e.target.dataset.uri;
-					}
-				})
-			})
-			
-			lElement.addEventListener("click", e => {
-				e.preventDefault();
-				
-				// console.log(e.target.dataset.uri);
-				
-				location.href = e.target.dataset.uri;
-			})
+			if (lElement) {
+				lElement.addEventListener("click", e => {
+					e.preventDefault();
+					location.href = e.currentTarget.dataset.uri;
+				});
+			}
+
+			/* ── 게시물 수정 ── */
+			const postEditBtn = document.getElementById("post-edit-btn");
+			if (postEditBtn) {
+				postEditBtn.addEventListener("click", () => {
+					document.getElementById("post-view-area").style.display = "none";
+					document.getElementById("post-edit-area").style.display = "";
+				});
+				document.getElementById("post-edit-cancel").addEventListener("click", () => {
+					document.getElementById("post-view-area").style.display = "";
+					document.getElementById("post-edit-area").style.display = "none";
+				});
+				document.getElementById("post-edit-save").addEventListener("click", async () => {
+					const title = document.getElementById("post-title-input").value.trim();
+					const content = document.getElementById("post-content-input").value.trim();
+					if (!title || !content) return alert("제목과 내용을 입력해주세요.");
+					const res = await fetch(`/community/${postUuid}`, {
+						method: "PATCH",
+						headers: {"Content-Type": "application/json"},
+						body: JSON.stringify({title, content})
+					});
+					if (res.ok) location.reload();
+					else alert("수정 실패");
+				});
+			}
+
+			/* ── 게시물 삭제 ── */
+			const postDeleteBtn = document.getElementById("post-delete-btn");
+			if (postDeleteBtn) {
+				postDeleteBtn.addEventListener("click", async () => {
+					if (!confirm("게시물을 삭제하시겠습니까?")) return;
+					const res = await fetch(`/community/${postUuid}`, {method: "DELETE"});
+					if (res.ok) location.href = "/community";
+					else alert("삭제 실패");
+				});
+			}
+
+			/* ── 댓글 수정/삭제 ── */
+			document.querySelectorAll(".comment-edit-btn").forEach(btn => {
+				btn.addEventListener("click", () => {
+					const card = btn.closest(".card-content");
+					card.querySelector(".comment-content").style.display = "none";
+					card.querySelector(".comment-edit-area").style.display = "";
+					btn.closest(".flex.items-center.gap-1").style.display = "none";
+				});
+			});
+
+			document.querySelectorAll(".comment-edit-cancel").forEach(btn => {
+				btn.addEventListener("click", () => {
+					const card = btn.closest(".card-content");
+					card.querySelector(".comment-content").style.display = "";
+					card.querySelector(".comment-edit-area").style.display = "none";
+					card.querySelector(".flex.items-center.gap-1").style.display = "";
+				});
+			});
+
+			document.querySelectorAll(".comment-edit-save").forEach(btn => {
+				btn.addEventListener("click", async () => {
+					const uuid = btn.dataset.uuid;
+					const content = btn.closest(".comment-edit-area").querySelector(".comment-edit-input").value.trim();
+					if (!content) return alert("내용을 입력해주세요.");
+					const res = await fetch(`/comment/${uuid}`, {
+						method: "PATCH",
+						headers: {"Content-Type": "application/json"},
+						body: JSON.stringify({content})
+					});
+					if (res.ok) location.reload();
+					else alert("수정 실패");
+				});
+			});
+
+			document.querySelectorAll(".comment-delete-btn").forEach(btn => {
+				btn.addEventListener("click", async () => {
+					if (!confirm("댓글을 삭제하시겠습니까?")) return;
+					const uuid = btn.dataset.uuid;
+					const res = await fetch(`/comment/${uuid}`, {method: "DELETE"});
+					if (res.ok) location.reload();
+					else alert("삭제 실패");
+				});
+			});
 		</script>
     </th:block>
 </body>

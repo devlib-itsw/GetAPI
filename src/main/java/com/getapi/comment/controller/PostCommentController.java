@@ -3,15 +3,15 @@ package com.getapi.comment.controller;
 import java.security.Principal;
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 import com.getapi.comment.domain.PostComment;
 import com.getapi.comment.service.PostCommentService;
@@ -81,5 +81,35 @@ public class PostCommentController {
 		this.postCommentService.delete(postCommentId);
 		return String.format("redirect:/community/view/%s", post.getPostUuid());
 	}
-	
+
+	@PatchMapping("/{commentUuid}")
+	@ResponseBody
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<?> updateComment(@PathVariable("commentUuid") UUID commentUuid,
+	                                       @RequestBody Map<String, String> body,
+	                                       @AuthenticationPrincipal String sub) {
+	    Users user = this.userService.getProviderId(sub);
+	    if (user == null) return ResponseEntity.status(401).build();
+	    try {
+	        this.postCommentService.update(commentUuid, body.get("content"), user);
+	        return ResponseEntity.ok().build();
+	    } catch (SecurityException e) {
+	        return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
+	    }
+	}
+
+	@DeleteMapping("/{commentUuid}")
+	@ResponseBody
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<?> deleteComment(@PathVariable("commentUuid") UUID commentUuid,
+	                                       @AuthenticationPrincipal String sub) {
+	    Users user = this.userService.getProviderId(sub);
+	    if (user == null) return ResponseEntity.status(401).build();
+	    try {
+	        this.postCommentService.deleteByOwner(commentUuid, user);
+	        return ResponseEntity.ok().build();
+	    } catch (SecurityException e) {
+	        return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
+	    }
+	}
 }

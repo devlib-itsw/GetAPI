@@ -34,11 +34,14 @@ public class Api {
 	private List<ApiTagMapping> apiTagMappings = new ArrayList<>();
 	
 	@ManyToOne
-	@JoinColumn(name="user_id", nullable=false)
-	private Users user;
+	 @JoinColumn(name = "user_id")
+	  private Users user;
 
 	@Column(nullable=false)
 	private String name;
+	
+	@Column(nullable=false)
+	private String method;
 
 	@Column(columnDefinition="TEXT", nullable=false)
 	private String originalUrl; // AES
@@ -59,9 +62,13 @@ public class Api {
 
 //	private Long starCount=0L;
 
-	private String status; // pending -challenge-> active / blocked
-
 	private boolean isCensored;
+
+	@Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+	private boolean hateoasEnabled;
+
+	@Column(columnDefinition = "TEXT")
+	private String hateoasLinks; // JSON: [{"rel":"self","uri":"/translate","method":"POST"}]
 
 	@Column(nullable=false)
 	private LocalDateTime createdAt;

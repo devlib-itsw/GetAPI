@@ -19,16 +19,19 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
 	@Query("""
         SELECT pc
         FROM PostComment pc
-        JOIN FETCH pc.user
+        JOIN FETCH pc.userProfile
         WHERE pc.post.postId = :postId
+          AND pc.isCensored = false
         ORDER BY pc.createdAt DESC
     """)
     List<PostComment> getPostComments(@Param("postId") Long postId);
-	
-	List<PostComment> findByPost(Post post);
+
+	List<PostComment> findByPostAndIsCensoredFalse(Post post);
 	Optional<PostComment> findByCommentUuid(UUID commentUuid);
-	
+
 	Page<PostComment> findByIsCensoredTrue(Pageable page);
-	
+
 	void deleteByCommentUuidAndIsCensoredTrue(UUID uuid);
+	void deleteByUserProfile(com.getapi.user.domain.UserProfile userProfile);
+	void deleteByPost(com.getapi.post.domain.Post post);
 }

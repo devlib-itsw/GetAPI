@@ -2,27 +2,27 @@ package com.getapi.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-// <<<<<<< siwoo
-//아래와 같이 스캔 범위를 확장하세요
 @EnableRedisRepositories(basePackages = {
- "com.getapi.auth.repository", 
- "com.getapi.payments"  // PaymentsRepository가 있는 위치 추가
+    "com.getapi.auth.repository",
+    "com.getapi.payments.repository"
 })
-@EnableJpaRepositories(basePackages = "com.getapi.user.repository")
-// =======
-@EnableRedisRepositories(basePackages = "com.getapi.auth.repository")
-// @EnableJpaRepositories(basePackages = {"com.getapi.user.repository", "com.getapi.auth.repository"})
-// >>>>>>> develop
 public class RedisConfig {
 
- @Bean
- public RedisConnectionFactory redisConnectionFactory() {
-     return new LettuceConnectionFactory();
- }
+    @Bean
+    public RedisTemplate<String, byte[]> byteRedisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, byte[]> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(RedisSerializer.byteArray());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(RedisSerializer.byteArray());
+        return template;
+    }
 }

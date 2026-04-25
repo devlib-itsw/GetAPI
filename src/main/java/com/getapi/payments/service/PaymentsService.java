@@ -1,6 +1,5 @@
 package com.getapi.payments.service;
 
-// <<<<<<< siwoo
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -103,20 +102,8 @@ public class PaymentsService {
     
     
    
-// =======
-import org.springframework.stereotype.Service;
-
-import com.getapi.user.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
-
-@Service
-@RequiredArgsConstructor
-public class PaymentsService {
-	private final UserRepository userRepository;
-	
+    
 	public Long totalPoints() {
 		return this.userRepository.sumPointsByProfileDeletedAtIsNotNull();
 	}
-// >>>>>>> develop
 }

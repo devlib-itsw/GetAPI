@@ -1,8 +1,5 @@
 package com.getapi.user.controller;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,18 +16,19 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 
+import com.getapi.api.repository.ApiRepository;
 import com.getapi.auth.service.RefreshTokenService;
 import com.getapi.auth.util.SecureUtil;
+import com.getapi.post.repository.PostRepository;
+import com.getapi.user.domain.UserProfile;
 import com.getapi.user.domain.UserUpdateDTO;
 import com.getapi.user.domain.Users;
-import com.getapi.user.dto.UserUpdateDto;
+import com.getapi.user.repository.UserProfileRepository;
 import com.getapi.user.repository.UserRepository;
 import com.getapi.user.service.UserService;
 
@@ -43,8 +41,11 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/user")
 public class UserController {
 	private final UserService userService;
-    private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
+    private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
+    private final ApiRepository apiRepository;
+    private final PostRepository postRepository;
 	
     @GetMapping("/points")
     public String pointsPage(Model model) {
@@ -100,31 +101,32 @@ public class UserController {
 		return "mypage";
 	}
 	
-	@GetMapping("/profile.html")
-	public String profilePage() {
-	    return "profile"; // src/main/resources/templates/profile.html 파일을 보여줌
+	@GetMapping("/profile/{uuid}")
+	public String profilePage(@PathVariable("uuid") UUID uuid, Model model) {
+	    Users profileUser = userService.getUserByUUID(uuid);
+	    if (profileUser == null) return "redirect:/";
+	    UserProfile profile = userProfileRepository.findByUser(profileUser).orElse(null);
+	    if (profile == null) return "redirect:/";
+
+	    var apis = apiRepository.findByUserAndIsCensoredFalse(profileUser);
+	    var posts = postRepository.findByUserProfileAndIsCensoredFalse(profile);
+
+	    model.addAttribute("profileUser", profile);
+	    model.addAttribute("profileEmail", profileUser.getEmail());
+	    model.addAttribute("joinDate", profileUser.getProfileCreatedAt());
+	    model.addAttribute("apis", apis);
+	    model.addAttribute("posts", posts);
+	    model.addAttribute("apiCount", apis.size());
+	    model.addAttribute("totalCalls", apis.stream().mapToLong(a -> a.getViewCount() != null ? a.getViewCount() : 0L).sum());
+	    model.addAttribute("postCount", posts.size());
+	    return "profile";
 	}
 
 	
-	// 1. 마이페이지 화면 이동 및 데이터 전달
-	@PostMapping("/mypage/edit/{uuid}") // PostMapping 사용
-	public String updateMyPage(
-	        @PathVariable("uuid") UUID uuid,
-	        UserUpdateDto updateDto) { // @RequestBody 제거! 폼 데이터는 그냥 객체로 받습니다.
-	    
-	    // 서비스 호출하여 DB 수정
-	    userService.updateUserInfo(uuid, 
-	                               updateDto.getNickname(), 
-	                               updateDto.getIntroduction(), 
-	                               updateDto.getWebUrl());
-	    
-	    // 6. 중요: 수정이 끝난 후 다시 마이페이지 화면으로 보냅니다. (새로고침 효과)
-	    return "redirect:/user/mypage/view/" + uuid;
-	}//이시우
 	@GetMapping("/mypage/view/{uuid}")
 	public String viewMyPage(@PathVariable("uuid") UUID uuid, Model model) {
 	    Users user = userService.getUserByUUID(uuid);
-	    model.addAttribute("loginUser", user); // 여기서 loginUser에 "이시우"가 담김
+	    model.addAttribute("loginUser", user);
 	    return "mypage";
 	}
 	
@@ -179,39 +181,8 @@ public class UserController {
 	@ResponseBody
 	public void updateUser(@PathVariable("id") UUID uuid, @RequestBody UserUpdateDTO dto) {
 		Users user=this.userService.getUserByUUID(uuid);
-		
+
 		this.userService.updateUser(user, dto);
 	}
 	
-	// api key 발급
-	@PutMapping("/apiKey/{id}")
-	@ResponseBody
-	public void setApiKey(@PathVariable("id") UUID uuid) {
-		Users user=this.userService.getUserByUUID(uuid);
-
-		List<Users> users=new ArrayList<>();
-		users.add(user);
-		
-		this.userService.setApiKey(users);
-	}
-	
-	// secret key 발급
-	@PutMapping("/secretKey/{id}")
-	@ResponseBody
-	public String setSecretKey(@PathVariable("id") UUID uuid) {
-		Users user=this.userService.getUserByUUID(uuid);
-		String key=SecureUtil.generate64Token();
-		
-		this.userService.setSecretKey(user, key);
-		
-		return key;
-	}
-	
-	// 만료 날짜 확인
-	@GetMapping("/apiUpdatedAt/{id}")
-	@ResponseBody
-	public LocalDateTime lastApiUpdatedAt(@PathVariable("id") UUID uuid) {
-		Users user=this.userService.getUserByUUID(uuid);
-		return userService.getApiExpiryDate(user);
-	}
 }

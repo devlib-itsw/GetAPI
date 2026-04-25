@@ -13,8 +13,8 @@ import com.getapi.post.domain.Post;
 @Repository
 public interface LikeRepository extends JpaRepository<Like, Long> {
 	List<Like> findByPost_PostId(Long postId);
-	boolean existsByPost_PostIdAndUser_UserId(Long postId, Long userId);
-	void deleteByPost_PostIdAndUser_UserId(Long postId, Long userId);
+	boolean existsByPost_PostIdAndUserProfile_ProfileId(Long postId, Long profileId);
+	void deleteByPost_PostIdAndUserProfile_ProfileId(Long postId, Long profileId);
 	@Query("""
 	    SELECT l.post.postId, COUNT(l)
 	    FROM Like l
@@ -23,4 +23,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 	""")
 	List<Object[]> countLikesByPostIds(@Param("postIds") List<Long> postIds);
 	List<Like> findByPost(Post post);
+	void deleteByUserProfile(com.getapi.user.domain.UserProfile userProfile);
+	void deleteByPost(Post post);
 }

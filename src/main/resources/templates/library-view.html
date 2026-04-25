@@ -2,7 +2,7 @@
 <html lang="ko" layout:decorate="~{common/layout}">
 
 <head>
-    <title layout:fragment="title">Translation API - GetAPI</title>
+    <title layout:fragment="title" th:text="|${api.name} - GetAPI|"></title>
     <th:block layout:fragment="metatags">
         <meta name="description" content="아이템의 세부정보를 확인하세요">
     </th:block>
@@ -15,7 +15,7 @@
             <div class="container py-8">
 
                 <!-- Back Link -->
-                <a th:href="@{/library}" 
+                <a href="javascript:history.back()"
                     class="inline-flex items-center gap-2 text-sm text-muted mb-6 hover\:text-primary"
                     style="display:inline-flex">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -32,24 +32,32 @@
                         <!-- Title & Description -->
                         <div class="mb-6">
                             <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
-                                <h1 class="text-3xl font-bold text-foreground" th:text="${api.name}">Translation API</h1>
-                                <button class="btn btn-outline btn-sm gap-2" data-like>
+
+                                <div class="flex items-center gap-2">
+                                    <h1 class="text-3xl font-bold text-foreground" th:text="${api.name}"></h1>
+                                    <span id="server-status-dot" th:data-uuid="${uuid}" style="width:0.6rem; height:0.6rem; border-radius:50%; background:#d1d5db; display:inline-block; flex-shrink:0" title="서버 상태 확인 중..."></span>
+                                </div>
+                                <a th:href="@{/library/{uuid}/star(uuid=${uuid})}"
+                                    th:classappend="${starred} ? 'btn-primary' : 'btn-outline'"
+                                    class="btn btn-sm gap-2" style="display:inline-flex">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <polygon
                                             points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                                     </svg>
-                                    Star
-                                </button>
+                                    Star (<span th:text="${starCount}"></span>)
+                                </a>
                             </div>
-                            <p class="leading-relaxed text-muted" th:text="${api.description}">100개 이상의 언어를 지원하는 고품질 번역 API입니다. 자연스러운 번역과 빠른 응답 속도를
-                                제공합니다. 딥러닝 기반의 신경망 번역 모델을 사용하여 문맥을 파악한 자연스러운 번역 결과를 제공합니다.</p>
+                            <a th:href="@{/user/profile/{uuid}(uuid=${authorUuid})}"
+                               class="flex items-center gap-2 mb-3 hover\:text-primary" style="display:inline-flex">
+                                <img class="avatar avatar-sm"
+                                     th:src="@{/user/avatar/{uuid}(uuid=${authorUuid})}"
+                                     alt="프로필" style="border-radius:50%; object-fit:cover; flex-shrink:0"/>
+                                <span class="text-sm font-medium text-foreground" th:text="${authorName}"></span>
+                            </a>
+                            <p class="leading-relaxed text-muted" th:text="${api.description}" style="word-break: break-all;"></p>
                             <div class="flex flex-wrap gap-2 mt-4">
-                                <span class="badge badge-secondary">번역</span>
-                                <span class="badge badge-secondary">다국어</span>
-                                <span class="badge badge-secondary">NLP</span>
-                                <span class="badge badge-secondary">AI</span>
-                                <span class="badge badge-secondary">텍스트</span>
+                                <span th:each="tag : ${tags}" class="badge badge-secondary" th:text="${tag}"></span>
                             </div>
                         </div>
 
@@ -57,13 +65,12 @@
                         <div data-tab-group="api-tabs">
                             <div class="tabs-list">
                                 <button class="tab-trigger active" data-tab="docs">문서</button>
-                                <button class="tab-trigger" data-tab="test">체험</button>
-                                <button class="tab-trigger" data-tab="comments">댓글 (3)</button>
+                                <button class="tab-trigger" data-tab="comments">댓글 (<span th:text="${commentCount}"></span>)</button>
                             </div>
 
                             <!-- Tab: Docs -->
-                            <div class="tab-content active" data-tab-content="docs" th:data-path="${api.docUrl}">
-                                <div class="card" style="padding: 1rem;">
+                            <div class="tab-content active" data-tab-content="docs" th:data-path="@{/api/doc/{uuid}(uuid=${uuid})}">
+                                <div class="card" style="padding: 1rem; word-break: break-all;">
                                     <div class="card-header">
                                         <h2 class="card-title">API 사용법</h2>
                                     </div>
@@ -150,264 +157,62 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                 </div>
                             </div>
 
-                            <!-- Tab: Test -->
-                            <div class="tab-content" data-tab-content="test">
-                                <div class="card mb-6">
-                                    <div class="card-header">
-                                        <h2 class="card-title flex items-center gap-2">
-                                            <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2">
-                                                <polygon points="6 3 20 12 6 21 6 3" />
-                                            </svg>
-                                            API 체험하기
-                                        </h2>
-                                    </div>
-                                    <div class="card-content space-y-4">
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <span class="badge badge-default">POST</span>
-                                            <code class="code-block"
-                                                style="padding:0.25rem 0.5rem; font-size:0.875rem">https://getapi.com/api/tr-abc123/translate</code>
-                                        </div>
-                                        <div class="space-y-2">
-                                            <label class="label">text <span class="text-destructive">*</span> <span
-                                                    class="text-xs font-normal text-muted"
-                                                    style="margin-left:0.5rem">string - 번역할 텍스트</span></label>
-                                            <textarea class="textarea" rows="3"
-                                                placeholder="번역할 텍스트를 입력하세요...">안녕하세요, 반갑습니다.</textarea>
-                                        </div>
-                                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem">
-                                            <div class="space-y-2">
-                                                <label class="label">source <span class="text-xs font-normal text-muted"
-                                                        style="margin-left:0.5rem">원본 언어</span></label>
-                                                <div class="custom-select" style="width:100%">
-                                                    <button type="button" class="custom-select-trigger"><span
-                                                            class="cs-value">한국어 (ko)</span><svg class="cs-chevron"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path d="m6 9 6 6 6-6" />
-                                                        </svg></button>
-                                                    <div class="custom-select-popover">
-                                                        <div class="custom-select-item selected" data-value="ko"><svg
-                                                                class="cs-check" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2">
-                                                                <polyline points="20 6 9 17 4 12" />
-                                                            </svg><span class="cs-label">한국어 (ko)</span></div>
-                                                        <div class="custom-select-item" data-value="en"><svg
-                                                                class="cs-check" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2">
-                                                                <polyline points="20 6 9 17 4 12" />
-                                                            </svg><span class="cs-label">영어 (en)</span></div>
-                                                        <div class="custom-select-item" data-value="ja"><svg
-                                                                class="cs-check" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2">
-                                                                <polyline points="20 6 9 17 4 12" />
-                                                            </svg><span class="cs-label">일본어 (ja)</span></div>
-                                                        <div class="custom-select-item" data-value="zh"><svg
-                                                                class="cs-check" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2">
-                                                                <polyline points="20 6 9 17 4 12" />
-                                                            </svg><span class="cs-label">중국어 (zh)</span></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="space-y-2">
-                                                <label class="label">target <span class="text-destructive">*</span>
-                                                    <span class="text-xs font-normal text-muted"
-                                                        style="margin-left:0.5rem">번역 언어</span></label>
-                                                <div class="custom-select" style="width:100%">
-                                                    <button type="button" class="custom-select-trigger"><span
-                                                            class="cs-value">영어 (en)</span><svg class="cs-chevron"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path d="m6 9 6 6 6-6" />
-                                                        </svg></button>
-                                                    <div class="custom-select-popover">
-                                                        <div class="custom-select-item selected" data-value="en"><svg
-                                                                class="cs-check" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2">
-                                                                <polyline points="20 6 9 17 4 12" />
-                                                            </svg><span class="cs-label">영어 (en)</span></div>
-                                                        <div class="custom-select-item" data-value="ko"><svg
-                                                                class="cs-check" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2">
-                                                                <polyline points="20 6 9 17 4 12" />
-                                                            </svg><span class="cs-label">한국어 (ko)</span></div>
-                                                        <div class="custom-select-item" data-value="ja"><svg
-                                                                class="cs-check" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2">
-                                                                <polyline points="20 6 9 17 4 12" />
-                                                            </svg><span class="cs-label">일본어 (ja)</span></div>
-                                                        <div class="custom-select-item" data-value="zh"><svg
-                                                                class="cs-check" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2">
-                                                                <polyline points="20 6 9 17 4 12" />
-                                                            </svg><span class="cs-label">중국어 (zh)</span></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-primary w-full gap-2" id="test-api-btn">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2">
-                                                <path d="m22 2-7 20-4-9-9-4Z" />
-                                                <path d="M22 2 11 13" />
-                                            </svg>
-                                            API 테스트 (1P 소비)
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Response -->
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h2 class="card-title">Response</h2>
-                                    </div>
-                                    <div class="card-content">
-                                        <div id="test-response"
-                                            style="min-height:7.5rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.75rem; text-align:center">
-                                            <p class="text-sm text-muted">위의 파라미터를 입력하고 <span
-                                                    class="badge badge-outline" style="margin:0 0.25rem">API 테스트</span>
-                                                버튼을 눌러 응답을 확인하세요</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Tab: Comments -->
                             <div class="tab-content" data-tab-content="comments">
                                 <div class="card mb-6">
                                     <div class="card-content pt-6">
-                                        <textarea class="textarea mb-3" placeholder="댓글을 작성하세요..." rows="3"></textarea>
-                                        <div class="flex justify-end"><button class="btn btn-primary btn-sm">댓글
-                                                작성</button></div>
+                                        <textarea id="comment-input" class="textarea mb-3" placeholder="댓글을 작성하세요..." rows="3"></textarea>
+                                        <div class="flex justify-end">
+                                            <button id="comment-submit-btn" class="btn btn-primary btn-sm"
+                                                th:data-uuid="${uuid}">댓글 작성</button>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="space-y-4">
-                                    <div class="card">
+                                <div class="space-y-4" id="comment-list">
+                                    <div th:if="${#lists.isEmpty(comments)}" class="text-center py-8 text-muted">
+                                        <p class="text-sm">아직 댓글이 없습니다. 첫 번째로 댓글을 남겨보세요!</p>
+                                    </div>
+                                    <div th:each="comment : ${comments}" class="card"
+                                        th:data-comment-uuid="${comment.commentUuid}">
                                         <div class="card-content pt-4">
                                             <div class="flex items-start gap-3">
-                                                <div class="avatar avatar-sm">박</div>
+                                                <a th:href="@{/user/profile/{uuid}(uuid=${comment.userProfile.user.userUuid})}">
+                                                    <img class="avatar avatar-sm"
+                                                        th:src="@{/user/avatar/{uuid}(uuid=${comment.userProfile.user.userUuid})}"
+                                                        alt="프로필" style="border-radius:50%; object-fit:cover; flex-shrink:0; cursor:pointer"/>
+                                                </a>
                                                 <div class="flex-1">
                                                     <div class="flex items-center justify-between mb-1">
-                                                        <a href="profile.html"
-                                                            class="font-medium text-foreground hover\:text-primary">박개발</a>
-                                                        <span class="text-xs text-muted">2026-01-25</span>
+                                                        <span class="font-medium text-foreground"
+                                                            th:text="${comment.userProfile.nickname != null ? comment.userProfile.nickname : comment.userProfile.name}"></span>
+                                                        <span class="text-xs text-muted"
+                                                            th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></span>
                                                     </div>
-                                                    <p class="text-sm leading-relaxed text-muted">번역 품질이 정말 좋습니다! 특히 한영
-                                                        번역이 자연스러워요.</p>
-                                                    <div class="flex items-center gap-1 mt-2">
-                                                        <button class="btn btn-ghost btn-sm"
+                                                    <p class="text-sm leading-relaxed text-muted comment-content" th:text="${comment.content}"></p>
+                                                    <div class="comment-edit-area" style="display:none">
+                                                        <textarea class="textarea comment-edit-input mb-1" rows="2" style="width:100%;resize:none;" th:text="${comment.content}"></textarea>
+                                                        <div class="flex gap-1 justify-end">
+                                                            <button class="btn btn-outline btn-sm comment-edit-cancel" style="font-size:0.75rem">취소</button>
+                                                            <button class="btn btn-primary btn-sm comment-edit-save" th:data-uuid="${comment.commentUuid}" style="font-size:0.75rem">저장</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center gap-1 mt-2 comment-actions">
+                                                        <button class="btn btn-ghost btn-sm comment-edit-btn"
                                                             style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem">
-                                                            <svg style="width:0.75rem; height:0.75rem"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <path d="M7 10v12" />
-                                                                <path
-                                                                    d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-                                                            </svg>
-                                                            12
+                                                            <svg style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                                            </svg> 수정
                                                         </button>
-                                                        <button class="btn btn-ghost btn-sm"
-                                                            style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                                style="width:0.75rem; height:0.75rem"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <path
-                                                                    d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                                            </svg> 수정</button>
-                                                        <button class="btn btn-ghost btn-sm"
-                                                            style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
-                                                                style="width:0.75rem; height:0.75rem"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
+                                                        <button class="btn btn-ghost btn-sm comment-delete-btn"
+                                                            style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)">
+                                                            <svg style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                                 <path d="M3 6h18" />
                                                                 <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
                                                                 <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                            </svg> 삭제</button>
+                                                            </svg> 삭제
+                                                        </button>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card">
-                                        <div class="card-content pt-4">
-                                            <div class="flex items-start gap-3">
-                                                <div class="avatar avatar-sm">이</div>
-                                                <div class="flex-1">
-                                                    <div class="flex items-center justify-between mb-1">
-                                                        <a href="profile.html"
-                                                            class="font-medium text-foreground hover\:text-primary">이코딩</a>
-                                                        <span class="text-xs text-muted">2026-01-22</span>
-                                                    </div>
-                                                    <p class="text-sm leading-relaxed text-muted">응답 속도가 빠르고 안정적입니다.
-                                                        프로덕션에서 잘 사용하고 있어요.</p>
-                                                    <div class="flex items-center gap-1 mt-2"><button
-                                                            class="btn btn-ghost btn-sm"
-                                                            style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                                style="width:0.75rem; height:0.75rem"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <path d="M7 10v12" />
-                                                                <path
-                                                                    d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-                                                            </svg> 8</button><button class="btn btn-ghost btn-sm"
-                                                            style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                                style="width:0.75rem; height:0.75rem"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <path
-                                                                    d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                                            </svg> 수정</button><button class="btn btn-ghost btn-sm"
-                                                            style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
-                                                                style="width:0.75rem; height:0.75rem"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <path d="M3 6h18" />
-                                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                            </svg> 삭제</button></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card">
-                                        <div class="card-content pt-4">
-                                            <div class="flex items-start gap-3">
-                                                <div class="avatar avatar-sm">최</div>
-                                                <div class="flex-1">
-                                                    <div class="flex items-center justify-between mb-1">
-                                                        <a href="profile.html"
-                                                            class="font-medium text-foreground hover\:text-primary">최프론트</a>
-                                                        <span class="text-xs text-muted">2026-01-20</span>
-                                                    </div>
-                                                    <p class="text-sm leading-relaxed text-muted">문서가 잘 정리되어 있어서 연동하기
-                                                        쉬웠습니다.</p>
-                                                    <div class="flex items-center gap-1 mt-2"><button
-                                                            class="btn btn-ghost btn-sm"
-                                                            style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                                style="width:0.75rem; height:0.75rem"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <path d="M7 10v12" />
-                                                                <path
-                                                                    d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-                                                            </svg> 5</button><button class="btn btn-ghost btn-sm"
-                                                            style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                                style="width:0.75rem; height:0.75rem"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <path
-                                                                    d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                                            </svg> 수정</button><button class="btn btn-ghost btn-sm"
-                                                            style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
-                                                                style="width:0.75rem; height:0.75rem"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <path d="M3 6h18" />
-                                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                            </svg> 삭제</button></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -432,10 +237,18 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                             <path d="M7 6h1v4" />
                                             <path d="m16.71 13.88.7.71-2.82 2.82" />
                                         </svg>
-                                        <span th:text="|${api.price}P|">1P</span>
+                                        <span th:text="|${api.price}P|"></span>
                                     </div>
                                     <p class="text-sm text-muted">호출당 소비 포인트</p>
-                                    <button class="btn btn-primary w-full gap-2 mt-6" id="use-api-btn">사용 시작하기</button> 
+                                    <div style="margin-top:1.5rem; background:var(--muted); border:1px solid var(--border); border-radius:0.5rem; padding:0.75rem 1rem">
+                                        <p style="font-size:0.75rem; font-weight:600; color:var(--muted-foreground); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.375rem">Endpoint</p>
+                                        <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem">
+                                            <code style="font-size:0.9rem; color:var(--foreground); word-break:break-all; font-family:monospace" th:text="|http://getapi/${api.proxyUrl}|"></code>
+                                            <button onclick="navigator.clipboard.writeText(this.dataset.url); this.textContent='✓'; setTimeout(()=>this.textContent='복사',1500)"
+                                                th:data-url="|http://getapi/${api.proxyUrl}|"
+                                                style="flex-shrink:0; font-size:0.75rem; padding:0.25rem 0.5rem; border:1px solid var(--border); border-radius:0.375rem; background:var(--background); color:var(--muted-foreground); cursor:pointer">복사</button>
+                                        </div>
+                                    </div>
 									
                                 </div>
                             </div>
@@ -449,8 +262,7 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                                                 <circle cx="12" cy="7" r="4" />
                                             </svg> 개발자</span>
-                                        <a href="profile.html"
-                                            class="font-medium text-foreground hover\:text-primary" th:text="${api.user.name}">김개발</a>
+                                        <span class="font-medium text-foreground" th:text="${authorName}"></span>
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <span class="flex items-center gap-2 text-sm text-muted"><svg class="icon"
@@ -458,7 +270,7 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                                                 <circle cx="12" cy="12" r="3" />
                                             </svg> 조회수</span>
-                                        <span class="font-medium text-foreground" th:text="${#numbers.formatInteger(api.viewCount, 0, 'COMMA')}">15,420</span>
+                                        <span class="font-medium text-foreground" th:text="${#numbers.formatInteger(api.viewCount, 0, 'COMMA')}"></span>
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <span class="flex items-center gap-2 text-sm text-muted"><svg class="icon"
@@ -466,7 +278,7 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                                 <polygon
                                                     points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                                             </svg> Stars</span>
-                                        <span class="font-medium text-foreground">342</span>
+                                        <span id="sidebar-star-count" class="font-medium text-foreground" th:text="${starCount}"></span>
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <span class="flex items-center gap-2 text-sm text-muted"><svg class="icon"
@@ -474,7 +286,7 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                                 <path
                                                     d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                             </svg> 댓글</span>
-                                        <span class="font-medium text-foreground">3</span>
+                                        <span class="font-medium text-foreground" th:text="${commentCount}"></span>
                                     </div>
                                     <div class="border-t pt-4">
                                         <div class="flex items-center justify-between">
@@ -486,7 +298,8 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                                     <rect width="18" height="18" x="3" y="4" rx="2" />
                                                     <path d="M3 10h18" />
                                                 </svg> 등록일</span>
-                                            <span class="text-sm text-foreground">2025-12-15</span>
+                                            <span class="text-sm text-foreground"
+                                                th:text="${#temporals.format(api.createdAt, 'yyyy-MM-dd')}"></span>
                                         </div>
                                         <div class="flex items-center justify-between mt-2">
                                             <span class="flex items-center gap-2 text-sm text-muted"><svg class="icon"
@@ -497,7 +310,8 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                                                     <rect width="18" height="18" x="3" y="4" rx="2" />
                                                     <path d="M3 10h18" />
                                                 </svg> 수정일</span>
-                                            <span class="text-sm text-foreground">2026-01-20</span>
+                                            <span class="text-sm text-foreground"
+                                                th:text="${api.updatedAt != null ? #temporals.format(api.updatedAt, 'yyyy-MM-dd') : #temporals.format(api.createdAt, 'yyyy-MM-dd')}"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -515,46 +329,96 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
 		<script src="/js/markdown.js"></script>
 		
         <script>
-            /* API 테스트 시뮬레이션 */
-// <<<<<<< siwoo
-			
-			document.getElementById('use-api-btn').addEventListener('click', async function() {
-			    const responseDisplay = document.getElementById('test-response');
-			    this.disabled = true;
 
-			    try {
-			        const response = await fetch('/payments/use-api', {
-			            method: 'POST',
-			            headers: { 'Content-Type': 'application/json' }
-			        });
+            /* ── Health Check (자동) ── */
+            (async function () {
+                var dot = document.getElementById('server-status-dot');
+                if (!dot) return;
+                try {
+                    const uuid = dot.dataset.uuid;
+                    const res = await fetch('/api/dashboard/view/' + uuid + '/health', { method: 'HEAD' });
+                    dot.style.background = res.ok ? '#22c55e' : '#ef4444';
+                    dot.title = res.ok ? '서버 정상' : '응답 오류';
+                } catch (e) {
+                    dot.style.background = '#ef4444';
+                    dot.title = '서버 응답 없음';
+                }
+            })();
 
-			        const resultText = await response.text();
 
-			        if (response.status === 403) {
-			            alert("❌ " + resultText);
-			        } else if (response.ok) {
-			            alert("✅ " + resultText);
-			        } else {
-			            alert("알 수 없는 오류가 발생했습니다.");
-			        }
-			    } catch (error) {
-			        alert("서버 통신 오류가 발생했습니다.");
-			    } finally {
-			        this.disabled = false;
-			    }
-			});
-// =======
-            document.getElementById('test-api-btn').addEventListener('click', function () {
-                var responseEl = document.getElementById('test-response');
-                responseEl.innerHTML = '<div class="flex items-center gap-2 text-sm text-muted"><div style="width:1rem;height:1rem;border:2px solid var(--primary);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div> Processing request...</div>';
-                setTimeout(function () {
-                    responseEl.innerHTML = '<pre class="code-block" style="width:100%;text-align:left;white-space:pre-wrap">{\n  "success": true,\n  "data": {\n    "original": "안녕하세요, 반갑습니다.",\n    "translated": "Hello, nice to meet you.",\n    "source_lang": "ko",\n    "target_lang": "en",\n    "confidence": 0.98\n  },\n  "usage": {\n    "points_used": 1,\n    "remaining": 12499\n  }\n}</pre>';
-                }, 1500);
-            });
-			
 			/* md parsing */
 			const markdown=new Markdown(document.querySelector("[data-tab-content='docs']").dataset.path);
-// >>>>>>> develop
+
+            /* ── Star ── */
+            /* ── Comments ── */
+            const commentSubmitBtn = document.getElementById('comment-submit-btn');
+            if (commentSubmitBtn) {
+                commentSubmitBtn.addEventListener('click', async function() {
+                    const uuid = this.dataset.uuid;
+                    const content = document.getElementById('comment-input').value.trim();
+                    if (!content) return;
+                    try {
+                        const res = await fetch(`/api/library/${uuid}/comments`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ content })
+                        });
+                        if (res.status === 401) { location.href = '/login'; return; }
+                        if (res.ok) { location.reload(); }
+                        else { alert('댓글 작성에 실패했습니다.'); }
+                    } catch(e) { console.error(e); }
+                });
+            }
+
+            document.getElementById('comment-list').addEventListener('click', async function(e) {
+                const editBtn = e.target.closest('.comment-edit-btn');
+                const deleteBtn = e.target.closest('.comment-delete-btn');
+                const cancelBtn = e.target.closest('.comment-edit-cancel');
+                const saveBtn = e.target.closest('.comment-edit-save');
+
+                const card = e.target.closest('[data-comment-uuid]');
+                if (!card) return;
+                const commentUuid = card.dataset.commentUuid;
+                const apiUuid = document.getElementById('star-btn').dataset.uuid;
+
+                if (editBtn) {
+                    card.querySelector('.comment-content').style.display = 'none';
+                    card.querySelector('.comment-edit-area').style.display = '';
+                    card.querySelector('.comment-actions').style.display = 'none';
+                    return;
+                }
+
+                if (cancelBtn) {
+                    card.querySelector('.comment-content').style.display = '';
+                    card.querySelector('.comment-edit-area').style.display = 'none';
+                    card.querySelector('.comment-actions').style.display = '';
+                    return;
+                }
+
+                if (saveBtn) {
+                    const content = card.querySelector('.comment-edit-input').value.trim();
+                    if (!content) return;
+                    const res = await fetch(`/api/library/${apiUuid}/comments/${commentUuid}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content })
+                    });
+                    if (res.ok) {
+                        card.querySelector('.comment-content').textContent = content;
+                        card.querySelector('.comment-content').style.display = '';
+                        card.querySelector('.comment-edit-area').style.display = 'none';
+                        card.querySelector('.comment-actions').style.display = '';
+                    } else { alert('수정 권한이 없거나 오류가 발생했습니다.'); }
+                    return;
+                }
+
+                if (deleteBtn) {
+                    if (!confirm('댓글을 삭제하시겠습니까?')) return;
+                    const res = await fetch(`/api/library/${apiUuid}/comments/${commentUuid}`, { method: 'DELETE' });
+                    if (res.ok) { card.remove(); }
+                    else { alert('삭제 권한이 없거나 오류가 발생했습니다.'); }
+                }
+            });
         </script>
     </th:block>
 </body>

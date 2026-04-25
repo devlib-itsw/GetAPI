@@ -21,7 +21,6 @@ public class WriteForm {
     private String content;
     
     // HTML의 <input name="tags"> 로부터 들어오는 문자열 데이터
-    @NotEmpty(message="태그를 입력해주세요.")
     private String tags;
     
     /**

@@ -50,6 +50,18 @@ public class SecureUtil {
      * HMAC-SHA256 서명 검증
      * message = body_bytes + timestamp_bytes (구분자 없이 이어붙임)
      */
+    /**
+     * 타임스탬프 + HMAC 서명 통합 검증
+     */
+    public static void validateRequest(String secretKey, byte[] body, String timestamp, String signature) {
+        if (!isTimestampValid(timestamp)) {
+            throw new SecurityException("Timestamp expired");
+        }
+        if (!verifyHmac(secretKey, body, timestamp, signature)) {
+            throw new SecurityException("Invalid signature");
+        }
+    }
+
     public static boolean verifyHmac(String secretKey, byte[] body, String timestamp, String signature) {
         try {
             byte[] timestampBytes = timestamp.getBytes(StandardCharsets.UTF_8);

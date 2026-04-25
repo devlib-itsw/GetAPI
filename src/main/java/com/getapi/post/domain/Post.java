@@ -5,8 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 
-import com.getapi.user.domain.Users;
-
+import com.getapi.user.domain.UserProfile;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,16 +29,9 @@ public class Post {
 	private UUID postUuid;
 
 	@ManyToOne
-	@JoinColumn(name="user_id", nullable=false)
-// <<<<<<< siwoo
-	private Users user;
-	
-	
-	
-// =======
- 	private Users user;
+	 @JoinColumn(name = "user_profile_id")
+	  private UserProfile userProfile;
 
-// >>>>>>> develop
 	@Column(nullable=false)
 	private String title;
 

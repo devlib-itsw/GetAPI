@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.getapi.post.domain.Like;
 import com.getapi.post.domain.Post;
 import com.getapi.post.repository.LikeRepository;
+import com.getapi.user.domain.UserProfile;
 import com.getapi.user.domain.Users;
+import com.getapi.user.repository.UserProfileRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,12 +20,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LikeService {
 	private final LikeRepository likeRepository;
+	private final UserProfileRepository userProfileRepository;
 	
 	public void add(Post post, Users user) {
 		Like l = new Like();
 		l.setLikeId(null);
 		l.setPost(post);
-		l.setUser(user);
+		UserProfile profile = userProfileRepository.findByUser(user)
+				.orElseThrow(() -> new IllegalArgumentException("프로필이 존재하지 않습니다."));
+		l.setUserProfile(profile);
 		this.likeRepository.save(l);
 	}
 	
@@ -36,12 +41,18 @@ public class LikeService {
     }
 	
 	public boolean isLiked(Long postId, Long userId) {
-	    return this.likeRepository.existsByPost_PostIdAndUser_UserId(postId, userId);
+		Long profileId = userProfileRepository.findByUser_UserId(userId)
+				.orElseThrow(() -> new IllegalArgumentException("프로필이 존재하지 않습니다."))
+				.getProfileId();
+		return this.likeRepository.existsByPost_PostIdAndUserProfile_ProfileId(postId, profileId);
 	}
-	
+
 	@Transactional
 	public void remove(Long postId, Long userId) {
-	    this.likeRepository.deleteByPost_PostIdAndUser_UserId(postId, userId);
+		Long profileId = userProfileRepository.findByUser_UserId(userId)
+				.orElseThrow(() -> new IllegalArgumentException("프로필이 존재하지 않습니다."))
+				.getProfileId();
+		this.likeRepository.deleteByPost_PostIdAndUserProfile_ProfileId(postId, profileId);
 	}
 	
 	public Map<Long, Long> getLikeCountMap(List<Post> posts) {

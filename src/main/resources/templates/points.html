@@ -44,7 +44,6 @@
 						</div>
 						<div class="flex gap-3">
 							<a th:href="@{|/payments/withdraw|}" class="btn btn-outline">포인트 환전</a>
-							<a href="points-auto.html" class="btn btn-outline">정기 충전 설정</a>
 						</div>
 					</div>
 				</div>
@@ -145,17 +144,6 @@
 								</label>
 							</div>
 
-							<!-- Custom Amount -->
-							<div class="form-group">
-								<label class="form-label" for="custom-amount">직접 입력</label>
-								<div class="flex gap-3">
-									<input class="form-input" type="number" id="custom-amount" placeholder="충전할 금액 (원)">
-									<span
-										style="display:flex; align-items:center; color:var(--muted-foreground)">원</span>
-								</div>
-								<p class="form-hint">최소 1,000원부터 충전 가능합니다. (1원 = 1포인트)</p>
-							</div>
-
 							<button class="btn btn-primary btn-lg w-full gap-2" onclick="requestPayment()">
 								결제하기
 								<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -184,12 +172,13 @@
 				        <div class="card-header">
 				            <h2 class="card-title">이용 내역</h2>
 				            <p class="card-description">최근 포인트 사용 및 충전 내역</p>
+							<hr>
 				        </div>
 				        <div class="card-body" style="display:flex; flex-direction:column; gap:1rem" id="history-list">
-				            <!-- 로딩 중 표시 -->
-				            <p class="text-sm text-muted" id="history-loading">불러오는 중...</p>
+				            <p class="text-sm text-muted">불러오는 중...</p>
 				        </div>
 				    </div>
+				    <div class="pagination mt-4" id="history-nav"></div>
 				</div>
 
 			</div>
@@ -239,9 +228,10 @@
 				const clientKey = 'test_ck_AQ92ymxN34N7RqAB1vlPrajRKXvd';
 				const tossPayments = TossPayments(clientKey);
 
-				// 결제 금액 결정 (선택된 카드 또는 직접 입력값)
+				// 결제 금액 결정 (선택된 카드 기준)
 				const activeCard = document.querySelector('.radio-card.selected');
-				const customAmount = document.getElementById('custom-amount').value;
+				const customInput = document.getElementById('custom-amount');
+				const customAmount = customInput ? customInput.value : '';
 
 				let amount = activeCard ? parseInt(activeCard.getAttribute('data-value')) : 5000;
 				if (customAmount) {
@@ -255,7 +245,7 @@
 
 				// 서버(Redis)에 저장할 데이터 구성
 				const paymentData = {
-					orderId: 'APIHUB-' + Math.random().toString(36).substring(2, 12),
+					orderId: 'GETAPI-' + Math.random().toString(36).substring(2, 12),
 					amount: amount
 				};
 
@@ -286,15 +276,71 @@
 					});
 
 				} catch (error) {
+					if (error.code === 'USER_CANCEL' || (error.message && error.message.includes('취소'))) {
+						return;
+					}
 					console.error('결제 요청 중 에러 발생:', error);
 					alert("결제 준비 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
 				}
 			}
-			/* ── 4. 이용내역 불러오기 ── */
+			/* ── 4. 이용내역 불러오기 (페이지네이션) ── */
+			let historyData = [];
+			const HISTORY_PAGE_SIZE = 10;
+			let historyPage = 0;
+
+			function renderHistoryPage() {
+			    const list = document.getElementById('history-list');
+			    const nav  = document.getElementById('history-nav');
+			    const from = historyPage * HISTORY_PAGE_SIZE;
+			    const to   = Math.min(from + HISTORY_PAGE_SIZE, historyData.length);
+			    const pageData = historyData.slice(from, to);
+			    const totalPages = Math.ceil(historyData.length / HISTORY_PAGE_SIZE);
+
+			    list.innerHTML = pageData.map(function (item, index) {
+			        const isLast = index === pageData.length - 1;
+			        const date = item.approvedAt
+			            ? item.approvedAt.substring(0, 10)
+			            : item.paidAt ? item.paidAt.substring(0, 10) : '-';
+			        return `
+			            <div style="display:flex; align-items:center; justify-content:space-between;
+			                        ${isLast ? '' : 'border-bottom:1px solid var(--border); padding-bottom:1rem'}">
+			                <div>
+			                    <p class="font-medium text-foreground">${item.orderName ?? '포인트 충전'}</p>
+			                    <p class="text-sm text-muted">${date}</p>
+			                </div>
+			                <span class="font-semibold" style="color:var(--primary)">
+			                    +${item.amount.toLocaleString()} P
+			                </span>
+			            </div>`;
+			    }).join('');
+
+			    if (totalPages <= 1) { nav.innerHTML = ''; return; }
+			    nav.innerHTML = `
+			        <button class="btn btn-outline btn-icon btn-sm" data-control="prev">
+			            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+			        </button>
+			        ${Array.from({length: totalPages}, (_, i) =>
+			            `<button class="btn btn-icon btn-sm ${i === historyPage ? 'btn-primary' : 'btn-outline'}" data-page="${i}">${i + 1}</button>`
+			        ).join('')}
+			        <button class="btn btn-outline btn-icon btn-sm" data-control="next">
+			            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+			        </button>`;
+
+			    nav.querySelectorAll('button').forEach(function(btn) {
+			        btn.addEventListener('click', function() {
+			            const ctrl = this.dataset.control;
+			            const max  = totalPages - 1;
+			            if (ctrl === 'prev') historyPage = Math.max(historyPage - 1, 0);
+			            else if (ctrl === 'next') historyPage = Math.min(historyPage + 1, max);
+			            else historyPage = Number(this.dataset.page);
+			            renderHistoryPage();
+			        });
+			    });
+			}
+
 			function loadHistory() {
 			    const list = document.getElementById('history-list');
 			    list.innerHTML = '<p class="text-sm text-muted">불러오는 중...</p>';
-
 			    fetch('/payments/history')
 			        .then(function (res) {
 			            if (!res.ok) throw new Error('조회 실패');
@@ -305,25 +351,9 @@
 			                list.innerHTML = '<p class="text-sm text-muted">이용 내역이 없습니다.</p>';
 			                return;
 			            }
-
-			            list.innerHTML = data.map(function (item, index) {
-			                const isLast = index === data.length - 1;
-			                const date = item.approvedAt
-			                    ? item.approvedAt.substring(0, 10)   // "2026-02-05T..." → "2026-02-05"
-			                    : item.paidAt ? item.paidAt.substring(0, 10) : '-';
-
-			                return `
-			                    <div style="display:flex; align-items:center; justify-content:space-between;
-			                                ${isLast ? '' : 'border-bottom:1px solid var(--border); padding-bottom:1rem'}">
-			                        <div>
-			                            <p class="font-medium text-foreground">${item.orderName ?? '포인트 충전'}</p>
-			                            <p class="text-sm text-muted">${date}</p>
-			                        </div>
-			                        <span class="font-semibold" style="color:var(--primary)">
-			                            +${item.amount.toLocaleString()} P
-			                        </span>
-			                    </div>`;
-			            }).join('');
+			            historyData = data;
+			            historyPage = 0;
+			            renderHistoryPage();
 			        })
 			        .catch(function () {
 			            list.innerHTML = '<p class="text-sm text-muted">내역을 불러오지 못했습니다.</p>';

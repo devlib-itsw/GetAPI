@@ -40,5 +40,4 @@ public class UserProfile {
     
 	private boolean isCensored;
 
-    private Long point = 0L;
 }

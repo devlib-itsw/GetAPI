@@ -33,7 +33,8 @@ class Markdown{
 	
 	async load(){
 		try{
-			const response=await fetch(`/md/${this.file}`);
+			const url = this.file && this.file.startsWith('/') ? this.file : `/md/${this.file}`;
+			const response=await fetch(url);
 					
 			if(!response.ok) throw new Error("get file error");
 			

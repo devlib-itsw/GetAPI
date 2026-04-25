@@ -16,16 +16,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.getapi.admin.domain.AdminCensoredResponse;
+import com.getapi.ai.service.AiFeedbackService;
+import com.getapi.user.domain.UserProfile;
 import com.getapi.api.service.ApiService;
 import com.getapi.comment.service.ApiCommentService;
 import com.getapi.comment.service.PostCommentService;
 import com.getapi.payments.service.PaymentsService;
+import com.getapi.post.domain.Post;
 import com.getapi.post.service.PostService;
 import com.getapi.user.domain.UserRequest;
 import com.getapi.user.domain.Users;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import com.getapi.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,6 +44,8 @@ public class AdminController {
 	private final PostCommentService postCommentService;
 	private final ApiCommentService apiCommentService;
 	private final PaymentsService paymentsService;
+	@Autowired
+	private AiFeedbackService aiFeedbackService;
 
 	@GetMapping("")
 	public String returnHtml(Model model) {
@@ -74,8 +82,19 @@ public class AdminController {
 
 	@PostMapping("/js/searchUsers")
 	@ResponseBody
-	public Page<Users> getUsersJson(@RequestBody UserRequest userRequest) {
-		return this.userService.getUsersBySearchPage(userRequest.getPage(), userRequest.getKeyword());
+	public Page<Map<String, Object>> getUsersJson(@RequestBody UserRequest userRequest) {
+		Page<Users> page = this.userService.getUsersBySearchPage(userRequest.getPage(), userRequest.getKeyword());
+		return page.map(user -> {
+			UserProfile profile = user.getUserProfile();
+			Map<String, Object> m = new LinkedHashMap<>();
+			m.put("userUuid", user.getUserUuid());
+			m.put("email", user.getEmail());
+			m.put("point", user.getPoint());
+			m.put("profileCreatedAt", user.getProfileCreatedAt());
+			m.put("name", profile != null ? profile.getName() : null);
+			m.put("nickname", profile != null ? profile.getNickname() : null);
+			return m;
+		});
 	}
 
 	@GetMapping("/community/{page}")
@@ -108,14 +127,24 @@ public class AdminController {
 		return this.userService.getUsersByIsCensoredPage(page);
 	}
 	
-	@PatchMapping("/post/{uuid}")
+	@PatchMapping("/community/{uuid}")
 	@ResponseBody
 	public void ignorePost(@PathVariable("uuid") UUID uuid) {
+		try {
+			Post post = postService.findByUuid(uuid);
+			aiFeedbackService.recordFalsePositive(
+				post.getTitle() + " " + post.getContent(), "post", uuid.toString(), null);
+		} catch (Exception ignored) {}
 		this.postService.ignore(uuid);
 	}
-	@DeleteMapping("/post/{uuid}")
+	@DeleteMapping("/community/{uuid}")
 	@ResponseBody
 	public void deletePost(@PathVariable("uuid") UUID uuid) {
+		try {
+			Post post = postService.findByUuid(uuid);
+			aiFeedbackService.recordConfirmed(
+				post.getTitle() + " " + post.getContent(), "post", uuid.toString(), null);
+		} catch (Exception ignored) {}
 		this.postService.delete(uuid);
 	}
 	
@@ -133,11 +162,19 @@ public class AdminController {
 	@PatchMapping("/postComment/{uuid}")
 	@ResponseBody
 	public void ignorePostComment(@PathVariable("uuid") UUID uuid) {
+		try {
+			String text = postCommentService.findByCommentUuid(uuid).getContent();
+			aiFeedbackService.recordFalsePositive(text, "postComment", uuid.toString(), null);
+		} catch (Exception ignored) {}
 		this.postCommentService.ignore(uuid);
 	}
 	@DeleteMapping("/postComment/{uuid}")
 	@ResponseBody
 	public void deletePostComment(@PathVariable("uuid") UUID uuid) {
+		try {
+			String text = postCommentService.findByCommentUuid(uuid).getContent();
+			aiFeedbackService.recordConfirmed(text, "postComment", uuid.toString(), null);
+		} catch (Exception ignored) {}
 		this.postCommentService.delete(uuid);
 	}
 
@@ -151,15 +188,33 @@ public class AdminController {
 	public void deleteApiComment(@PathVariable("uuid") UUID uuid) {
 		this.apiCommentService.delete(uuid);
 	}
+
+	@GetMapping("/ai/feedback")
+	@ResponseBody
+	public Object getFeedback() {
+		return aiFeedbackService.getAll();
+	}
 	
 	@PatchMapping("/user/{uuid}")
 	@ResponseBody
 	public void ignoreUser(@PathVariable("uuid") UUID uuid) {
+		try {
+			com.getapi.user.domain.UserProfile profile = userService.getProfileByUserUuid(uuid);
+			String text = (profile.getNickname() != null ? profile.getNickname() : "") + " "
+					+ (profile.getIntroduction() != null ? profile.getIntroduction() : "");
+			aiFeedbackService.recordFalsePositive(text.trim(), "user", uuid.toString(), null);
+		} catch (Exception ignored) {}
 		this.userService.ignore(uuid);
 	}
 	@DeleteMapping("/user/{uuid}")
 	@ResponseBody
 	public void deleteUser(@PathVariable("uuid") UUID uuid) {
+		try {
+			com.getapi.user.domain.UserProfile profile = userService.getProfileByUserUuid(uuid);
+			String text = (profile.getNickname() != null ? profile.getNickname() : "") + " "
+					+ (profile.getIntroduction() != null ? profile.getIntroduction() : "");
+			aiFeedbackService.recordConfirmed(text.trim(), "user", uuid.toString(), null);
+		} catch (Exception ignored) {}
 		this.userService.delete(uuid);
 	}
 }
