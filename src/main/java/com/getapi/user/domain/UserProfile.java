@@ -37,5 +37,7 @@ public class UserProfile {
 
     @Column(nullable = false)
     private String profileImage;
+    
+	private boolean isCensored;
 
 }

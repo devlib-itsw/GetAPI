@@ -15,7 +15,7 @@
 	<th:block layout:fragment="content">
 		<main class="main-content bg-muted-30">
 			<div class="container py-8">
-				<a href="dashboard.html"
+				<a href="javascript:history.back()"
 					class="inline-flex items-center gap-2 text-sm text-muted mb-6 hover\:text-primary"
 					style="display:inline-flex">
 					<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -30,23 +30,17 @@
 					<div class="flex items-center gap-4">
 						<div
 							style="width:3.5rem; height:3.5rem; border-radius:var(--radius-xl); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
-							<span class="text-2xl font-bold text-primary">T</span>
+							<span class="text-2xl font-bold text-primary"
+								th:text="${api.name != null && !api.name.isEmpty() ? api.name.substring(0,1).toUpperCase() : '?'}">A</span>
 						</div>
 						<div>
 							<div class="flex items-center gap-2">
 								<h1 class="text-2xl font-bold text-foreground ellipsis mw-lg" th:text="${api.name}">
 								</h1>
-
-								<span th:if="${api=='active'}" class="badge badge-default">활성</span>
-								<span th:if="${api=='blocked'}" class="badge badge-destructive">비활성</span>
 							</div>
 							<p class="text-muted">등록일: <span
 									th:text="${#temporals.format(api.createdAt, 'yyyy-MM-dd')}"></span></p>
 						</div>
-					</div>
-					<div class="flex items-center gap-2">
-						<label class="text-sm text-foreground" for="active-switch">API 활성화</label>
-						<button class="switch active" id="active-switch"><span class="switch-thumb"></span></button>
 					</div>
 				</div>
 
@@ -108,7 +102,7 @@
 									<h2 class="card-title">API 정보</h2>
 								</div>
 								<div class="card-content space-y-4">
-									<div><label class="label text-muted">프록시 URI</label><code
+									<div  style="overflow-y: hidden; min-height: 69px;"><label class="label text-muted">프록시 URI</label><code
 											class="code-block mt-1">https://getapi.com/<span th:text="${api.proxyUrl}"></span></code>
 									</div>
 									<div><label class="label text-muted">호출당 포인트</label>
@@ -249,8 +243,9 @@
 										</h2>
 										<div class="flex items-center gap-2">
 											<label class="text-sm text-foreground" for="hateoas-switch">활성화</label>
-											<button class="switch" id="hateoas-switch"
+											<button class="switch" id="hateoas-switch" data-managed
 												th:classappend="${api.hateoasEnabled} ? 'active' : ''"
+												th:data-enabled="${api.hateoasEnabled}"
 												th:data-uuid="${api.apiUuid}"><span
 													class="switch-thumb"></span></button>
 										</div>
@@ -259,7 +254,7 @@
 										추가합니다. 활성화하면 API 응답에 관련 리소스 링크가 자동으로 포함됩니다.</p>
 								</div>
 								<div class="card-content" id="hateoas-settings"
-									style="opacity:0.5; pointer-events:none">
+									th:style="${api.hateoasEnabled} ? '' : 'opacity:0.5; pointer-events:none'">
 									<div class="alert mb-6">
 										<svg class="icon text-primary" viewBox="0 0 24 24" fill="none"
 											stroke="currentColor" stroke-width="2">
@@ -292,10 +287,12 @@
 									<div
 										style="margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1.5rem">
 										<h4 class="font-medium text-foreground mb-3">응답 미리보기</h4>
-										<pre class="code-block" id="hateoas-preview" style="white-space:pre-wrap; font-size:0.8125rem"><code>{ ... }</code></pre>
+										<pre class="code-block" id="hateoas-preview"
+											style="white-space:pre-wrap; font-size:0.8125rem"><code>{ ... }</code></pre>
 									</div>
 
-									<button class="btn btn-primary gap-2" style="margin-top:1.5rem" id="btn-save-hateoas">
+									<button class="btn btn-primary gap-2" style="margin-top:1.5rem"
+										id="btn-save-hateoas">
 										<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 											stroke-width="2">
 											<path
@@ -316,22 +313,23 @@
 							<div class="card-header">
 								<h2 class="card-title">API 설정</h2>
 							</div>
-							<div class="card-content space-y-6">
-								<div class="space-y-2"><label class="label">API 이름</label><input class="input"
-										value="Translation API"></div>
+							<div class="card-content space-y-6" th:data-uuid="${api.apiUuid}">
+								<div class="space-y-2"><label class="label">API 이름</label><input id="setting-name"
+										class="input" th:value="${api.name}"></div>
 								<div class="space-y-2"><label class="label">API 고유 문자열 (URL Slug)</label>
 									<div class="flex items-center gap-2"><span
 											class="text-sm text-muted">https://getapi.com/api/</span><input
-											class="input" value="tr-abc123" style="flex:1"></div>
+											id="setting-slug" class="input" th:value="${api.proxyUrl}" style="flex:1">
+									</div>
 								</div>
-								<div class="space-y-2"><label class="label">원본 API URI</label><input class="input"
-										value="https://my-api.com/v1/translate"></div>
-								<div class="space-y-2"><label class="label">호출당 포인트</label><input class="input"
-										type="number" value="1"></div>
-								<div class="space-y-2"><label class="label">설명</label><textarea class="textarea"
-										rows="4">100개 이상의 언어를 지원하는 고품질 번역 API입니다.</textarea></div>
-								<button class="btn btn-primary gap-2"><svg class="icon" viewBox="0 0 24 24" fill="none"
-										stroke="currentColor" stroke-width="2">
+								<div class="space-y-2"><label class="label">원본 API URI</label><input
+										id="setting-original-url" class="input" th:value="${api.originalUrl}" readonly style="opacity:0.6; cursor:not-allowed;"></div>
+								<div class="space-y-2"><label class="label">호출당 포인트</label><input id="setting-price"
+										class="input" type="number" th:value="${api.price}"></div>
+								<div class="space-y-2"><label class="label">설명</label><textarea id="setting-description"
+										class="textarea" rows="4" th:text="${api.description}"></textarea></div>
+								<button id="btn-save-settings" class="btn btn-primary gap-2"><svg class="icon"
+										viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 										<path
 											d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
 										<path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" />
@@ -346,8 +344,9 @@
 											<path d="M12 9v4" />
 											<path d="M12 17h.01" />
 										</svg> 위험 구역</h4>
-									<button class="btn btn-destructive gap-2"><svg class="icon" viewBox="0 0 24 24"
-											fill="none" stroke="currentColor" stroke-width="2">
+									<button id="btn-delete-api" class="btn btn-destructive gap-2"
+										th:data-uuid="${api.apiUuid}"><svg class="icon" viewBox="0 0 24 24" fill="none"
+											stroke="currentColor" stroke-width="2">
 											<path d="M3 6h18" />
 											<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
 											<path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
@@ -358,7 +357,7 @@
 					</div>
 
 					<!-- Logs -->
-					<div class="tab-content" data-tab-content="logs">
+					<div class="tab-content" data-tab-content="logs" th:data-api-uuid="${api.apiUuid}">
 						<div class="card">
 							<div class="card-header">
 								<h2 class="card-title">API 호출 로그</h2>
@@ -375,26 +374,13 @@
 												<th class="text-right">시간</th>
 											</tr>
 										</thead>
-										<tbody>
-											<tr th:if="${#lists.isEmpty(callLogs)}">
-												<td colspan="5" class="text-center text-muted">호출 기록이 없습니다.</td>
-											</tr>
-											<tr th:each="log : ${callLogs}">
-												<td class="font-medium" th:text="${log.calledUser.email}"></td>
-												<td>
-													<span
-														th:class="${log.statusCode < 400} ? 'badge badge-default text-xs' : 'badge badge-destructive text-xs'"
-														th:text="${log.statusCode}"></span>
-												</td>
-												<td class="text-muted" th:text="${log.responseTimeMs} + 'ms'"></td>
-												<td th:text="${log.pointsCharged} + ' P'"></td>
-												<td class="text-right text-muted"
-													th:text="${#temporals.format(log.calledAt, 'yyyy-MM-dd HH:mm:ss')}">
-												</td>
-											</tr>
+										<tbody id="log-tbody">
+											<tr><td colspan="5" class="text-center text-muted">로딩 중...</td></tr>
 										</tbody>
 									</table>
 								</div>
+								<!-- 페이지네이션 -->
+								<nav id="log-pagination" aria-label="로그 페이지" style="margin-top:1rem;"></nav>
 							</div>
 						</div>
 					</div>
@@ -408,12 +394,7 @@
 				/* ── HATEOAS Switch ── */
 				var hateoasSwitch = document.getElementById('hateoas-switch');
 				var hateoasSettings = document.getElementById('hateoas-settings');
-				var hateoasEnabled = hateoasSwitch ? hateoasSwitch.classList.contains('active') : false;
-
-				if (hateoasSettings) {
-					hateoasSettings.style.opacity = hateoasEnabled ? '1' : '0.5';
-					hateoasSettings.style.pointerEvents = hateoasEnabled ? 'auto' : 'none';
-				}
+				var hateoasEnabled = hateoasSwitch ? hateoasSwitch.dataset.enabled === 'true' : false;
 
 				if (hateoasSwitch) {
 					hateoasSwitch.addEventListener('click', function () {
@@ -422,47 +403,63 @@
 						hateoasSettings.style.opacity = hateoasEnabled ? '1' : '0.5';
 						hateoasSettings.style.pointerEvents = hateoasEnabled ? 'auto' : 'none';
 
-						var uuid = this.dataset.uuid;
+						const uuid = this.dataset.uuid;
+
+						const revert = () => {
+							hateoasEnabled = !hateoasEnabled;
+							hateoasSwitch.classList.toggle('active', hateoasEnabled);
+							hateoasSettings.style.opacity = hateoasEnabled ? '1' : '0.5';
+							hateoasSettings.style.pointerEvents = hateoasEnabled ? 'auto' : 'none';
+						};
+
 						fetch('/api/dashboard/view/' + uuid + '/hateoas/toggle', {
 							method: 'POST',
 							headers: { 'Content-Type': 'application/json' },
 							body: JSON.stringify({ enabled: hateoasEnabled })
-						}).then(function(res) {
-							if (!res.ok) {
-								// 활성화 실패 시 원상복구
-								hateoasEnabled = !hateoasEnabled;
-								hateoasSwitch.classList.toggle('active', hateoasEnabled);
-								hateoasSettings.style.opacity = hateoasEnabled ? '1' : '0.5';
-								hateoasSettings.style.pointerEvents = hateoasEnabled ? 'auto' : 'none';
-								return res.json().then(function(data) {
-									showToast(data.message || '저장 실패', 'error');
-								});
-							}
-						});
+						})
+							.then(function (res) {
+								if (!res.ok) {
+									revert();
+									return res.json()
+										.then(data => showToast(data.message || '저장 실패', 'error'))
+										.catch(() => showToast('저장 실패', 'error'));
+								}
+							})
+							.catch(function () {
+								revert();
+								showToast('서버 연결 오류', 'error');
+							});
 					});
 				}
 
-				/* ── Active Switch ── */
-				var activeSwitch = document.getElementById('active-switch');
-				if (activeSwitch) {
-					activeSwitch.addEventListener('click', function () {
-						this.classList.toggle('active');
-						var label = document.querySelector('.badge-default');
-						if (label && label.textContent.trim() === '활성') {
-							label.textContent = '비활성';
-							label.className = 'badge badge-secondary';
-						} else if (label) {
-							label.textContent = '활성';
-							label.className = 'badge badge-default';
+
+
+				/* ── MD Load & Save ── */
+				(async function loadDoc() {
+					var uuid = document.querySelector('[data-uuid]') ? document.querySelector('[data-uuid]').dataset.uuid : null;
+					if (!uuid) return;
+					try {
+						var res = await fetch('/api/doc/' + uuid);
+						if (res.ok) {
+							var text = await res.text();
+							var editor = document.getElementById('md-editor');
+							if (editor) editor.value = text;
 						}
-					});
-				}
+					} catch (e) { }
+				})();
 
-				/* ── MD Save ── */
 				var btnSaveMd = document.getElementById('btn-save-md');
 				if (btnSaveMd) {
-					btnSaveMd.addEventListener('click', function () {
-						showToast('문서가 저장되었습니다.', 'success');
+					btnSaveMd.addEventListener('click', async function () {
+						var uuid = document.querySelector('[data-uuid]').dataset.uuid;
+						var content = document.getElementById('md-editor').value;
+						var blob = new Blob([content], { type: 'text/markdown' });
+						var file = new File([blob], 'document.md', { type: 'text/markdown' });
+						var formData = new FormData();
+						formData.append('docFile', file);
+						var res = await fetch('/api/dashboard/view/' + uuid + '/docs', { method: 'POST', body: formData });
+						if (res.ok) showToast('문서가 저장되었습니다.', 'success');
+						else showToast('저장 실패', 'error');
 					});
 				}
 
@@ -516,21 +513,21 @@
 					var div = document.createElement('div');
 					div.setAttribute('data-link-entry', '');
 					div.style.cssText = 'border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; display:flex; flex-direction:column; gap:0.75rem';
-					var methods = ['GET','POST','PUT','PATCH','DELETE'];
-					var options = methods.map(function(m) {
+					var methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+					var options = methods.map(function (m) {
 						return '<option value="' + m + '"' + (m === (method || 'GET') ? ' selected' : '') + '>' + m + '</option>';
 					}).join('');
 					div.innerHTML =
 						'<div style="display:grid; grid-template-columns:1fr 1fr auto; gap:0.75rem; align-items:end">' +
-							'<div class="form-group"><label class="form-label" style="font-size:0.75rem">관계 (rel)</label>' +
-							'<input class="input" placeholder="self" value="' + (rel || '') + '"></div>' +
-							'<div class="form-group"><label class="form-label" style="font-size:0.75rem">URI</label>' +
-							'<input class="input" placeholder="/api/..." value="' + (uri || '') + '"></div>' +
-							'<button class="btn btn-ghost btn-icon btn-sm" style="color:var(--destructive)" title="삭제" onclick="this.closest(\'[data-link-entry]\').remove()">' +
-							'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-							'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button></div>' +
-							'<div class="form-group"><label class="form-label" style="font-size:0.75rem">Method</label>' +
-							'<select class="input" style="width:8rem">' + options + '</select></div>';
+						'<div class="form-group"><label class="form-label" style="font-size:0.75rem">관계 (rel)</label>' +
+						'<input class="input" placeholder="self" value="' + (rel || '') + '"></div>' +
+						'<div class="form-group"><label class="form-label" style="font-size:0.75rem">URI</label>' +
+						'<input class="input" placeholder="/api/..." value="' + (uri || '') + '"></div>' +
+						'<button class="btn btn-ghost btn-icon btn-sm" style="color:var(--destructive)" title="삭제" onclick="this.closest(\'[data-link-entry]\').remove()">' +
+						'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+						'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button></div>' +
+						'<div class="form-group"><label class="form-label" style="font-size:0.75rem">Method</label>' +
+						'<select class="input" style="width:8rem">' + options + '</select></div>';
 					return div;
 				}
 
@@ -540,7 +537,7 @@
 					if (!preview) return;
 					var entries = document.querySelectorAll('[data-link-entry]');
 					var linksMap = {};
-					entries.forEach(function(entry) {
+					entries.forEach(function (entry) {
 						var inputs = entry.querySelectorAll('input');
 						var select = entry.querySelector('select');
 						var rel = inputs[0] ? inputs[0].value.trim() : '';
@@ -558,8 +555,8 @@
 				var btnAddLink = document.getElementById('btn-add-link');
 				if (hateoasLinksContainer) {
 					var existingLinks = [];
-					try { existingLinks = JSON.parse(hateoasLinksContainer.dataset.links || '[]'); } catch(e) {}
-					existingLinks.forEach(function(link) {
+					try { existingLinks = JSON.parse(hateoasLinksContainer.dataset.links || '[]'); } catch (e) { }
+					existingLinks.forEach(function (link) {
 						hateoasLinksContainer.insertBefore(createLinkEntry(link.rel, link.uri, link.method), btnAddLink);
 					});
 					updatePreview();
@@ -574,23 +571,42 @@
 				}
 
 				/* ── 링크 입력 변경 시 미리보기 갱신 ── */
-				document.addEventListener('input', function(e) {
+				document.addEventListener('input', function (e) {
 					if (e.target.closest('[data-link-entry]')) updatePreview();
 				});
 
-				/* ── Settings Save/Delete ── */
-				document.querySelectorAll('.tab-content[data-tab-content="settings"] .btn-primary').forEach(function (btn) {
-					btn.addEventListener('click', function () {
-						showToast('설정이 저장되었습니다.', 'success');
+				/* ── Settings Save ── */
+				var btnSaveSettings = document.getElementById('btn-save-settings');
+				if (btnSaveSettings) {
+					btnSaveSettings.addEventListener('click', async function () {
+						var uuid = document.querySelector('.card-content[data-uuid]').dataset.uuid;
+						var body = {
+							name: document.getElementById('setting-name').value.trim(),
+							slug: document.getElementById('setting-slug').value.trim(),
+							price: parseFloat(document.getElementById('setting-price').value) || 0,
+							description: document.getElementById('setting-description').value.trim()
+						};
+						var res = await fetch('/api/dashboard/view/' + uuid, {
+							method: 'PATCH',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify(body)
+						});
+						if (res.ok) showToast('설정이 저장되었습니다.', 'success');
+						else { var msg = await res.text(); showToast(msg || '저장 실패', 'error'); }
 					});
-				});
-				document.querySelectorAll('.tab-content[data-tab-content="settings"] .btn-destructive').forEach(function (btn) {
-					btn.addEventListener('click', function () {
-						if (confirm('정말로 이 API를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-							showToast('API가 삭제되었습니다.', 'error');
-						}
+				}
+
+				/* ── Delete API ── */
+				var btnDeleteApi = document.getElementById('btn-delete-api');
+				if (btnDeleteApi) {
+					btnDeleteApi.addEventListener('click', async function () {
+						if (!confirm('정말로 이 API를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+						var uuid = this.dataset.uuid;
+						var res = await fetch('/api/dashboard/view/' + uuid, { method: 'DELETE' });
+						if (res.ok) { location.href = '/api/dashboard'; }
+						else { showToast('삭제 실패', 'error'); }
 					});
-				});
+				}
 
 				/* ── HATEOAS Save ── */
 				var btnSaveHateoas = document.getElementById('btn-save-hateoas');
@@ -600,7 +616,7 @@
 						if (!uuid) return;
 						var entries = document.querySelectorAll('[data-link-entry]');
 						var links = [];
-						entries.forEach(function(entry) {
+						entries.forEach(function (entry) {
 							var inputs = entry.querySelectorAll('input');
 							var select = entry.querySelector('select');
 							var rel = inputs[0] ? inputs[0].value.trim() : '';
@@ -612,16 +628,101 @@
 							method: 'POST',
 							headers: { 'Content-Type': 'application/json' },
 							body: JSON.stringify({ enabled: hateoasEnabled, links: JSON.stringify(links) })
-						}).then(function(res) {
+						}).then(function (res) {
 							if (res.ok) showToast('HATEOAS 설정이 저장되었습니다.', 'success');
 							else showToast('저장 실패', 'error');
 						});
 					});
 				}
 
+				/* ── Logs Pagination ── */
+				(function () {
+					var logTabContent = document.querySelector('[data-tab-content="logs"]');
+					var logUuid = logTabContent ? logTabContent.dataset.apiUuid : null;
+					var currentLogPage = 0;
+					var totalLogPages = 1;
+					var loaded = false;
+
+					function loadLogs(page) {
+						if (!logUuid) {
+							showToast('API UUID를 찾을 수 없습니다.', 'error');
+							return;
+						}
+						var tbody = document.getElementById('log-tbody');
+						tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">로딩 중...</td></tr>';
+
+						fetch('/api/dashboard/view/' + logUuid + '/logs?page=' + page)
+							.then(function (res) {
+								if (!res.ok) throw new Error('HTTP ' + res.status);
+								return res.json();
+							})
+							.then(function (data) {
+								currentLogPage = typeof data.number === 'number' ? data.number : 0;
+								totalLogPages = typeof data.totalPages === 'number' ? data.totalPages : 1;
+								loaded = true;
+								if (!data.content || data.content.length === 0) {
+									tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">호출 기록이 없습니다.</td></tr>';
+								} else {
+									tbody.innerHTML = data.content.map(function (log) {
+										var badgeClass = log.statusCode < 400 ? 'badge badge-default text-xs' : 'badge badge-destructive text-xs';
+										return '<tr>' +
+											'<td class="font-medium">' + (log.email || '-') + '</td>' +
+											'<td><span class="' + badgeClass + '">' + log.statusCode + '</span></td>' +
+											'<td class="text-muted">' + log.responseTimeMs + 'ms</td>' +
+											'<td>' + log.pointsCharged + ' P</td>' +
+											'<td class="text-right text-muted">' + log.calledAt + '</td>' +
+											'</tr>';
+									}).join('');
+								}
+								renderLogPagination();
+							})
+							.catch(function (err) {
+								tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">로드 실패</td></tr>';
+								showToast('로그 불러오기 실패: ' + (err.message || '서버 오류'), 'error');
+							});
+					}
+
+					function renderLogPagination() {
+						var nav = document.getElementById('log-pagination');
+						if (totalLogPages <= 1) { nav.innerHTML = ''; return; }
+						var prevSvg = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>';
+						var nextSvg = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>';
+						var html = '<ul class="pagination">';
+						html += '<li class="page-item' + (currentLogPage === 0 ? ' disabled' : '') + '">' +
+							'<a class="page-link btn btn-outline btn-icon btn-sm" href="javascript:void(0);" data-page="' + (currentLogPage - 1) + '">' + prevSvg + '</a></li>';
+						var start = Math.max(0, currentLogPage - 2);
+						var end = Math.min(totalLogPages - 1, currentLogPage + 2);
+						for (var i = start; i <= end; i++) {
+							html += '<li class="page-item btn btn-icon btn-sm page-link ' + (i === currentLogPage ? 'btn-primary' : 'btn-outline') + '" data-page="' + i + '">' +
+								'<a href="javascript:void(0);">' + (i + 1) + '</a></li>';
+						}
+						html += '<li class="page-item' + (currentLogPage >= totalLogPages - 1 ? ' disabled' : '') + '">' +
+							'<a class="page-link btn btn-outline btn-icon btn-sm" href="javascript:void(0);" data-page="' + (currentLogPage + 1) + '">' + nextSvg + '</a></li>';
+						html += '</ul>';
+						nav.innerHTML = html;
+						nav.querySelectorAll('[data-page]').forEach(function (el) {
+							el.addEventListener('click', function () {
+								var p = parseInt(this.dataset.page);
+								if (isNaN(p) || p < 0 || p >= totalLogPages) return;
+								loadLogs(p);
+							});
+						});
+					}
+
+					window._loadLogs = loadLogs; // 외부 버튼 호환용
+
+					var logTabBtn = document.querySelector('[data-tab="logs"]');
+					if (logTabBtn) {
+						logTabBtn.addEventListener('click', function () {
+							if (!loaded) loadLogs(0);
+						});
+					}
+				})();
+
 				/* ── Health Check ── */
 				var btnHealth = document.getElementById('btn-health-check');
 				var healthStatus = document.getElementById('health-status');
+
 
 				if (btnHealth) {
 					btnHealth.addEventListener('click', async function () {
@@ -631,7 +732,7 @@
 
 						try {
 							const uuid = btnHealth.dataset.uuid;
-							const res = await fetch('/api/dashboard/view/' + uuid + '/health', {method: 'HEAD'});
+							const res = await fetch('/api/dashboard/view/' + uuid + '/health', { method: 'HEAD' });
 							if (res.ok) {
 								healthStatus.style.color = 'var(--primary)';
 								healthStatus.textContent = '● 서버 정상';

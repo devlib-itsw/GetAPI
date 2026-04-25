@@ -7,6 +7,7 @@ import com.getapi.auth.service.CustomOAuth2UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -17,6 +18,7 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled=true) // PreAuthorize
 public class SecurityConfig {
 
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -53,6 +55,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/verify/stream/**").permitAll()
                 .requestMatchers("/lib/**").permitAll()
                 .requestMatchers("/auth/device/**").permitAll()
+                .requestMatchers("/download", "/download/**").permitAll()
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated()
             ) 
@@ -68,7 +71,11 @@ public class SecurityConfig {
                 .deleteCookies("JWT-TOKEN", "REFRESH-TOKEN")  // JWT + 리프레시 토큰 쿠키 삭제
                 .permitAll()
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // JWT 필터 추가
+            .exceptionHandling(exception -> exception
+        		.accessDeniedHandler((req, res, exp) -> res.sendRedirect("/"))
+        		.authenticationEntryPoint((req, res, exp) -> res.sendRedirect("/login"))
+    		); // 권한 거부 시 index, 미인증 시 login으로 이동
         
         return http.build();
     }

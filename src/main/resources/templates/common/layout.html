@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" class="dark">
+<html lang="ko" class="dark" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
@@ -19,12 +19,12 @@
         <header class="site-header">
             <div class="header-inner">
                 <div class="flex items-center gap-8">
-                    <a href="index.html" class="logo">
+                    <a th:href="@{/}" class="logo">
                         <div class="logo-icon"><span>API</span></div>
                         <span class="logo-text">GetAPI</span>
                     </a>
                     <nav class="nav-links">
-                        <a href="library.html" class="nav-link">
+                        <a th:href="@{/library}" class="nav-link">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m16 6 4 14" />
@@ -34,14 +34,14 @@
                             </svg>
                             Library
                         </a>
-                        <a href="community.html" class="nav-link">
+                        <a th:href="@{/community}" class="nav-link">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                             </svg>
                             Community
                         </a>
-                        <a href="api/dashboard" class="nav-link">
+                        <a href="/api/dashboard" class="nav-link">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <rect width="7" height="9" x="3" y="3" rx="1" />
@@ -51,7 +51,7 @@
                             </svg>
                             Dashboard
                         </a>
-                        <a href="admin.html" class="nav-link">
+                        <a href="/admin" class="nav-link" sec:authorize="hasRole('ADMIN')">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path
@@ -60,7 +60,16 @@
                             </svg>
                             Admin
                         </a>
-                        <a href="guide.html" class="nav-link">
+                        <a href="/download" class="nav-link">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" x2="12" y1="15" y2="3"/>
+                            </svg>
+                            Download
+                        </a>
+                        <a href="/guide" class="nav-link">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <path
@@ -88,7 +97,7 @@
                     <!-- 로그인됨 -->
                     <div class="profile-wrapper" th:if="${loggedIn}">
                         <button class="profile-btn" id="profile-btn" aria-label="프로필 메뉴">
-                            <img class="profile-avatar" th:src="|/user/avater/${loginProfile?.profileImage}|" alt="프로필">
+                            <img class="profile-avatar" th:src="@{/user/avatar/{uuid}(uuid=${loginUser?.userUuid})}" alt="프로필">
                         </button>
                         <div class="profile-dropdown" id="profile-dropdown">
                             <div class="profile-dropdown-header">
@@ -133,7 +142,7 @@
                 </button>
             </div>
             <div class="mobile-menu" id="mobile-menu">
-                <a href="library.html" class="mobile-nav-link">
+                <a th:href="@{/library}" class="mobile-nav-link">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="m16 6 4 14" />
@@ -143,14 +152,14 @@
                     </svg>
                     Library
                 </a>
-                <a href="community.html" class="mobile-nav-link">
+                <a href="/community" class="mobile-nav-link">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
                     Community
                 </a>
-                <a href="dashboard.html" class="mobile-nav-link">
+                <a href="/api/dashboard" class="mobile-nav-link">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <rect width="7" height="9" x="3" y="3" rx="1" />
@@ -160,7 +169,7 @@
                     </svg>
                     Dashboard
                 </a>
-                <a href="guide.html" class="mobile-nav-link active">
+                <a href="/guide" class="mobile-nav-link active">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path
@@ -188,7 +197,7 @@
                 <!-- 모바일: 로그인됨 -->
                 <div class="mobile-profile-section" th:if="${loggedIn}">
                     <div class="mobile-profile-info">
-                        <img class="mobile-profile-avatar" th:src="|/user/avater/${loginProfile?.profileImage}|" alt="프로필">
+                        <img class="mobile-profile-avatar" th:src="@{/user/avatar/{uuid}(uuid=${loginUser?.userUuid})}" alt="프로필">
                         <div>
                             <div class="mobile-profile-name" th:text="${loginProfile?.name}"></div>
                             <div class="mobile-profile-email" th:text="${loginUser.email}"></div>
@@ -224,24 +233,24 @@
         <footer class="site-footer">
             <div class="footer-inner">
                 <div class="footer-grid">
-                    <div class="footer-brand"><a href="index.html" class="logo">
-                            <div class="logo-icon"><span>API</span></div><span class="logo-text">APIHub</span>
+                    <div class="footer-brand"><a href="/" class="logo">
+                            <div class="logo-icon"><span>API</span></div><span class="logo-text">GetAPI</span>
                         </a>
                         <p>개발자를 위한 API 마켓플레이스.</p>
                     </div>
                     <div class="footer-section">
                         <h3>서비스</h3>
                         <ul>
-                            <li><a href="library.html">Library</a></li>
-                            <li><a href="community.html">Community</a></li>
-                            <li><a href="dashboard.html">Dashboard</a></li>
+                            <li><a href="/library">Library</a></li>
+                            <li><a href="/community">Community</a></li>
+                            <li><a href="/api/dashboard">Dashboard</a></li>
                         </ul>
                     </div>
                     <div class="footer-section">
                         <h3>지원</h3>
                         <ul>
-                            <li><a href="#">문서</a></li>
-                            <li><a href="#">FAQ</a></li>
+                            <li><a href="/guide">문서</a></li>
+							<li><a href="/download">다운로드</a></li>
                         </ul>
                     </div>
                     <div class="footer-section">
@@ -253,12 +262,13 @@
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <p>&copy; 2026 APIHub. All rights reserved.</p>
+                    <p>&copy; 2026 DevLib. All rights reserved.</p>
                 </div>
             </div>
         </footer>
     </div>
-
+	
+	<script src="https://js.tosspayments.com/v1/payment"></script>
     <script th:src="@{/js/icons.js}"></script>
     <script th:src="@{/js/common.js}"></script>
     <th:block layout:fragment="script"></th:block>

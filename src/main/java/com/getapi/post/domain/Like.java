@@ -1,7 +1,6 @@
 package com.getapi.post.domain;
 
-import com.getapi.user.domain.Users;
-
+import com.getapi.user.domain.UserProfile;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +25,6 @@ public class Like {
 	private Post post;
 
 	@ManyToOne
-	@JoinColumn(name="user_id", nullable=false)
-	private Users user;
+	 @JoinColumn(name = "user_profile_id")
+	  private UserProfile userProfile;
 }

@@ -34,6 +34,10 @@ public class SmsAuthService {
 
     @Transactional
     public void saveUser(String id, String name, String phone, String mail, String profileImg) {
+        if (UserRepository.existsByPhone(phone)) {
+            log.warn("이미 가입된 전화번호 - 저장 생략: {}", phone);
+            return;
+        }
         Users user = new Users(null, UUID.randomUUID(), id, mail, phone, "ROLE_USER", LocalDateTime.now(), null, 0L);
         UserRepository.save(user);
         UserProfile profile = new UserProfile();
@@ -43,14 +47,15 @@ public class SmsAuthService {
         userProfileRepository.save(profile);
     }
 
-    public void updateProfile(String sub, String name, String picture) {
+    public Users updateProfile(String sub, String name, String picture) {
         Users user = UserRepository.findByProviderId(sub);
-        if (user == null) return;
+        if (user == null) return null;
         UserProfile profile = userProfileRepository.findByUser(user).orElse(new UserProfile());
         profile.setUser(user);
         profile.setName(name);
         if (picture != null) profile.setProfileImage(picture);
         userProfileRepository.save(profile);
+        return user;
     }
 
     public void saveToken(String id, String token, String userEmail, String userName, String userImg) {
@@ -125,7 +130,7 @@ public class SmsAuthService {
             // 폰인증끄기
             phone = mimeMessage.getSubject();
 //----------------------------------------------------------
-            // SPF 결과 확인
+//             SPF 결과 확인
             String[] spfHeaders = mimeMessage.getHeader("Received-SPF");
             if (spfHeaders != null) {
                 String spf = spfHeaders[0];
@@ -136,7 +141,7 @@ public class SmsAuthService {
                     return null;
                 }
             }
-            //폰인증끄기
+//            폰인증끄기
 //            if(!domain.equals("vmms.nate.com") && !domain.equals("mmsmail.uplus.co.kr")) {
 //            	log.warn("도메인 인증 실패 - 위조 가능성: {}", domain);
 //                return null;

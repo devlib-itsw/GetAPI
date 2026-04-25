@@ -96,22 +96,24 @@ function initDropdowns() {
 }
 
 /* ── Profile Dropdown Toggle ── */
-var profileBtn = document.getElementById('profile-btn');
-var profileDropdown = document.getElementById('profile-dropdown');
+function initProfileDropdown() {
+  var profileBtn = document.getElementById('profile-btn');
+  var profileDropdown = document.getElementById('profile-dropdown');
 
-if (profileBtn && profileDropdown) {
-  profileBtn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    profileDropdown.classList.toggle('open');
-  });
-  document.addEventListener('click', function (e) {
-    if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
-      profileDropdown.classList.remove('open');
-    }
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') profileDropdown.classList.remove('open');
-  });
+  if (profileBtn && profileDropdown) {
+    profileBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      profileDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', function (e) {
+      if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileDropdown.classList.remove('open');
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') profileDropdown.classList.remove('open');
+    });
+  }
 }
 
 /**
@@ -149,7 +151,7 @@ function initDialogs() {
  * .switch 클래스 요소 클릭 시 .active 토글
  */
 function initSwitches() {
-  document.querySelectorAll('.switch').forEach(function (sw) {
+  document.querySelectorAll('.switch:not([data-managed])').forEach(function (sw) {
     sw.addEventListener('click', function () {
       this.classList.toggle('active');
     });
@@ -314,7 +316,7 @@ function initTagInputs() {
   document.querySelectorAll('.tag-input-wrapper').forEach(function (wrapper) {
     var input = wrapper.querySelector('.tag-input');
     var list = wrapper.querySelector('.tag-list');
-    var maxTags = parseInt(wrapper.getAttribute('data-max-tags') || '10', 10);
+    var maxTags = parseInt(wrapper.getAttribute('data-max-tags')) || 5;
     var tags = [];
 
     if (!input || !list) return;
@@ -349,8 +351,35 @@ function initTagInputs() {
         list.appendChild(el);
       });
     }
+
+    var form = wrapper.closest('form');
+    if (form) {
+      form.addEventListener('submit', function () {
+        input.value = tags.join(',');
+      });
+    }
   });
 }
+/**
+ * 셀렉트 값이 바뀔 때마다 실행되는 함수
+ */
+/*window.onFilterChange = function(value, label, wrapper) {
+    console.log("선택된 값:", value); // all, pending, done 등
+    
+    // 예: 탭 메뉴처럼 특정 컨텐츠만 보여주기
+    // 모든 컨텐츠 섹션을 숨기고 선택된 ID만 보여주는 로직
+    if (value === 'all') {
+        document.querySelectorAll('.post-item').forEach(el => el.style.display = 'block');
+    } else {
+        document.querySelectorAll('.post-item').forEach(el => {
+            // 요소의 data-status 값과 비교하여 필터링
+            el.style.display = (el.getAttribute('data-status') === value) ? 'block' : 'none';
+        });
+    }
+
+    // 또는 서버에서 데이터를 새로 받아오고 싶다면?
+    // location.href = "/admin/posts?status=" + value;
+};*/
 
 /**
  * 공유 버튼 - 클립보드에 현재 URL 복사
@@ -503,6 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initMobileMenu();
   initTabs();
   initDropdowns();
+  initProfileDropdown();
   initDialogs();
   initSwitches();
   initCopyButtons();

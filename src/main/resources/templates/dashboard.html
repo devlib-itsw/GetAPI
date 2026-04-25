@@ -20,7 +20,7 @@
                         <h1 class="text-3xl font-bold text-foreground">Dashboard</h1>
                         <p class="mt-2 text-muted">판매 중인 API를 관리하고 성과를 확인하세요</p>
                     </div>
-                    <a href="dashboard/create" class="btn btn-primary gap-2">
+                    <a th:href="@{/api/dashboard/create}" class="btn btn-primary gap-2">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14" />
                             <path d="M12 5v14" />
@@ -34,252 +34,140 @@
                     style="display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr))">
                     <div class="stat-card">
                         <div class="flex items-center justify-between">
-                            <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
+                            <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
                                 <polyline points="16 7 22 7 22 13" />
                             </svg>
-                            <span class="stat-trend">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M7 7h10v10" />
-                                    <path d="M7 17 17 7" />
-                                </svg>
-                                +15.2%
-                            </span>
                         </div>
-                        <p class="stat-value">95,228</p>
+                        <p class="stat-value" th:text="${#numbers.formatInteger(totalCalls, 0, 'COMMA')}">0</p>
                         <p class="stat-label">총 API 호출</p>
                     </div>
                     <div class="stat-card">
                         <div class="flex items-center justify-between">
-                            <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
+                            <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                                 <circle cx="12" cy="12" r="3" />
                             </svg>
-                            <span class="stat-trend">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M7 7h10v10" />
-                                    <path d="M7 17 17 7" />
-                                </svg>
-                                +8.4%
-                            </span>
                         </div>
-                        <p class="stat-value">2,158</p>
+                        <p class="stat-value" th:text="${#numbers.formatInteger(todayCalls, 0, 'COMMA')}">0</p>
                         <p class="stat-label">오늘 호출</p>
                     </div>
                     <div class="stat-card">
                         <div class="flex items-center justify-between">
-                            <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
+                            <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="8" cy="8" r="6" />
                                 <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
                                 <path d="M7 6h1v4" />
                                 <path d="m16.71 13.88.7.71-2.82 2.82" />
                             </svg>
-                            <span class="stat-trend">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M7 7h10v10" />
-                                    <path d="M7 17 17 7" />
-                                </svg>
-                                +12.8%
-                            </span>
                         </div>
-                        <p class="stat-value">141,646 P</p>
+                        <p class="stat-value"><span th:text="${#numbers.formatInteger(totalRevenue, 0, 'COMMA')}">0</span> P</p>
                         <p class="stat-label">총 수익</p>
                     </div>
                     <div class="stat-card">
                         <div class="flex items-center justify-between">
-                            <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            <svg class="icon-md text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
                             </svg>
-                            <span class="stat-trend">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M7 7h10v10" />
-                                    <path d="M7 17 17 7" />
-                                </svg>
-                                +5.3%
-                            </span>
                         </div>
-                        <p class="stat-value">735</p>
-                        <p class="stat-label">활성 사용자</p>
+                        <p class="stat-value" th:text="${#lists.size(apiStats)}">0</p>
+                        <p class="stat-label">등록된 API</p>
+                    </div>
+                </div>
+
+                <!-- Search & Sort -->
+                <div class="mb-4 flex flex-wrap gap-3 items-center justify-between">
+                    <div style="position:relative; flex:1; max-width:28rem">
+                        <svg style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%)" class="icon text-muted"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                        </svg>
+                        <input id="dashboard-search" class="input" type="text" placeholder="API 이름으로 검색..." style="padding-left:2.5rem">
+                    </div>
+                    <div class="custom-select" style="width:10rem">
+                        <button type="button" class="custom-select-trigger">
+                            <span class="cs-value">수익순</span>
+                            <svg class="cs-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m6 9 6 6 6-6"/>
+                            </svg>
+                        </button>
+                        <div class="custom-select-popover align-right">
+                            <div class="custom-select-item selected" data-value="revenue"><svg class="cs-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span class="cs-label">수익순</span></div>
+                            <div class="custom-select-item" data-value="calls"><svg class="cs-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span class="cs-label">호출수순</span></div>
+                            <div class="custom-select-item" data-value="name"><svg class="cs-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span class="cs-label">이름순</span></div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- API List -->
                 <div class="card">
-                    <div class="card-header flex items-center justify-between">
+                    <div class="card-header">
                         <h2 class="card-title">내 API 목록</h2>
-                        <div class="custom-select" style="width:10rem">
-                            <button type="button" class="custom-select-trigger">
-                                <span class="cs-value">수익순</span>
-                                <svg class="cs-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="m6 9 6 6 6-6" />
-                                </svg>
-                            </button>
-                            <div class="custom-select-popover align-right">
-                                <div class="custom-select-item selected" data-value="revenue"><svg class="cs-check"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg><span class="cs-label">수익순</span></div>
-                                <div class="custom-select-item" data-value="calls"><svg class="cs-check"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg><span class="cs-label">호출수순</span></div>
-                                <div class="custom-select-item" data-value="users"><svg class="cs-check"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg><span class="cs-label">사용자순</span></div>
-                                <div class="custom-select-item" data-value="name"><svg class="cs-check"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg><span class="cs-label">이름순</span></div>
-                            </div>
-                        </div>
                     </div>
-                    <div class="card-content space-y-4">
-                        <!-- API Item 1 -->
-                        <a href="dashboard-view.html"
-                            class="flex flex-wrap gap-4 items-center justify-between rounded-lg p-4 transition-all hover\:shadow-sm"
-                            style="border:1px solid var(--border); display:flex">
-                            <div class="flex items-center gap-4">
-                                <div
-                                    style="width:3rem; height:3rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
-                                    <span class="text-lg font-bold text-primary">T</span></div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <h3 class="font-semibold text-foreground">Translation API</h3><span
-                                            class="badge badge-default text-xs">활성</span>
-                                    </div>
-                                    <p class="text-sm text-muted">오늘 1,234회 호출</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-6 text-center">
-                                <div>
-                                    <p class="text-lg font-semibold text-foreground">45,230</p>
-                                    <p class="text-xs text-muted">총 호출</p>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-semibold text-foreground">45,230 P</p>
-                                    <p class="text-xs text-muted">수익</p>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-semibold text-primary flex items-center justify-center"><svg
-                                            class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path d="M7 7h10v10" />
-                                            <path d="M7 17 17 7" />
-                                        </svg>12.5%</p>
-                                    <p class="text-xs text-muted">추세</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- API Item 2 -->
-                        <a href="dashboard-view.html"
-                            class="flex flex-wrap gap-4 items-center justify-between rounded-lg p-4 transition-all hover\:shadow-sm"
-                            style="border:1px solid var(--border); display:flex">
-                            <div class="flex items-center gap-4">
-                                <div
-                                    style="width:3rem; height:3rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
-                                    <span class="text-lg font-bold text-primary">I</span></div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <h3 class="font-semibold text-foreground">Image Resize API</h3><span
-                                            class="badge badge-default text-xs">활성</span>
-                                    </div>
-                                    <p class="text-sm text-muted">오늘 567회 호출</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-6 text-center">
-                                <div>
-                                    <p class="text-lg font-semibold text-foreground">23,456</p>
-                                    <p class="text-xs text-muted">총 호출</p>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-semibold text-foreground">46,912 P</p>
-                                    <p class="text-xs text-muted">수익</p>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-semibold text-primary flex items-center justify-center"><svg
-                                            class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path d="M7 7h10v10" />
-                                            <path d="M7 17 17 7" />
-                                        </svg>8.3%</p>
-                                    <p class="text-xs text-muted">추세</p>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- API Item 3 -->
-                        <a href="dashboard-view.html"
-                            class="flex flex-wrap gap-4 items-center justify-between rounded-lg p-4 transition-all hover\:shadow-sm"
-                            style="border:1px solid var(--border); display:flex">
-                            <div class="flex items-center gap-4">
-                                <div
-                                    style="width:3rem; height:3rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
-                                    <span class="text-lg font-bold text-primary">W</span></div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <h3 class="font-semibold text-foreground">Weather Data API</h3><span
-                                            class="badge badge-secondary text-xs">비활성</span>
-                                    </div>
-                                    <p class="text-sm text-muted">오늘 0회 호출</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-6 text-center">
-                                <div>
-                                    <p class="text-lg font-semibold text-foreground">12,345</p>
-                                    <p class="text-xs text-muted">총 호출</p>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-semibold text-foreground">12,345 P</p>
-                                    <p class="text-xs text-muted">수익</p>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-semibold text-destructive flex items-center justify-center">
-                                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path d="m7 7 10 10" />
-                                            <path d="M17 7v10H7" />
-                                        </svg>2.1%</p>
-                                    <p class="text-xs text-muted">추세</p>
-                                </div>
-                            </div>
-                        </a>
+                    <div class="card-content space-y-4" id="dashboard-list">
+                        <p class="text-center py-12 text-muted">불러오는 중...</p>
                     </div>
                 </div>
 
                 <!-- Pagination -->
-                <div class="pagination">
-                    <button class="btn btn-outline btn-icon btn-sm" disabled>
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="m15 18-6-6 6-6" />
-                        </svg>
-                    </button>
-                    <button class="btn btn-primary btn-icon btn-sm">1</button>
-                    <button class="btn btn-outline btn-icon btn-sm">2</button>
-                    <button class="btn btn-outline btn-icon btn-sm">3</button>
-                    <button class="btn btn-outline btn-icon btn-sm">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="m9 18 6-6-6-6" />
-                        </svg>
-                    </button>
-                </div>
+                <div class="pagination mt-4" id="dashboard-nav"></div>
             </div>
         </main>
     </th:block>
     <th:block layout:fragment="script">
+    <script src="/js/Pagination.js"></script>
+    <script>
+    const dashboardPaginator = new DataPaginator({
+        apiUrl: '/api/dashboard/list',
+        bodyContainer: '#dashboard-list',
+        navContainer: '#dashboard-nav',
+        getSearchParams: () => ({
+            keyword: document.getElementById('dashboard-search').value.trim(),
+            sort: document.querySelector('.custom-select-item.selected')?.dataset.value || 'revenue'
+        }),
+        renderRow: (item) => `
+            <a href="/api/dashboard/view/${item.apiUuid}"
+               class="flex flex-wrap gap-4 items-center justify-between rounded-lg p-4 transition-all hover:shadow-sm"
+               style="border:1px solid var(--border); display:flex">
+                <div class="flex items-center gap-4">
+                    <div style="width:3rem; height:3rem; border-radius:var(--radius-lg); background:rgba(0,199,126,0.1); display:flex; align-items:center; justify-content:center">
+                        <span class="text-lg font-bold text-primary">${item.name ? item.name[0].toUpperCase() : '?'}</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-foreground">${item.name}</h3>
+                        <p class="text-sm text-muted">오늘 ${item.todayCalls.toLocaleString()}회 호출</p>
+                    </div>
+                </div>
+                <div class="flex gap-6 text-center">
+                    <div>
+                        <p class="text-lg font-semibold text-foreground">${item.totalCalls.toLocaleString()}</p>
+                        <p class="text-xs text-muted">총 호출</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-semibold text-foreground">${item.totalRevenue.toLocaleString()} P</p>
+                        <p class="text-xs text-muted">수익</p>
+                    </div>
+                </div>
+            </a>`
+    });
+
+    dashboardPaginator.load(0);
+
+    /* 검색 */
+    document.getElementById('dashboard-search').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') dashboardPaginator.load(0);
+    });
+
+    /* 정렬 */
+    document.querySelectorAll('.custom-select-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.custom-select-item').forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+            document.querySelector('.cs-value').textContent = this.querySelector('.cs-label').textContent;
+            dashboardPaginator.load(0);
+        });
+    });
+    </script>
     </th:block>
 </body>
 

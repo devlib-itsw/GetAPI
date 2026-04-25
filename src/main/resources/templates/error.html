@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${status} + ' - GetAPI'">오류 - GetAPI</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .error-box { text-align: center; max-width: 32rem; padding: 2rem; }
+        .error-code { font-size: 5rem; font-weight: 700; color: var(--primary, #00c77e); line-height: 1; margin-bottom: 1rem; }
+        .error-icon { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+        .error-icon-inner { width: 4rem; height: 4rem; border-radius: 1rem; background: rgba(0,199,126,0.1); display: flex; align-items: center; justify-content: center; }
+        .error-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; }
+        .error-desc { color: var(--muted-foreground, #888); margin-bottom: 2rem; }
+        .btn-row { display: flex; gap: 0.75rem; justify-content: center; }
+    </style>
+</head>
+<body>
+    <div class="error-box">
+        <p class="error-code" th:text="${status} ?: '오류'">500</p>
+
+        <div class="error-icon">
+            <div class="error-icon-inner">
+                <svg style="width:2rem;height:2rem;color:var(--primary,#00c77e)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                    <path d="M12 9v4"/><path d="M12 17h.01"/>
+                </svg>
+            </div>
+        </div>
+
+        <h1 class="error-title"
+            th:text="${status == 404} ? '페이지를 찾을 수 없습니다'
+                    : (${status == 403} ? '접근 권한이 없습니다'
+                    : (${status == 401} ? '로그인이 필요합니다'
+                    : (${status == 400} ? '잘못된 요청입니다'
+                    : '예기치 않은 오류가 발생했습니다')))">
+            오류가 발생했습니다
+        </h1>
+
+        <p class="error-desc"
+           th:text="${status == 404} ? '요청하신 페이지가 존재하지 않거나 이동되었습니다.'
+                   : (${status == 403} ? '이 페이지에 접근할 수 있는 권한이 없습니다.'
+                   : (${status == 401} ? '이 페이지는 로그인 후 이용할 수 있습니다.'
+                   : (${status == 400} ? '요청 형식이 올바르지 않습니다.'
+                   : '잠시 후 다시 시도해주세요. 문제가 지속되면 관리자에게 문의하세요.')))">
+            잠시 후 다시 시도해 주세요.
+        </p>
+
+        <div class="btn-row">
+            <a href="javascript:history.back()" class="btn btn-outline gap-2">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+                </svg>
+                이전 페이지
+            </a>
+            <a href="/" class="btn btn-primary gap-2">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                홈으로
+            </a>
+        </div>
+    </div>
+</body>
+</html>

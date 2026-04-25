@@ -17,4 +17,5 @@ public class RefreshToken {
  private String id;
  private String ip;
  private String userAgent;
+ private String role;
 }

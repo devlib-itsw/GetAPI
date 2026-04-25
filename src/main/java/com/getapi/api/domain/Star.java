@@ -1,6 +1,6 @@
 package com.getapi.api.domain;
 
-import com.getapi.user.domain.Users;
+import com.getapi.user.domain.UserProfile;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +24,6 @@ public class Star {
 	private Api api;
 
 	@ManyToOne
-	@JoinColumn(name="user_id", nullable=false)
-	private Users user;
+	@JoinColumn(name="user_profile_id", nullable=false)
+	private UserProfile userProfile;
 }

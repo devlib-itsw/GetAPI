@@ -119,7 +119,8 @@ public class MailIdleConfig {
             log.info("[MAIL] 인증 성공 → SSE 알림 전송");
             smsAuthController.notifyVerified(
                 verifiedUser.getToken(),
-                verifiedUser.getUserId()
+                verifiedUser.getUserId(),
+                "USER"
             );
         } else {
             log.warn("[MAIL] processSmsAuth 결과 null - 인증 실패 또는 조건 불일치");

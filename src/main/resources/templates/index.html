@@ -39,7 +39,7 @@
 
                     <div
                         style="margin-top:2.5rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:1rem">
-                        <a href="library.html" class="btn btn-primary btn-lg gap-2">
+                        <a href="/library" class="btn btn-primary btn-lg gap-2">
                             API 둘러보기
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -47,7 +47,7 @@
                                 <path d="m12 5 7 7-7 7" />
                             </svg>
                         </a>
-                        <a href="dashboard.html" class="btn btn-outline btn-lg">API 판매 시작하기</a>
+                        <a href="/api/dashboard" class="btn btn-outline btn-lg">API 판매 시작하기</a>
                     </div>
 
                     <!-- Feature Cards -->
@@ -92,7 +92,7 @@
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-foreground">실시간 모니터링</p>
-                                <p class="text-xs text-muted">트래픽 & 사용량 대시보드</p>
+                                <p class="text-xs text-muted">실시간 로그 & 사용량 대시보드</p>
                             </div>
                         </div>
                     </div>
@@ -160,7 +160,7 @@
                                 </svg>
                             </div>
                             <h3 class="text-lg font-semibold text-foreground">Dashboard</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted">판매 중인 API의 트래픽, 수익, 구매자 현황을 실시간으로
+                            <p class="mt-2 text-sm leading-relaxed text-muted">판매 중인 API의 실시간 로그, 수익 현황을 실시간으로
                                 모니터링하세요.</p>
                         </div>
                         <!-- Feature 4 -->
@@ -188,7 +188,7 @@
                                 </svg>
                             </div>
                             <h3 class="text-lg font-semibold text-foreground">피드백 시스템</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted">댓글과 평점을 통해 API 품질을 개선하고 더 나은 서비스를 제공하세요.
+                            <p class="mt-2 text-sm leading-relaxed text-muted">댓글을 통해 API 품질을 개선하고 더 나은 서비스를 제공하세요.
                             </p>
                         </div>
                         <!-- Feature 6 -->
@@ -202,7 +202,7 @@
                                 </svg>
                             </div>
                             <h3 class="text-lg font-semibold text-foreground">포인트 시스템</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted">포인트 충전, 환전, 정기결제 연결로 유연한 결제 환경을 제공합니다.
+                            <p class="mt-2 text-sm leading-relaxed text-muted">포인트 충전, 환전 연결로 유연한 결제 환경을 제공합니다.
                             </p>
                         </div>
                     </div>
@@ -215,20 +215,20 @@
                     <div
                         style="display:grid; grid-template-columns:repeat(2, 1fr); gap:2rem; max-width:56rem; margin:0 auto; text-align:center">
                         <div>
-                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">1,200+</p>
+                            <p th:text="${#numbers.formatInteger(totalApis, 0, 'COMMA')}" style="font-size:1.875rem; font-weight:700; color:var(--primary)">0</p>
                             <p class="mt-2 text-sm text-muted">등록된 API</p>
                         </div>
                         <div>
-                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">5,000+</p>
+                            <p th:text="${#numbers.formatInteger(totalUsers, 0, 'COMMA')}" style="font-size:1.875rem; font-weight:700; color:var(--primary)">0</p>
                             <p class="mt-2 text-sm text-muted">개발자</p>
                         </div>
                         <div>
-                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">10M+</p>
-                            <p class="mt-2 text-sm text-muted">월간 API 호출</p>
+                            <p th:text="${#numbers.formatInteger(totalApiCalls, 0, 'COMMA')}" style="font-size:1.875rem; font-weight:700; color:var(--primary)">0</p>
+                            <p class="mt-2 text-sm text-muted">누적 API 호출</p>
                         </div>
                         <div>
-                            <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">99.9%</p>
-                            <p class="mt-2 text-sm text-muted">가동률</p>
+                            <p th:text="${#numbers.formatInteger(totalPoints, 0, 'COMMA') + ' P'}" style="font-size:1.875rem; font-weight:700; color:var(--primary)">0 P</p>
+                            <p class="mt-2 text-sm text-muted">누적 포인트 거래량</p>
                         </div>
                     </div>
                 </div>

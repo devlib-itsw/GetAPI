@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -41,15 +42,36 @@ public class ProxyController {
     private final UserRepository userRepository;
     private final CallLogService callLogService;
 
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    // 리다이렉트 미추적(SSRF 방지), 쿠키 저장 없음, 커넥션 타임아웃
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.NEVER)
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // hop-by-hop 헤더 — 포워딩 시 제외
-    private static final Set<String> EXCLUDED_HEADERS = Set.of(
+    // 업스트림으로 전송 시 제거할 헤더 — 서버 신원·클라이언트 IP 노출 방지
+    private static final Set<String> EXCLUDED_REQUEST_HEADERS = Set.of(
+            // hop-by-hop
             "host", "connection", "transfer-encoding", "te",
             "trailer", "upgrade", "proxy-authorization", "proxy-authenticate",
+            "content-length",
+            // GetAPI 인증 헤더 (업스트림에 노출 불필요)
             "x-getapi-key", "x-getapi-timestamp", "x-getapi-signature",
-            "content-length"
+            // 클라이언트/프록시 신원 노출 헤더
+            "x-forwarded-for", "x-forwarded-host", "x-forwarded-proto", "x-forwarded-port",
+            "x-real-ip", "forwarded", "via",
+            "x-cluster-client-ip", "x-original-forwarded-for",
+            "x-original-url", "x-rewrite-url"
+    );
+
+    // 업스트림 응답에서 클라이언트에게 전달 시 제거할 헤더 — 원본 서버 정보 은닉
+    private static final Set<String> EXCLUDED_RESPONSE_HEADERS = Set.of(
+            "server", "x-powered-by", "via",
+            "x-aspnet-version", "x-aspnetmvc-version",
+            "x-generator", "x-drupal-cache",
+            "x-varnish", "x-cache", "x-cache-hits",
+            "x-served-by", "x-timer", "x-runtime"
     );
 
     @RequestMapping("/lib/**")
@@ -105,9 +127,9 @@ public class ProxyController {
         }
 
         Api api = apiOpt.get();
-        if (!"active".equals(api.getStatus())) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body("비활성 상태의 API입니다.".getBytes());
+        if (api.isCensored()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("검열된 API입니다.".getBytes());
         }
 
         // 6. 포인트 차감
@@ -120,20 +142,26 @@ public class ProxyController {
         user.setPoint(user.getPoint() - price);
         userRepository.save(user);
 
-        // 7. 대상 URL 조합
+        // 7. 대상 URL 조합 및 스킴 검증
         String queryString = request.getQueryString();
         String targetUrl = api.getOriginalUrl() + (queryString != null ? "?" + queryString : "");
+        URI targetUri = URI.create(targetUrl);
+        String scheme = targetUri.getScheme();
+        if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body("http 또는 https 프로토콜만 허용됩니다.".getBytes());
+        }
 
         // 8. HttpRequest 빌드 — 메서드 · 헤더 · 바디 그대로 전달
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(targetUrl))
+                .uri(targetUri)
                 .method(request.getMethod(),
                         body.length > 0
                                 ? HttpRequest.BodyPublishers.ofByteArray(body)
                                 : HttpRequest.BodyPublishers.noBody());
 
         Collections.list(request.getHeaderNames()).forEach(name -> {
-            if (!EXCLUDED_HEADERS.contains(name.toLowerCase())) {
+            if (!EXCLUDED_REQUEST_HEADERS.contains(name.toLowerCase())) {
                 Collections.list(request.getHeaders(name))
                         .forEach(value -> builder.header(name, value));
             }
@@ -148,7 +176,7 @@ public class ProxyController {
             upstream = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
         } catch (IOException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body(("업스트림 연결 실패: " + e.getMessage()).getBytes());
+                    .body("업스트림 연결 실패".getBytes());
         }
         long responseTimeMs = System.currentTimeMillis() - startTime;
 
@@ -158,7 +186,7 @@ public class ProxyController {
         // 10. 응답 헤더 복사 (hop-by-hop 제외)
         HttpHeaders responseHeaders = new HttpHeaders();
         upstream.headers().map().forEach((name, values) -> {
-            if (!EXCLUDED_HEADERS.contains(name.toLowerCase())) {
+            if (!EXCLUDED_RESPONSE_HEADERS.contains(name.toLowerCase())) {
                 responseHeaders.addAll(name, values);
             }
         });

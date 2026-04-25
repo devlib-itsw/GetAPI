@@ -2,10 +2,10 @@
 <html lang="ko" layout:decorate="~{common/layout}">
 
 <head>
-    <title layout:fragment="title">마이페이지 - GetAPI</title>
-    <th:block layout:fragment="metatags">
-        <meta name="description" content="계정 정보와 API 키를 관리하세요">
-    </th:block>
+	<title layout:fragment="title">마이페이지 - GetAPI</title>
+	<th:block layout:fragment="metatags">
+		<meta name="description" content="계정 정보와 API 키를 관리하세요">
+	</th:block>
 </head>
 
 <body>
@@ -35,7 +35,7 @@
                             </h2>
                             <p class="card-description">
                                 다른 사용자들에게 보여지는 공개 프로필 정보입니다.
-                                <a href="profile.html" style="color:var(--primary)">내 프로필 보기 <svg class="icon-xs"
+                                <a th:href="@{/user/profile/{uuid}(uuid=${loginUser?.userUuid})}" style="color:var(--primary)">내 프로필 보기 <svg class="icon-xs"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                         style="display:inline; vertical-align:middle">
                                         <path d="M15 3h6v6" />
@@ -47,7 +47,7 @@
                         <div class="card-body" style="display:flex; flex-direction:column; gap:1.5rem">
                             <!-- Avatar Row -->
                             <div class="flex items-center gap-4">
-                                <img class="avatar avatar-lg" th:src="${loginProfile?.profileImage}"></img>
+                                <img class="avatar avatar-lg" th:src="@{/user/avatar/{uuid}(uuid=${loginUser?.userUuid})}"></img>
                                 <div>
                                     <p class="font-medium text-foreground" th:text="${loginProfile?.name}">kim@example.com
                                     </p>
@@ -95,12 +95,12 @@
                             <div
                                 style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem">
                                 <div>
-                                    <p style="font-size:1.875rem; font-weight:700; color:var(--primary)">12,500 P</p>
+                                    <p style="font-size:1.875rem; font-weight:700; color:var(--primary)" th:text="${loginUser.point}">12,500 P</p>
                                     <p class="text-sm text-muted">현재 보유 포인트</p>
                                 </div>
                                 <div class="flex gap-3">
-                                    <a href="points.html" class="btn btn-primary">포인트 충전</a>
-                                    <a href="points-withdraw.html" class="btn btn-outline">포인트 환전</a>
+                                    <a href="/user/points" class="btn btn-primary">포인트 충전</a>
+                                    <a href="/payments/withdraw" class="btn btn-outline">포인트 환전</a>
                                 </div>
                             </div>
                         </div>
@@ -128,7 +128,7 @@
                                 <label class="form-label">현재 API Key</label>
                                 <div class="flex gap-3">
                                     <input th:type="${loginApiAuth?.apiKey!=null} ? 'password' : 'text'" id="display-api-key" th:value="${loginApiAuth?.apiKey ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default;"/>
-                                    <button class="btn btn-outline btn-icon" id="copy-api-key" title="API Key 복사">
+                                    <button class="btn btn-outline btn-icon" id="copy-api-key" title="API Key 복사" th:disabled="${loginApiAuth?.apiKey == null}" th:style="${loginApiAuth?.apiKey == null} ? 'opacity:0.4; cursor:not-allowed;' : ''">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
@@ -146,7 +146,7 @@
                                         </svg>
                                         API 재발급
                                     </button>
-                                    <button class="btn btn-ghost gap-2" id="btn-check-expiry" th:data-uri="|/auth/apiUpdatedAt/${loginUser.userUuid}|">
+                                    <button class="btn btn-ghost gap-2" id="btn-check-expiry" th:data-uri="|/auth/apiUpdatedAt/${loginUser.userUuid}|" th:disabled="${loginApiAuth?.apiKey == null}" th:style="${loginApiAuth?.apiKey == null} ? 'opacity:0.4; cursor:not-allowed;' : ''">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="12" cy="12" r="10" />
@@ -162,7 +162,7 @@
                                 <label class="form-label">Rotation Token</label>
                                 <div class="flex gap-3">
                                     <input th:type="${loginApiAuth?.rotationToken!=null} ? 'password' : 'text'" id="display-rotation-token" th:value="${loginApiAuth?.rotationToken ?: '아직 발급된 키가 없습니다.'}" readonly style="flex:1; border-radius:var(--radius-lg); background:var(--muted); padding:0.75rem; font-size:0.875rem; font-family:var(--font-mono); word-break:break-all; color: #FAFAFA; border: none; outline: none; cursor: default;"/>
-                                    <button class="btn btn-outline btn-icon" id="copy-rotation-token" title="Rotation Token 복사">
+                                    <button class="btn btn-outline btn-icon" id="copy-rotation-token" title="Rotation Token 복사" th:disabled="${loginApiAuth?.rotationToken == null}" th:style="${loginApiAuth?.rotationToken == null} ? 'opacity:0.4; cursor:not-allowed;' : ''">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
@@ -171,7 +171,7 @@
                                     </button>
                                 </div>
                                 <div style="margin-top:0.75rem">
-                                    <button class="btn btn-ghost gap-2" id="btn-check-rotation-expiry" th:data-uri="|/auth/rotationTokenExpiry/${loginUser.userUuid}|">
+                                    <button class="btn btn-ghost gap-2" id="btn-check-rotation-expiry" th:data-uri="|/auth/rotationTokenExpiry/${loginUser.userUuid}|" th:disabled="${loginApiAuth?.rotationToken == null}" th:style="${loginApiAuth?.rotationToken == null} ? 'opacity:0.4; cursor:not-allowed;' : ''">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="12" cy="12" r="10" />
@@ -189,7 +189,7 @@
                             </div>
 
                             <!-- Signature Guide Link -->
-                            <a href="guide.html#api-signature"
+                            <a href="/guide#api-signature"
                                 style="display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border); background:color-mix(in srgb, var(--muted) 50%, transparent); font-size:0.875rem; font-weight:500; color:var(--foreground); transition:border-color 0.15s, background 0.15s; text-decoration:none"
                                 onmouseover="this.style.borderColor='var(--primary)';this.style.background='color-mix(in srgb, var(--primary) 5%, transparent)'"
                                 onmouseout="this.style.borderColor='var(--border)';this.style.background='color-mix(in srgb, var(--muted) 50%, transparent)'">
@@ -319,7 +319,7 @@
                                     회원 탈퇴 시 다음 정보가 모두 삭제되며 복구할 수 없습니다:
                                     <ul
                                         style="margin-top:0.5rem; padding-left:1.25rem; list-style:disc; font-size:0.875rem">
-                                        <li>보유 포인트 (12,500 P)</li>
+                                        <li>보유 포인트 (<span th:text="${loginUser.point}"></span> P)</li>
                                         <li>등록된 API 및 판매 기록</li>
                                         <li>게시글, 댓글 등 모든 활동 기록</li>
                                         <li>프로필 및 계정 정보</li>
@@ -327,6 +327,8 @@
                                 </div>
                             </div>
                             <div class="flex gap-3">
+                                <button class="btn btn-destructive" id="btn-withdraw"
+                                    th:data-uri="|/user/${loginUser.userUuid}|">회원 탈퇴</button>
                                 <button class="btn btn-outline gap-2">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -336,8 +338,6 @@
                                     </svg>
                                     로그아웃
                                 </button>
-                                <button class="btn btn-destructive" id="btn-withdraw"
-                                    th:data-uri="|/user/${loginUser.userUuid}|">회원 탈퇴</button>
                             </div>
                         </div>
                     </div>
@@ -571,33 +571,33 @@
                             // 2. 성공 시에만 토스트 메시지와 초기화 실행
                             showToast('회원 탈퇴가 완료되었습니다.', 'success');
 							location.href = "/";
-                        } else {
-                            // 3. 서버 에러 처리
-                            const data = await response.json();
-                            alert(data.message || '탈퇴 처리 중 오류가 발생했습니다.');
-                        }
-                    } catch (error) {
-                        // 4. 네트워크 에러 처리
-                        console.error("에러 발생:", error);
-                        alert('서버와 통신 중 오류가 발생했습니다.');
-                    }
-                } else if (userInput !== null) {
-                    // 취소를 누른 게 아니라 잘못 입력했을 경우
-                    alert('입력 내용이 일치하지 않습니다.');
-                }
-            });
+						} else {
+							// 3. 서버 에러 처리
+							const data = await response.json();
+							alert(data.message || '탈퇴 처리 중 오류가 발생했습니다.');
+						}
+					} catch (error) {
+						// 4. 네트워크 에러 처리
+						console.error("에러 발생:", error);
+						alert('서버와 통신 중 오류가 발생했습니다.');
+					}
+				} else if (userInput !== null) {
+					// 취소를 누른 게 아니라 잘못 입력했을 경우
+					alert('입력 내용이 일치하지 않습니다.');
+				}
+			});
 
-            /* ── Logout ── */
-            document.querySelectorAll('.btn-outline.gap-2').forEach(function (btn) {
-                if (btn.textContent.trim().indexOf('로그아웃') > -1) {
-                    btn.addEventListener('click', function () {
-                        showToast('로그아웃되었습니다.');
-                        setTimeout(function () { window.location.href = 'index.html'; }, 1500);
-                    });
-                }
-            });
-        </script>
-    </th:block>
+			/* ── Logout ── */
+			document.querySelectorAll('.btn-outline.gap-2').forEach(function (btn) {
+				if (btn.textContent.trim().indexOf('로그아웃') > -1) {
+					btn.addEventListener('click', function () {
+						showToast('로그아웃되었습니다.');
+						setTimeout(function () {window.location.href = 'index.html';}, 1500);
+					});
+				}
+			});
+		</script>
+	</th:block>
 </body>
 
 </html>

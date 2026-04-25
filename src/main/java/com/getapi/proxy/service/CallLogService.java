@@ -8,13 +8,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +79,29 @@ public class CallLogService {
     }
 
     public List<CallLog> getRecentLogs(Api api, int limit) {
-        return callLogRepository.findByApiOrderByCalledAtDesc(api, PageRequest.of(0, limit));
+        return callLogRepository.findByApiOrderByCalledAtDesc(api, PageRequest.of(0, limit)).getContent();
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Map<String, Object> getLogPage(Api api, int page, int size) {
+        Page<CallLog> p = callLogRepository.findByApiOrderByCalledAtDesc(api, PageRequest.of(page, size));
+        List<Map<String, Object>> content = p.getContent().stream().map(log -> {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("email", log.getCalledUser().getEmail());
+            m.put("statusCode", log.getStatusCode());
+            m.put("method", log.getHttpMethod());
+            m.put("responseTimeMs", log.getResponseTimeMs());
+            m.put("pointsCharged", log.getPointsCharged());
+            m.put("calledAt", log.getCalledAt().toString().replace("T", " ").substring(0, 19));
+            return m;
+        }).collect(Collectors.toList());
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("content", content);
+        result.put("totalPages", p.getTotalPages());
+        result.put("totalElements", p.getTotalElements());
+        result.put("number", p.getNumber());
+        return result;
     }
 
     public long getTotalRevenue(Api api) {

@@ -132,11 +132,9 @@
 							<div class="space-y-2">
 								<label class="label">태그 (최대 10개)</label>
 								<div class="tag-input-wrapper" data-max-tags="10">
-									<div class="tag-list" id="tag-list"></div>
-									<input class="tag-input" id="tag-input" placeholder="태그 입력 후 Enter">
+									<div class="tag-list"></div>
+									<input class="tag-input" name="tags" placeholder=",(콤마)로 구분해서 입력해주세요 (최대 10개)">
 								</div>
-								<!-- 태그 hidden inputs (JS가 동적으로 추가) -->
-								<div id="tag-hidden-container"></div>
 							</div>
 
 							<div class="alert">
@@ -150,7 +148,7 @@
 							</div>
 
 							<div class="flex items-center justify-end gap-3 border-t pt-6">
-								<a href="/api/dashboard" class="btn btn-outline">취소</a>
+								<a href="javascript:history.back()" class="btn btn-outline">취소</a>
 								<button type="submit" class="btn btn-primary">다음: 서버 검증</button>
 							</div>
 						</form>
@@ -161,42 +159,6 @@
 	</th:block>
 	<th:block layout:fragment="script">
 		<script>
-			// 태그 입력 → hidden input 생성
-			const tagInput = document.getElementById('tag-input');
-			const tagList = document.getElementById('tag-list');
-			const tagHidden = document.getElementById('tag-hidden-container');
-			const MAX_TAGS = 10;
-
-			tagInput.addEventListener('keydown', function (e) {
-				if (e.key !== 'Enter') return;
-				e.preventDefault();
-
-				const val = this.value.trim();
-				if (!val) return;
-				if (tagList.children.length >= MAX_TAGS) return;
-
-				// 배지 표시
-				const badge = document.createElement('span');
-				badge.className = 'badge';
-				badge.textContent = '#' + val;
-				badge.style.cursor = 'pointer';
-				badge.title = '클릭하여 삭제';
-
-				// hidden input
-				const hidden = document.createElement('input');
-				hidden.type = 'hidden';
-				hidden.name = 'tags';
-				hidden.value = val;
-
-				badge.addEventListener('click', function () {
-					tagList.removeChild(badge);
-					tagHidden.removeChild(hidden);
-				});
-
-				tagList.appendChild(badge);
-				tagHidden.appendChild(hidden);
-				this.value = '';
-			});
 		</script>
 	</th:block>
 </body>

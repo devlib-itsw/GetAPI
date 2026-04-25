@@ -1,5 +1,7 @@
 package com.getapi.user.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +20,10 @@ import lombok.RequiredArgsConstructor;
 public class ProfileController {
 	private final ProfileImgService profileImgService;
 
-	  @GetMapping("/avatar/{userId}")
-	  public ResponseEntity<byte[]> getAvatar(@PathVariable("userId") Long userId) {
-	      byte[] image = profileImgService.getOrFetch(userId);
+	  @GetMapping("/avatar/{uuid}")
+	  public ResponseEntity<byte[]> getAvatar(@PathVariable("uuid") UUID uuid) {
+	      byte[] image = profileImgService.getOrFetch(uuid);
+	      if (image == null) return ResponseEntity.notFound().build();
 	      return ResponseEntity.ok()
 	          .header(HttpHeaders.CACHE_CONTROL, "public, max-age=86400")
 	          .contentType(MediaType.IMAGE_JPEG)

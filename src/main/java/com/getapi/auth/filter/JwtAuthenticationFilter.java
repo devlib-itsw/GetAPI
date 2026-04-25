@@ -12,13 +12,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -38,50 +40,56 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, 
-                                   HttpServletResponse response, 
-                                   FilterChain filterChain) throws ServletException, IOException {
-        
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
         String jwtToken = getCookie(request, "JWT-TOKEN");
         String refreshToken = getCookie(request, "REFRESH-TOKEN");
 
         if (jwtToken != null && jwtUtil.validateToken(jwtToken) && !jwtUtil.isTokenExpired(jwtToken)) {
             String sub = jwtUtil.getSubFromToken(jwtToken);
+            String role = jwtUtil.getRoleFromToken(jwtToken);
 
-            if (!userRepository.existsByProviderId(sub)) {
-                log.warn("[JwtFilter] JWT sub='{}' 가 DB에 없음. 쿠키 삭제.", sub);
+            if (!userRepository.existsByProviderId(sub) || role == null || role.isBlank()) {
+                log.warn("[JwtFilter] JWT sub='{}' 가 DB에 없거나 role이 없음. 쿠키 삭제.", sub);
                 expireCookies(response);
             } else {
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
                 UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(sub, null, new ArrayList<>());
+                        new UsernamePasswordAuthenticationToken(sub, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } else if (refreshToken != null && refreshTokenRepository.findById(refreshToken).isPresent()) {
-            RefreshToken rt = refreshTokenService.rotate(refreshToken, request.getRemoteAddr(), request.getHeader("User-Agent"));
+        } else if (refreshToken != null) {
+            RefreshToken old = refreshTokenRepository.findById(refreshToken).orElse(null);
+            if (old == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            RefreshToken rt = refreshTokenService.rotate(refreshToken, request.getRemoteAddr(),
+                    request.getHeader("User-Agent"), old.getRole());
 
             if (rt == null || !userRepository.existsByProviderId(rt.getId())) {
                 log.warn("[JwtFilter] RefreshToken rotate 실패 또는 sub='{}' 가 DB에 없음. 쿠키 삭제.",
                         rt != null ? rt.getId() : "null");
                 expireCookies(response);
             } else {
-                // 새 액세스 토큰 쿠키
-                Cookie accessCookie = new Cookie("JWT-TOKEN", jwtUtil.generateToken(rt.getId()));
+                Cookie accessCookie = new Cookie("JWT-TOKEN", jwtUtil.generateToken(rt.getId(), rt.getRole()));
                 accessCookie.setHttpOnly(true);
                 accessCookie.setPath("/");
                 accessCookie.setMaxAge(1800);
                 response.addCookie(accessCookie);
 
-                // 새 리프레시 토큰 쿠키
                 Cookie refreshCookie = new Cookie("REFRESH-TOKEN", rt.getToken());
                 refreshCookie.setHttpOnly(true);
                 refreshCookie.setPath("/");
                 refreshCookie.setMaxAge(2592000);
                 response.addCookie(refreshCookie);
 
-                // 인증
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(rt.getRole()));
                 UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(rt.getId(), null, new ArrayList<>());
+                        new UsernamePasswordAuthenticationToken(rt.getId(), null, authorities);
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
@@ -104,9 +112,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (name.equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
+                if (name.equals(cookie.getName())) return cookie.getValue();
             }
         }
         return null;

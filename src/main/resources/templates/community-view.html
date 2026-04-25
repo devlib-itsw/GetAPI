@@ -15,7 +15,7 @@
     <th:block layout:fragment="content">
         <main class="main-content bg-muted-30">
             <div class="container-md" style="max-width:56rem; margin:0 auto; padding:2rem 1rem">
-                <a href="community.html"
+                <a href="javascript:history.back()"
                     class="inline-flex items-center gap-2 text-sm text-muted mb-6 hover\:text-primary"
                     style="display:inline-flex">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -28,18 +28,18 @@
                 <!-- Post Card -->
                 <div class="card mb-6">
                     <div class="card-content p-6">
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="badge badge-secondary text-xs">#번역</span>
-                            <span class="badge badge-secondary text-xs">#NLP</span>
-                            <span class="badge badge-secondary text-xs">#출시</span>
-                            <span class="badge badge-secondary text-xs">#무료체험</span>
+                        <div class="flex flex-wrap gap-2 mb-4" >
+                            <span class="badge badge-secondary text-xs" th:each="tag, loop : ${tags}" th:text="${tag.tag}"></span>
                         </div>
-                        <h1 class="text-2xl font-bold text-foreground mb-4">번역 API 출시! 100개 언어 지원, 무료 체험 가능</h1>
+                        <h1 class="ellipsis text-2xl font-bold text-foreground mb-4" th:text="${post.title}"></h1>
 
                         <div class="flex flex-wrap items-center gap-4 border-b pb-4 text-sm text-muted mb-6">
-                            <a href="profile.html" class="flex items-center gap-2 hover\:text-primary">
-                                <div class="avatar avatar-sm">김</div>
-                                <span class="font-medium text-foreground">김개발</span>
+                            <a th:href="@{/user/profile/{uuid}(uuid=${post.userProfile.user.userUuid})}" class="flex items-center gap-2 hover\:text-primary">
+								<div class="avatar avatar-sm">
+									<img th:src="@{/user/avatar/{uuid}(uuid=${post.userProfile.user.userUuid})}" alt="profileImage" style="border-radius: 50%;"/>
+
+								</div>
+                                <span class="font-medium text-foreground">[[${post.userProfile.isCensored ? '검열됨' : (post.userProfile.nickname ?: post.userProfile.name)}]]</span>
                             </a>
                             <span class="flex items-center gap-1"><svg class="icon" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2">
@@ -47,56 +47,71 @@
                                     <path d="M16 2v4" />
                                     <rect width="18" height="18" x="3" y="4" rx="2" />
                                     <path d="M3 10h18" />
-                                </svg> 2026-02-05</span>
-                            <span class="flex items-center gap-1"><svg class="icon" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                                    <circle cx="12" cy="12" r="3" />
-                                </svg> 1,234</span>
+                                </svg> [[${#temporals.format(post.createdAt, 'yyyy-MM-dd')}]]</span>
+								<span class="flex items-center gap-1">
+								    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+								        <circle cx="12" cy="12" r="3" />
+								    </svg>
+								    <span th:text="${post.viewCount}"></span>
+								</span>
                         </div>
 
                         <!-- Post Content -->
                         <div class="space-y-4" style="color:var(--foreground)">
-                            <p class="leading-relaxed">안녕하세요, 개발자 여러분!</p>
-                            <p class="leading-relaxed">오랜 시간 준비한 번역 API를 드디어 출시하게 되었습니다.</p>
-                            <h2 class="text-lg font-semibold mt-6 mb-3">주요 기능</h2>
-                            <p class="mb-2"><strong>100개 이상의 언어 지원</strong>: 한국어, 영어, 일본어, 중국어 등 주요 언어는 물론 다양한 언어를
-                                지원합니다.</p>
-                            <p class="mb-2"><strong>딥러닝 기반 번역</strong>: 자연스러운 번역 결과를 제공합니다.</p>
-                            <p class="mb-2"><strong>빠른 응답 속도</strong>: 평균 200ms 이내의 응답 속도를 보장합니다.</p>
-                            <p class="mb-2"><strong>합리적인 가격</strong>: 호출당 1포인트로 부담 없이 사용하실 수 있습니다.</p>
-                            <h2 class="text-lg font-semibold mt-6 mb-3">무료 체험</h2>
-                            <p class="leading-relaxed">신규 가입자 분들께 1,000 포인트를 무료로 드립니다!</p>
-                            <p class="leading-relaxed">지금 바로 GetAPI에서 번역 API를 체험해보세요.</p>
-                            <p class="leading-relaxed">궁금한 점이 있으시면 댓글로 남겨주세요. 빠르게 답변 드리겠습니다.</p>
-                            <p class="leading-relaxed">감사합니다!</p>
+                            <div id="post-view-area">
+                                <h1 id="post-title-view ellipsis" class="text-2xl font-bold text-foreground mb-2" th:text="${post.title}"></h1>
+                                <p class="leading-relaxed ellipsis" th:text="${post.content}"></p>
+                            </div>
+                            <div id="post-edit-area" style="display:none">
+                                <input id="post-title-input" class="input mb-2" type="text" th:value="${post.title}" style="width:100%"/>
+                                <textarea id="post-content-input" class="textarea mb-2" rows="6" style="width:100%;resize:vertical;" th:text="${post.content}"></textarea>
+                                <div class="flex gap-2 justify-end">
+                                    <button id="post-edit-cancel" class="btn btn-outline btn-sm">취소</button>
+                                    <button id="post-edit-save" class="btn btn-primary btn-sm">저장</button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Actions -->
                         <div class="flex flex-wrap items-center gap-3 border-t pt-4 mt-8">
-                            <button class="btn btn-outline btn-sm gap-2" data-like>
+							<th:block th:if="${loginUser != null and loginUser.userId == post.userProfile.user.userId}">
+								<button id="post-edit-btn" class="btn btn-outline btn-sm gap-2">
+									<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+									수정
+								</button>
+								<button id="post-delete-btn" class="btn btn-sm gap-2" style="color:var(--destructive); border:1px solid var(--destructive); background-color: #ffffff00;">
+									<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+									삭제
+								</button>
+							</th:block>
+
+                            <button class="btn btn-outline btn-sm gap-2 like-btn" th:data-uri="@{|/post/like/add/${post.postId}|}" th:if="${!liked}">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
                                     <path d="M7 10v12" />
                                     <path
                                         d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
                                 </svg>
-                                좋아요 56
+                                좋아요 [[${#lists.size(likes)}]]
                             </button>
-                            <button class="btn btn-outline btn-sm gap-2" data-share>
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <circle cx="18" cy="5" r="3" />
-                                    <circle cx="6" cy="12" r="3" />
-                                    <circle cx="18" cy="19" r="3" />
-                                    <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" />
-                                    <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
-                                </svg>
-                                공유
-                            </button>
+							
+							
+							<button class="btn btn-outline btn-sm gap-2 like-btn" th:data-uri="@{|/post/like/add/${post.postId}|}" th:if="${liked}">
+							    <svg class="icon" viewBox="0 0 24 24" fill="#fff" stroke="currentColor"
+							        stroke-width="2">
+							        <path d="M7 10v12" />
+							        <path
+							            d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+							    </svg>
+							    좋아요 [[${#lists.size(likes)}]]
+							</button>
+
                         </div>
                     </div>
                 </div>
+				
+				<!--<div th:text="${post.user.userId}"></div>-->
 
                 <!-- Comments -->
                 <div class="mb-6">
@@ -104,120 +119,54 @@
                         <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                         </svg>
-                        댓글 3
+                        댓글 [[${#lists.size(postComments)}]]
                     </h2>
 
                     <div class="card mb-6">
-                        <div class="card-content p-4">
-                            <textarea class="textarea mb-3" placeholder="댓글을 작성하세요..." rows="3"></textarea>
-                            <div class="flex justify-end"><button class="btn btn-primary btn-sm">댓글 작성</button></div>
-                        </div>
+                        <form class="card-content p-4" th:object="${postCommentForm}" th:action="@{|/comment/write/${post.postId}|}" method="post">
+                            <textarea class="textarea mb-3" placeholder="댓글을 작성하세요..." th:field="*{content}" rows="3" style="resize: none;"></textarea>
+                            <div class="flex justify-end border"><button class="btn btn-primary btn-sm" type=" submit">댓글 작성</button></div>
+                        </form>
                     </div>
+				</div>
 
                     <div class="space-y-4">
-                        <div class="card">
-                            <div class="card-content p-4">
-                                <div class="flex items-start gap-3">
-                                    <div class="avatar avatar-md">이</div>
-                                    <div class="flex-1">
-                                        <div class="flex items-center justify-between mb-1"><a href="profile.html"
-                                                class="font-medium text-foreground hover\:text-primary">이코딩</a><span
-                                                class="text-xs text-muted">2026-02-05 14:30</span></div>
-                                        <p class="text-sm leading-relaxed text-muted">와 번역 품질 진짜 좋네요! 테스트해봤는데 기대 이상입니다.
-                                        </p>
-                                        <div class="flex items-center gap-1 mt-2"><button class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M7 10v12" />
-                                                    <path
-                                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-                                                </svg> 8</button><button class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path
-                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                                </svg> 수정</button><button class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M3 6h18" />
-                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                </svg> 삭제</button></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="card">
+                        <div class="card" th:each="postComment : ${postComments}">
                             <div class="card-content p-4">
                                 <div class="flex items-start gap-3">
-                                    <div class="avatar avatar-md">박</div>
+									<a th:href="@{/user/profile/{uuid}(uuid=${postComment.userProfile?.user?.userUuid})}">
+			                            <img class="profile-avatar" th:src="@{/user/avatar/{uuid}(uuid=${postComment.userProfile?.user?.userUuid})}" alt="프로필" style="border-radius:50%; cursor:pointer">
+			                        </a>
                                     <div class="flex-1">
-                                        <div class="flex items-center justify-between mb-1"><a href="profile.html"
-                                                class="font-medium text-foreground hover\:text-primary">박프론트</a><span
-                                                class="text-xs text-muted">2026-02-05 16:45</span></div>
-                                        <p class="text-sm leading-relaxed text-muted">가격도 합리적이고 좋네요. 다음 프로젝트에서 사용해볼게요!
-                                        </p>
-                                        <div class="flex items-center gap-1 mt-2"><button class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M7 10v12" />
-                                                    <path
-                                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-                                                </svg> 5</button><button class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path
-                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                                </svg> 수정</button><button class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M3 6h18" />
-                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                </svg> 삭제</button></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-content p-4">
-                                <div class="flex items-start gap-3">
-                                    <div class="avatar avatar-md">최</div>
-                                    <div class="flex-1">
-                                        <div class="flex items-center justify-between mb-1"><a href="profile.html"
-                                                class="font-medium text-foreground hover\:text-primary">최백엔드</a><span
-                                                class="text-xs text-muted">2026-02-05 18:10</span></div>
-                                        <p class="text-sm leading-relaxed text-muted">일본어 번역도 괜찮나요? 한일 번역이 필요한 프로젝트가
-                                            있어서요.</p>
-                                        <div class="flex items-center gap-1 mt-2"><button class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M7 10v12" />
-                                                    <path
-                                                        d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-                                                </svg> 2</button><button class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path
-                                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                                </svg> 수정</button><button class="btn btn-ghost btn-sm"
-                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)"><svg
-                                                    style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M3 6h18" />
-                                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                </svg> 삭제</button></div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <a th:href="@{/user/profile/{uuid}(uuid=${postComment.userProfile?.user?.userUuid})}"
+                                                class="font-medium text-foreground hover\:text-primary"
+                                                th:text="${postComment.userProfile?.isCensored ? '검열됨' : (postComment.userProfile?.nickname ?: postComment.userProfile?.name)}"></a>
+                                            <span class="text-xs text-muted">[[${#temporals.format(postComment.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</span>
+                                        </div>
+                                        <p class="text-sm leading-relaxed text-muted comment-content" th:text="${postComment.content}"></p>
+                                        <div class="comment-edit-area" style="display:none">
+                                            <textarea class="textarea comment-edit-input mb-1" rows="2" style="width:100%;resize:none;" th:text="${postComment.content}"></textarea>
+                                            <div class="flex gap-1 justify-end">
+                                                <button class="btn btn-outline btn-sm comment-edit-cancel" style="font-size:0.75rem">취소</button>
+                                                <button class="btn btn-primary btn-sm comment-edit-save" th:data-uuid="${postComment.commentUuid}" style="font-size:0.75rem">저장</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1 mt-2" th:if="${loginUser != null and loginUser.userId == postComment.userProfile?.user?.userId}">
+                                            <button class="btn btn-ghost btn-sm comment-edit-btn"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem">
+                                                <svg style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                                                </svg> 수정
+                                            </button>
+                                            <button class="btn btn-ghost btn-sm comment-delete-btn" th:data-uuid="${postComment.commentUuid}"
+                                                style="height:1.75rem; padding:0 0.5rem; font-size:0.75rem; gap:0.25rem; color:var(--destructive)">
+                                                <svg style="width:0.75rem; height:0.75rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                                </svg> 삭제
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -228,6 +177,98 @@
         </main>
     </th:block>
     <th:block layout:fragment="script">
+		<script>
+			const postUuid = "[[${post.postUuid}]]";
+
+			/* ── 좋아요 ── */
+			const lElement = document.querySelector(".like-btn");
+			if (lElement) {
+				lElement.addEventListener("click", e => {
+					e.preventDefault();
+					location.href = e.currentTarget.dataset.uri;
+				});
+			}
+
+			/* ── 게시물 수정 ── */
+			const postEditBtn = document.getElementById("post-edit-btn");
+			if (postEditBtn) {
+				postEditBtn.addEventListener("click", () => {
+					document.getElementById("post-view-area").style.display = "none";
+					document.getElementById("post-edit-area").style.display = "";
+				});
+				document.getElementById("post-edit-cancel").addEventListener("click", () => {
+					document.getElementById("post-view-area").style.display = "";
+					document.getElementById("post-edit-area").style.display = "none";
+				});
+				document.getElementById("post-edit-save").addEventListener("click", async () => {
+					const title = document.getElementById("post-title-input").value.trim();
+					const content = document.getElementById("post-content-input").value.trim();
+					if (!title || !content) return alert("제목과 내용을 입력해주세요.");
+					const res = await fetch(`/community/${postUuid}`, {
+						method: "PATCH",
+						headers: {"Content-Type": "application/json"},
+						body: JSON.stringify({title, content})
+					});
+					if (res.ok) location.reload();
+					else alert("수정 실패");
+				});
+			}
+
+			/* ── 게시물 삭제 ── */
+			const postDeleteBtn = document.getElementById("post-delete-btn");
+			if (postDeleteBtn) {
+				postDeleteBtn.addEventListener("click", async () => {
+					if (!confirm("게시물을 삭제하시겠습니까?")) return;
+					const res = await fetch(`/community/${postUuid}`, {method: "DELETE"});
+					if (res.ok) location.href = "/community";
+					else alert("삭제 실패");
+				});
+			}
+
+			/* ── 댓글 수정/삭제 ── */
+			document.querySelectorAll(".comment-edit-btn").forEach(btn => {
+				btn.addEventListener("click", () => {
+					const card = btn.closest(".card-content");
+					card.querySelector(".comment-content").style.display = "none";
+					card.querySelector(".comment-edit-area").style.display = "";
+					btn.closest(".flex.items-center.gap-1").style.display = "none";
+				});
+			});
+
+			document.querySelectorAll(".comment-edit-cancel").forEach(btn => {
+				btn.addEventListener("click", () => {
+					const card = btn.closest(".card-content");
+					card.querySelector(".comment-content").style.display = "";
+					card.querySelector(".comment-edit-area").style.display = "none";
+					card.querySelector(".flex.items-center.gap-1").style.display = "";
+				});
+			});
+
+			document.querySelectorAll(".comment-edit-save").forEach(btn => {
+				btn.addEventListener("click", async () => {
+					const uuid = btn.dataset.uuid;
+					const content = btn.closest(".comment-edit-area").querySelector(".comment-edit-input").value.trim();
+					if (!content) return alert("내용을 입력해주세요.");
+					const res = await fetch(`/comment/${uuid}`, {
+						method: "PATCH",
+						headers: {"Content-Type": "application/json"},
+						body: JSON.stringify({content})
+					});
+					if (res.ok) location.reload();
+					else alert("수정 실패");
+				});
+			});
+
+			document.querySelectorAll(".comment-delete-btn").forEach(btn => {
+				btn.addEventListener("click", async () => {
+					if (!confirm("댓글을 삭제하시겠습니까?")) return;
+					const uuid = btn.dataset.uuid;
+					const res = await fetch(`/comment/${uuid}`, {method: "DELETE"});
+					if (res.ok) location.reload();
+					else alert("삭제 실패");
+				});
+			});
+		</script>
     </th:block>
 </body>
 
