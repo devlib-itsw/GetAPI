@@ -77,12 +77,15 @@
 
                 <!-- Search & Sort -->
                 <div class="mb-4 flex flex-wrap gap-3 items-center justify-between">
-                    <div style="position:relative; flex:1; max-width:28rem">
-                        <svg style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%)" class="icon text-muted"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                        </svg>
-                        <input id="dashboard-search" class="input" type="text" placeholder="API 이름으로 검색..." style="padding-left:2.5rem">
+                    <div class="flex items-center gap-2" style="flex:1; max-width:28rem">
+                        <div style="position:relative; flex:1">
+                            <svg style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%)" class="icon text-muted"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                            </svg>
+                            <input id="dashboard-search" class="input" type="text" placeholder="API 이름으로 검색..." style="padding-left:2.5rem">
+                        </div>
+                        <button class="btn btn-primary" id="btn-dashboard-search">검색</button>
                     </div>
                     <div class="custom-select" style="width:10rem">
                         <button type="button" class="custom-select-trigger">
@@ -156,6 +159,10 @@
     /* 검색 */
     document.getElementById('dashboard-search').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') dashboardPaginator.load(0);
+    });
+
+    document.getElementById('btn-dashboard-search').addEventListener('click', function() {
+        dashboardPaginator.load(0);
     });
 
     /* 정렬 */
