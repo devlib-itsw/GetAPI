@@ -70,15 +70,24 @@ public class PostCommentController {
 	public String modifyPostComment(@PathVariable("postUuid") UUID postUuid, @PathVariable("commentUuid") UUID commentUuid, PostCommentForm postCommentForm, BindingResult bindingResult, Principal principal,
 			@AuthenticationPrincipal String sub) {
 		PostComment postComment = this.postCommentService.findByCommentUuid(commentUuid);
+		Users user = this.userService.getProviderId(sub);
+		if (user == null || !postComment.getUserProfile().getUser().getUserId().equals(user.getUserId())) {
+			return String.format("redirect:/community/view/%s", postUuid);
+		}
 		this.postCommentService.modify(postComment, postCommentForm.getContent());
 		return String.format("redirect:/community/view/%s#postComment_%s", postUuid, postComment.getCommentId());
 	}
 	
 	@GetMapping("delete/{postId}/{postCommentId}")
 	@PreAuthorize("isAuthenticated()")
-	public String deleteAction(@PathVariable("postId") Long postId, @PathVariable("postCommentId") Long postCommentId) {
+	public String deleteAction(@PathVariable("postId") Long postId, @PathVariable("postCommentId") Long postCommentId,
+			@AuthenticationPrincipal String sub) {
 		Post post = this.postService.findById(postId);
-		this.postCommentService.delete(postCommentId);
+		PostComment comment = this.postCommentService.findById(postCommentId);
+		Users user = this.userService.getProviderId(sub);
+		if (user != null && comment.getUserProfile().getUser().getUserId().equals(user.getUserId())) {
+			this.postCommentService.delete(postCommentId);
+		}
 		return String.format("redirect:/community/view/%s", post.getPostUuid());
 	}
 

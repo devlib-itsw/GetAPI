@@ -46,17 +46,14 @@ public class PaymentsController {
     
     @GetMapping("/confirm")
     public String confirm(PaymentsConfirmRequest request, Model model) {
-        // [기존 로직] 토스 서버에 승인 요청을 보내서 결제를 확정함
-        PaymentsConfirmResponse response = paymentsService.confirmPayment(request);
-        
-        
-        // [데이터 전달] 마이페이지에서 보여줄 정보가 있다면 담아줌
-        model.addAttribute("totalAmount", response.getTotalAmount());
-        
-        
-        
-        // [화면 이동] 이제 JSON 데이터가 아닌 "mypage.html" 파일을 보여줌
-        return "redirect:/user/mypage?amount=" + response.getTotalAmount();
+        try {
+            PaymentsConfirmResponse response = paymentsService.confirmPayment(request);
+            model.addAttribute("totalAmount", response.getTotalAmount());
+            return "redirect:/user/mypage?amount=" + response.getTotalAmount();
+        } catch (Exception e) {
+            System.err.println("결제 승인 실패: " + e);
+            return "redirect:/payments/charge?error=payment_failed";
+        }
     }
     
     @GetMapping("/charge") // 충전 페이지 주소
@@ -96,13 +93,12 @@ public class PaymentsController {
 
             // 3. Redis에 저장 (설정한 TTL 330초 작동)
             paymentsRepository.save(payment);
-            System.out.println("성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공");
+            return ResponseEntity.ok(Map.of("status", "success", "orderId", payment.getOrderId()));
 
-		} catch (Exception e) {
-			System.out.println("에러!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1에러!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!빼애액!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			System.out.println(e);
-		}
-        return ResponseEntity.ok(Map.of("status", "success", "orderId", payment.getOrderId()));
+        } catch (Exception e) {
+            System.err.println("결제 저장 실패: " + e);
+            return ResponseEntity.status(500).body(Map.of("status", "error", "message", "결제 저장에 실패했습니다."));
+        }
     }
     
     @ResponseBody

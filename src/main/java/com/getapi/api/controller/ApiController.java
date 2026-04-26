@@ -48,7 +48,7 @@ public class ApiController {
     public String dashboard(Model model) {
         String sub = SecurityContextHolder.getContext().getAuthentication().getName();
         Users user = userRepository.findByProviderId(sub);
-        if (user == null) return "redirect:/login";
+        if (user == null) return "redirect:/";
 
         List<Api> apis = apiService.findByUser(user);
         long totalCalls = 0, todayCalls = 0, totalRevenue = 0;
@@ -206,7 +206,9 @@ public class ApiController {
         try {
             String name        = (String) body.get("name");
             String description = (String) body.get("description");
-            Long   price       = Long.parseLong(body.get("price").toString());
+            Object priceObj    = body.get("price");
+            if (priceObj == null) return ResponseEntity.badRequest().body(Map.of("message", "price는 필수입니다."));
+            Long   price       = Long.parseLong(priceObj.toString());
             String slug        = (String) body.get("slug");
             apiService.update(apiOpt.get(), name, description, price, slug);
             return ResponseEntity.ok().build();
@@ -337,8 +339,12 @@ public class ApiController {
         if (content == null || content.isBlank())
             return ResponseEntity.badRequest().body(Map.of("message", "내용을 입력해주세요."));
 
-        apiCommentService.update(UUID.fromString(commentUuid), content, user);
-        return ResponseEntity.ok().build();
+        try {
+            apiCommentService.update(UUID.fromString(commentUuid), content, user);
+            return ResponseEntity.ok().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
+        }
     }
 
     @DeleteMapping("/library/{uuid}/comments/{commentUuid}")
@@ -349,8 +355,12 @@ public class ApiController {
         Users user = userRepository.findByProviderId(sub);
         if (user == null) return ResponseEntity.status(401).build();
 
-        apiCommentService.deleteByUuid(UUID.fromString(commentUuid), user);
-        return ResponseEntity.ok().build();
+        try {
+            apiCommentService.deleteByUuid(UUID.fromString(commentUuid), user);
+            return ResponseEntity.ok().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
+        }
     }
 
     // ── Step1: API 등록 ───────────────────────────────────────────────────────
@@ -368,7 +378,7 @@ public class ApiController {
         try {
             String sub = SecurityContextHolder.getContext().getAuthentication().getName();
             Users user = userRepository.findByProviderId(sub);
-            if (user == null) return "redirect:/login";
+            if (user == null) return "redirect:/";
 
             UUID uuid = apiService.createApi(user, name, method, slug,
                     originUri.replaceAll("/+$", ""), description, points, apiDoc, tags);

@@ -74,7 +74,7 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // JWT 필터 추가
             .exceptionHandling(exception -> exception
         		.accessDeniedHandler((req, res, exp) -> res.sendRedirect("/"))
-        		.authenticationEntryPoint((req, res, exp) -> res.sendRedirect("/login"))
+        		.authenticationEntryPoint((req, res, exp) -> res.sendRedirect("/"))
     		); // 권한 거부 시 index, 미인증 시 login으로 이동
         
         return http.build();

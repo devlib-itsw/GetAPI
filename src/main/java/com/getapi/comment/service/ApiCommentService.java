@@ -65,7 +65,8 @@ public class ApiCommentService {
         ApiComment c = apiCommentRepository.findByCommentUuid(uuid);
         if (c == null) return;
         UserProfile profile = userProfileRepository.findByUser(user).orElse(null);
-        if (profile == null || !c.getUserProfile().getProfileId().equals(profile.getProfileId())) return;
+        if (profile == null || !c.getUserProfile().getProfileId().equals(profile.getProfileId()))
+            throw new SecurityException("수정 권한이 없습니다.");
         c.setContent(content);
         c.setUpdatedAt(LocalDateTime.now());
         apiCommentRepository.save(c);
@@ -83,7 +84,8 @@ public class ApiCommentService {
         ApiComment c = apiCommentRepository.findByCommentUuid(uuid);
         if (c == null) return;
         UserProfile profile = userProfileRepository.findByUser(user).orElse(null);
-        if (profile == null || !c.getUserProfile().getProfileId().equals(profile.getProfileId())) return;
+        if (profile == null || !c.getUserProfile().getProfileId().equals(profile.getProfileId()))
+            throw new SecurityException("삭제 권한이 없습니다.");
         apiCommentRepository.delete(c);
     }
 

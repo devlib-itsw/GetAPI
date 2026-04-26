@@ -43,7 +43,7 @@ public class ProxyDownloadController {
     @GetMapping("/proxy")
     public ResponseEntity<byte[]> download(
             @RequestParam("os") String os,
-            @RequestParam(value = "arch", defaultValue = "amd64") String arch) throws IOException, InterruptedException {
+            @RequestParam(value = "arch", defaultValue = "amd64") String arch) {
 
         String key = os.toLowerCase() + "_" + arch.toLowerCase();
         String filename = FILE_MAP.get(key);
@@ -58,7 +58,13 @@ public class ProxyDownloadController {
                 .GET()
                 .build();
 
-        HttpResponse<byte[]> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> resp;
+        try {
+            resp = httpClient.send(req, HttpResponse.BodyHandlers.ofByteArray());
+        } catch (IOException | InterruptedException e) {
+            return ResponseEntity.status(502)
+                    .body("GitHub에서 파일을 가져올 수 없습니다.".getBytes());
+        }
 
         if (resp.statusCode() != 200) {
             return ResponseEntity.status(502)
