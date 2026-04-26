@@ -38,10 +38,10 @@ public class LibraryController {
     @GetMapping("library/{uuid}/star")
     public String toggleStar(@PathVariable("uuid") String uuid) {
         String sub = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (sub == null || "anonymousUser".equals(sub)) return "redirect:/login";
+        if (sub == null || "anonymousUser".equals(sub)) return "redirect:/";
 
         Users user = userRepository.findByProviderId(sub);
-        if (user == null) return "redirect:/login";
+        if (user == null) return "redirect:/";
 
         Optional<Api> apiOpt = apiService.findByUuid(UUID.fromString(uuid));
         if (apiOpt.isEmpty()) return "redirect:/library";

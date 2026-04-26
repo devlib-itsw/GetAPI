@@ -156,13 +156,14 @@ public class DeviceAuthController {
         ));
     }
 
+    private static final java.security.SecureRandom SECURE_RANDOM = new java.security.SecureRandom();
+
     private String generateUserCode() {
         String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         StringBuilder sb = new StringBuilder();
-        java.util.Random rng = new java.util.Random();
         for (int i = 0; i < 8; i++) {
             if (i == 4) sb.append('-');
-            sb.append(chars.charAt(rng.nextInt(chars.length())));
+            sb.append(chars.charAt(SECURE_RANDOM.nextInt(chars.length())));
         }
         return sb.toString();
     }

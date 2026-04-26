@@ -363,7 +363,7 @@ console.log(data.translated); // "Hello, nice to meet you."</code></pre>
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ content })
                         });
-                        if (res.status === 401) { location.href = '/login'; return; }
+                        if (res.status === 401) { location.href = '/'; return; }
                         if (res.ok) { location.reload(); }
                         else { alert('댓글 작성에 실패했습니다.'); }
                     } catch(e) { console.error(e); }

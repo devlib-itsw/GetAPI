@@ -65,9 +65,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
         LEFT JOIN user_profile u ON p.user_profile_id = u.profile_id
         WHERE p.is_censored = false
           AND (:kw IS NULL OR :kw = ''
-           OR p.title LIKE %:kw%
-           OR p.content LIKE %:kw%
-           OR u.name LIKE %:kw%)
+           OR p.title LIKE CONCAT('%', :kw, '%')
+           OR p.content LIKE CONCAT('%', :kw, '%')
+           OR u.name LIKE CONCAT('%', :kw, '%'))
         GROUP BY p.post_id, p.content, p.created_at, p.is_censored, p.post_uuid, p.title, p.updated_at, p.user_profile_id, p.view_count
         ORDER BY (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.post_id) DESC, p.created_at DESC
         """,
@@ -76,9 +76,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
         LEFT JOIN user_profile u ON p.user_profile_id = u.profile_id
         WHERE p.is_censored = false
           AND (:kw IS NULL OR :kw = ''
-           OR p.title LIKE %:kw%
-           OR p.content LIKE %:kw%
-           OR u.name LIKE %:kw%)
+           OR p.title LIKE CONCAT('%', :kw, '%')
+           OR p.content LIKE CONCAT('%', :kw, '%')
+           OR u.name LIKE CONCAT('%', :kw, '%'))
         """,
         nativeQuery = true)
     Page<Post> findAllOrderByLikes(@Param("kw") String kw, Pageable pageable);

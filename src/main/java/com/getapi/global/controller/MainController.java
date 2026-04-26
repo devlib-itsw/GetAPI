@@ -25,7 +25,7 @@ public class MainController {
 
     private long parseLong(String value) {
         if (value == null || value.equals("null")) return 0L;
-        return Long.parseLong(value);
+        try { return Long.parseLong(value); } catch (NumberFormatException e) { return 0L; }
     }
 
     @GetMapping("/guide")

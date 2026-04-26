@@ -79,7 +79,7 @@ public class UserController {
 	    
 	    // 로그인이 안 된 경우 처리
 	    if (auth == null || auth.getPrincipal().equals("anonymousUser")) {
-	        return "redirect:/login";
+	        return "redirect:/";
 	    }
 
 	    // 2. 이메일 추출 (JWT 필터가 넣은 값이 문자열이든 객체든 대응 가능)
@@ -179,10 +179,13 @@ public class UserController {
 	// 유저 정보 수정
 	@PatchMapping("/{id}")
 	@ResponseBody
-	public void updateUser(@PathVariable("id") UUID uuid, @RequestBody UserUpdateDTO dto) {
-		Users user=this.userService.getUserByUUID(uuid);
-
+	public ResponseEntity<?> updateUser(@PathVariable("id") UUID uuid, @RequestBody UserUpdateDTO dto,
+			@org.springframework.security.core.annotation.AuthenticationPrincipal String sub) {
+		Users user = this.userService.getUserByUUID(uuid);
+		if (user == null) return ResponseEntity.notFound().build();
+		if (sub == null || !user.getProviderId().equals(sub)) return ResponseEntity.status(403).build();
 		this.userService.updateUser(user, dto);
+		return ResponseEntity.ok().build();
 	}
 	
 }

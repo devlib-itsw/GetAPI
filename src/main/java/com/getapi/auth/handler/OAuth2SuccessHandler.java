@@ -70,6 +70,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			return;
 		} else if (smsAuthService.existsBySub(sub)) {
 			Users user = smsAuthService.updateProfile(sub, name, picture);
+			if (user == null) {
+				getRedirectStrategy().sendRedirect(request, response, "/?error=user_not_found");
+				return;
+			}
 			String jwt = jwtUtil.generateToken(sub, user.getRole());
 
 			Cookie cookie = new Cookie("JWT-TOKEN", jwt);
