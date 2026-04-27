@@ -56,7 +56,10 @@ public class SecurityConfig {
                 .requestMatchers("/lib/**").permitAll()
                 .requestMatchers("/auth/device/**").permitAll()
                 .requestMatchers("/download", "/download/**").permitAll()
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
+                .requestMatchers("/community", "/community/view/**").permitAll()
+                .requestMatchers("/library", "/library/view/**", "/api/library/**", "/api/doc/**", "/api/dashboard/view/*/health").permitAll()
+                .requestMatchers("/user/avatar/**", "/user/profile/**").permitAll()
+                .requestMatchers("/guide").permitAll()
                 .anyRequest().authenticated()
             ) 
             .oauth2Login(oauth2 -> oauth2

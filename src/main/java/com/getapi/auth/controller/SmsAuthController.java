@@ -87,7 +87,7 @@ public class SmsAuthController {
 	@ResponseBody
 	@GetMapping("/stream/{token}")
 	public SseEmitter stream(@PathVariable("token") String token) {
-		SseEmitter emitter = new SseEmitter(330_000L);
+		SseEmitter emitter = new SseEmitter(600_000L);
 
 		emitters.put(token, emitter);
 

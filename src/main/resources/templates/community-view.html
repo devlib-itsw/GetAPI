@@ -2,7 +2,7 @@
 <html lang="ko" layout:decorate="~{common/layout}">
 
 <head>
-    <title layout:fragment="title">번역 API 출시! - Community - GetAPI</title>
+    <title layout:fragment="title" th:text="|${post.title} - Community - GetAPI|"></title>
     <th:block layout:fragment="metatags">
         <meta name="description" content="GetAPI 커뮤니티 글 상세 페이지">
     </th:block>
@@ -39,7 +39,7 @@
 									<img th:src="@{/user/avatar/{uuid}(uuid=${post.userProfile.user.userUuid})}" alt="profileImage" style="border-radius: 50%;"/>
 
 								</div>
-                                <span class="font-medium text-foreground">[[${post.userProfile.isCensored ? '검열됨' : (post.userProfile.nickname ?: post.userProfile.name)}]]</span>
+                                <span class="font-medium text-foreground">[[${post.userProfile.isCensored ? post.userProfile.name : (post.userProfile.nickname ?: post.userProfile.name)}]]</span>
                             </a>
                             <span class="flex items-center gap-1"><svg class="icon" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2">
@@ -86,7 +86,7 @@
 								</button>
 							</th:block>
 
-                            <button class="btn btn-outline btn-sm gap-2 like-btn" th:data-uri="@{|/post/like/add/${post.postId}|}" th:if="${!liked}">
+                            <button class="btn btn-outline btn-sm gap-2 like-btn" th:data-uri="@{|/post/like/add/${post.postId}|}" th:if="${!liked and loginUser != null}">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
                                     <path d="M7 10v12" />
@@ -97,7 +97,7 @@
                             </button>
 							
 							
-							<button class="btn btn-outline btn-sm gap-2 like-btn" th:data-uri="@{|/post/like/add/${post.postId}|}" th:if="${liked}">
+							<button class="btn btn-outline btn-sm gap-2 like-btn" th:data-uri="@{|/post/like/add/${post.postId}|}" th:if="${liked and loginUser != null}">
 							    <svg class="icon" viewBox="0 0 24 24" fill="#fff" stroke="currentColor"
 							        stroke-width="2">
 							        <path d="M7 10v12" />
@@ -123,10 +123,17 @@
                     </h2>
 
                     <div class="card mb-6">
-                        <form class="card-content p-4" th:object="${postCommentForm}" th:action="@{|/comment/write/${post.postId}|}" method="post">
-                            <textarea class="textarea mb-3" placeholder="댓글을 작성하세요..." th:field="*{content}" rows="3" style="resize: none;"></textarea>
-                            <div class="flex justify-end border"><button class="btn btn-primary btn-sm" type=" submit">댓글 작성</button></div>
-                        </form>
+                        <th:block th:if="${loginUser != null}">
+                            <form class="card-content p-4" th:object="${postCommentForm}" th:action="@{|/comment/write/${post.postId}|}" method="post">
+                                <textarea class="textarea mb-3" placeholder="댓글을 작성하세요..." th:field="*{content}" rows="3" style="resize: none;"></textarea>
+                                <div class="flex justify-end border"><button class="btn btn-primary btn-sm" type="submit">댓글 작성</button></div>
+                            </form>
+                        </th:block>
+                        <th:block th:if="${loginUser == null}">
+                            <div class="card-content p-4 text-center text-muted" style="font-size:0.9rem;">
+                                <a href="/" class="text-primary">로그인</a> 후 댓글을 작성할 수 있습니다.
+                            </div>
+                        </th:block>
                     </div>
 				</div>
 
@@ -142,7 +149,7 @@
                                         <div class="flex items-center justify-between mb-1">
                                             <a th:href="@{/user/profile/{uuid}(uuid=${postComment.userProfile?.user?.userUuid})}"
                                                 class="font-medium text-foreground hover\:text-primary"
-                                                th:text="${postComment.userProfile?.isCensored ? '검열됨' : (postComment.userProfile?.nickname ?: postComment.userProfile?.name)}"></a>
+                                                th:text="${postComment.userProfile?.isCensored ? postComment.userProfile?.name : (postComment.userProfile?.nickname ?: postComment.userProfile?.name)}"></a>
                                             <span class="text-xs text-muted">[[${#temporals.format(postComment.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</span>
                                         </div>
                                         <p class="text-sm leading-relaxed text-muted comment-content" th:text="${postComment.content}"></p>

@@ -23,7 +23,7 @@ import java.util.Set;
 public class ProxyDownloadController {
 
     private static final String GITHUB_BASE =
-            "https://github.com/devlib-itsw/getapi-client/releases/latest/download/";
+            "https://github.com/devlib-itsw/GetAPI_Client/releases/latest/download/";
 
     private static final Map<String, String> FILE_MAP = Map.of(
             "linux_amd64",   "getapi-proxy_linux_amd64.tar.gz",

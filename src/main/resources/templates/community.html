@@ -183,7 +183,7 @@
 										<img th:src="@{/user/avatar/{uuid}(uuid=${post.userProfile.user.userUuid})}" alt="profileImage" style="border-radius: 50%;"/>
 
 									</div>
-	                                [[${post.userProfile.isCensored ? '검열됨' : (post.userProfile.nickname ?: post.userProfile.name)}]]
+	                                [[${post.userProfile.isCensored ? post.userProfile.name : (post.userProfile.nickname ?: post.userProfile.name)}]]
 	                            </span>
 	                            <span class="post-meta-item">
 	                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"

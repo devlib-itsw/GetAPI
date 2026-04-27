@@ -11,21 +11,48 @@
             .guide-layout {
                 display: grid;
                 grid-template-columns: 15rem 1fr;
-                gap: 2rem;
                 align-items: start;
+            }
+
+            .guide-content {
+                grid-column: 1 / -1;
+                grid-row: 1;
+                padding-left: 17rem;
+                min-width: 0;
+                overflow-x: hidden;
+            }
+
+            .guide-sidebar {
+                grid-column: 1;
+                grid-row: 1;
+                z-index: 2;
             }
 
             @media (max-width: 768px) {
                 .guide-layout {
                     grid-template-columns: 1fr;
                 }
+                .guide-content { padding-left: 0; }
                 .guide-sidebar { display: none; }
                 .guide-mobile-toc { display: block; }
+                .guide-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+                .flow-diagram { font-size: 0.75rem; gap: 0.25rem; }
+                .flow-node { padding: 0.25rem 0.5rem; }
+                .guide-section * {
+                    word-break: break-word;
+                    overflow-wrap: break-word;
+                    max-width: 100%;
+                }
+                .guide-code {
+                    white-space: pre-wrap;
+                    word-break: break-all;
+                }
             }
 
             .guide-sidebar {
                 position: sticky;
                 top: 5rem;
+                align-self: start;
             }
 
             .toc-list {
@@ -91,6 +118,11 @@
             }
 
             .guide-mobile-toc { display: none; margin-bottom: 1.5rem; }
+            .mobile-toc-details summary { cursor: pointer; font-weight: 600; font-size: 0.875rem; padding: 0.75rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+            .mobile-toc-details summary::-webkit-details-marker { display: none; }
+            .mobile-toc-details[open] summary .toc-arrow { transform: rotate(180deg); }
+            .toc-arrow { transition: transform 0.2s; flex-shrink: 0; }
+            .mobile-toc-links { display: flex; flex-direction: column; gap: 0.125rem; padding: 0.5rem; }
 
             .guide-section {
                 scroll-margin-top: 5rem;
@@ -295,6 +327,47 @@
                     <h1 class="text-3xl font-bold text-foreground">GetAPI 서비스 이용 가이드</h1>
                 </div>
 
+                <!-- 모바일 TOC -->
+                <div class="guide-mobile-toc">
+                    <div class="card">
+                        <details class="mobile-toc-details">
+                            <summary>
+                                목차
+                                <svg class="toc-arrow icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                            </summary>
+                            <div class="mobile-toc-links">
+                                <a href="#intro" class="toc-item">1. 서비스 소개</a>
+                                <a href="#login" class="toc-item">2. 로그인 · 프로필</a>
+                                <a href="#phone-verify" class="toc-item toc-sub">전화번호 인증</a>
+                                <a href="#profile-edit" class="toc-item toc-sub">프로필 편집</a>
+                                <a href="#profile-public" class="toc-item toc-sub">공개 프로필</a>
+                                <a href="#profile-mypage" class="toc-item toc-sub">마이페이지</a>
+                                <a href="#profile-delete" class="toc-item toc-sub">회원 탈퇴</a>
+                                <a href="#points" class="toc-item">3. 포인트</a>
+                                <a href="#points-charge" class="toc-item toc-sub">충전</a>
+                                <a href="#points-withdraw" class="toc-item toc-sub">환전</a>
+                                <a href="#library" class="toc-item">4. API 라이브러리</a>
+                                <a href="#library-browse" class="toc-item toc-sub">탐색 · 검색</a>
+                                <a href="#library-health" class="toc-item toc-sub">서버 상태 표시</a>
+                                <a href="#library-star" class="toc-item toc-sub">즐겨찾기(Star)</a>
+                                <a href="#library-comment" class="toc-item toc-sub">댓글</a>
+                                <a href="#use-api" class="toc-item">5. API 사용하기</a>
+                                <a href="#use-secretkey" class="toc-item toc-sub">Secret Key 발급</a>
+                                <a href="#use-install" class="toc-item toc-sub">프록시 설치</a>
+                                <a href="#use-run" class="toc-item toc-sub">실행 · 인증</a>
+                                <a href="#use-call" class="toc-item toc-sub">API 호출</a>
+                                <a href="#use-security" class="toc-item toc-sub">보안 구조</a>
+                                <a href="#sell-api" class="toc-item">6. API 판매하기</a>
+                                <a href="#sell-register" class="toc-item toc-sub">API 등록</a>
+                                <a href="#sell-verify" class="toc-item toc-sub">Well-Known 검증</a>
+                                <a href="#sell-manage" class="toc-item toc-sub">API 관리</a>
+                                <a href="#sell-hateoas" class="toc-item toc-sub">HATEOAS 설정</a>
+                                <a href="#community" class="toc-item">7. 커뮤니티</a>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
                 <div class="guide-layout">
 
                     <!-- ─── 사이드바 TOC ─── -->
@@ -334,7 +407,7 @@
                     </aside>
 
                     <!-- ─── 본문 ─── -->
-                    <div>
+                    <div class="guide-content">
 
                         <!-- 1. 서비스 소개 -->
                         <section class="guide-section" id="intro">
@@ -357,13 +430,13 @@
                                 <span class="flow-node">원본 API 서버</span>
                             </div>
 
-                            <table class="guide-table">
+                            <div class="guide-table-wrap"><table class="guide-table">
                                 <thead><tr><th>역할</th><th>주요 기능</th></tr></thead>
                                 <tbody>
                                     <tr><td><strong>API 판매자</strong></td><td>대시보드에서 API 등록 → Well-Known 검증 → 수익 확인</td></tr>
                                     <tr><td><strong>API 사용자</strong></td><td>라이브러리에서 API 탐색 → 포인트 충전 → 프록시 설치 후 호출</td></tr>
                                 </tbody>
-                            </table>
+                            </table></div>
                         </section>
 
                         <!-- 2. 로그인 · 프로필 -->
@@ -415,7 +488,7 @@
                                     <div>
                                         <strong>인증 시 주의사항</strong>
                                         <ul style="margin-top:0.5rem; padding-left:1rem; list-style:disc">
-                                            <li>인증 코드는 <strong>5분 30초</strong> 이내에 답장을 보내야 합니다.</li>
+                                            <li>인증 코드는 <strong>10분</strong> 이내에 답장을 보내야 합니다.</li>
                                             <li>이미 다른 계정에 등록된 전화번호로는 가입할 수 없습니다.</li>
                                             <li>답장 문자 내용을 수정하면 인증에 실패합니다.</li>
                                         </ul>
@@ -426,14 +499,14 @@
                             <div class="guide-section-sub" id="profile-edit">
                                 <h3>프로필 편집</h3>
                                 <p><a href="/user/mypage" class="text-primary">마이페이지</a> → <strong>프로필 편집</strong> 탭에서 아래 정보를 변경할 수 있습니다.</p>
-                                <table class="guide-table">
+                                <div class="guide-table-wrap"><table class="guide-table">
                                     <thead><tr><th>항목</th><th>설명</th></tr></thead>
                                     <tbody>
                                         <tr><td>프로필 사진</td><td>Google 계정 아바타가 자동으로 사용되며 <strong>변경 불가</strong>입니다</td></tr>
                                         <tr><td>닉네임</td><td>사이트 내 표시 이름 (다른 사용자에게 공개)</td></tr>
                                         <tr><td>자기소개</td><td>공개 프로필 페이지에 표시되는 소개 문구</td></tr>
                                     </tbody>
-                                </table>
+                                </table></div>
                                 <div class="guide-callout guide-callout-info">
                                     <svg class="guide-callout-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                                     <div>프로필 사진은 Google 계정에 등록된 이미지가 자동으로 적용됩니다. 사진을 변경하려면 Google 계정의 프로필 사진을 수정한 뒤 다시 로그인하세요.</div>
@@ -455,14 +528,14 @@
                             <div class="guide-section-sub" id="profile-mypage">
                                 <h3>마이페이지</h3>
                                 <p>우측 상단 아바타 → <strong>마이페이지</strong>에서 본인 계정의 전체 현황을 확인할 수 있습니다.</p>
-                                <table class="guide-table">
+                                <div class="guide-table-wrap"><table class="guide-table">
                                     <thead><tr><th>탭</th><th>내용</th></tr></thead>
                                     <tbody>
                                         <tr><td>프로필 편집</td><td>닉네임, 자기소개 변경</td></tr>
                                         <tr><td>포인트</td><td>잔액 확인, 충전·환전 이동</td></tr>
                                         <tr><td>API 키 관리</td><td>Secret Key 발급, API Key 재발급, 만료일 확인</td></tr>
                                     </tbody>
-                                </table>
+                                </table></div>
                             </div>
 
                             <div class="guide-section-sub" id="profile-delete">
@@ -622,7 +695,7 @@ go build -o getapi-proxy ./proxy.go</code>
                                         <p style="font-weight:600; color:var(--foreground)">Device Flow 인증 (RFC 8628)</p>
                                         <p>브라우저가 자동으로 열리며 인증 코드가 클립보드에 복사됩니다.</p>
                                         <code class="guide-code">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Visit: https://getapi.lol/auth/device/activate
+  Visit: http://getapi.lol/auth/device/activate
   Code:  ABCD-1234  (클립보드에 복사됨)
   유효시간: 600초
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</code>
@@ -658,21 +731,21 @@ curl -X POST http://getapi/my-api/v1/analyze \
   -H "Content-Type: application/json" \
   -d '{"text": "Hello World"}'</code>
 
-                                <table class="guide-table">
+                                <div class="guide-table-wrap"><table class="guide-table">
                                     <thead><tr><th>자동으로 추가되는 헤더</th><th>설명</th></tr></thead>
                                     <tbody>
                                         <tr><td><code>X-GetAPI-Key</code></td><td>발급된 API Key</td></tr>
                                         <tr><td><code>X-GetAPI-Timestamp</code></td><td>UTC ISO 8601 타임스탬프</td></tr>
                                         <tr><td><code>X-GetAPI-Signature</code></td><td>HMAC-SHA256 서명 (body + timestamp)</td></tr>
                                     </tbody>
-                                </table>
+                                </table></div>
 
                                 <p>API Key는 7일마다 자동 갱신됩니다. 갱신은 자정에 백그라운드에서 처리되므로 별도 작업이 필요 없습니다.</p>
                             </div>
 
                             <div class="guide-section-sub" id="use-security">
                                 <h3>⑤ 보안 구조</h3>
-                                <table class="guide-table">
+                                <div class="guide-table-wrap"><table class="guide-table">
                                     <thead><tr><th>항목</th><th>내용</th></tr></thead>
                                     <tbody>
                                         <tr><td>서명 알고리즘</td><td>HMAC-SHA256 (body + timestamp)</td></tr>
@@ -681,7 +754,7 @@ curl -X POST http://getapi/my-api/v1/analyze \
                                         <tr><td>키 저장 방식</td><td>메모리에만 보관 (파일 저장 없음)</td></tr>
                                         <tr><td>hosts 자동 정리</td><td>프록시 종료 시 <code>/etc/hosts</code> 항목 자동 삭제</td></tr>
                                     </tbody>
-                                </table>
+                                </table></div>
                             </div>
                         </section>
 
@@ -697,7 +770,7 @@ curl -X POST http://getapi/my-api/v1/analyze \
                                 <h3>① API 등록</h3>
                                 <p><a href="/api/dashboard" class="text-primary">대시보드</a> → <strong>새 API 등록</strong> 버튼을 클릭합니다.</p>
 
-                                <table class="guide-table">
+                                <div class="guide-table-wrap"><table class="guide-table">
                                     <thead><tr><th>필드</th><th>설명</th><th>예시</th></tr></thead>
                                     <tbody>
                                         <tr><td>API 이름</td><td>라이브러리에 표시될 이름</td><td>날씨 API</td></tr>
@@ -709,7 +782,7 @@ curl -X POST http://getapi/my-api/v1/analyze \
                                         <tr><td>태그</td><td>콤마(,)로 구분해서 입력</td><td>날씨, 기상청, open-data</td></tr>
                                         <tr><td>호출당 포인트</td><td>1회 호출 시 차감될 포인트</td><td>10</td></tr>
                                     </tbody>
-                                </table>
+                                </table></div>
 
                                 <div class="guide-callout guide-callout-info">
                                     <svg class="guide-callout-icon text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
@@ -855,16 +928,16 @@ public String verify() {
         })();
 
         /* TOC 활성화 스크롤 감지 */
-        const tocLinks = document.querySelectorAll('.toc-item');
-        const sections = Array.from(tocLinks)
+        const sidebarLinks = document.querySelectorAll('.guide-sidebar .toc-item');
+        const sections = Array.from(sidebarLinks)
             .map(a => document.querySelector(a.getAttribute('href')))
             .filter(Boolean);
 
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    tocLinks.forEach(a => a.classList.remove('active'));
-                    const active = document.querySelector(`.toc-item[href="#${entry.target.id}"]`);
+                    sidebarLinks.forEach(a => a.classList.remove('active'));
+                    const active = document.querySelector(`.guide-sidebar .toc-item[href="#${entry.target.id}"]`);
                     if (active) active.classList.add('active');
                 }
             });

@@ -1,6 +1,7 @@
 package com.getapi.global.advice;
 
 import com.getapi.auth.repository.ApiAuthRepository;
+import com.getapi.errors.DataNotFoundException;
 import com.getapi.user.domain.Users;
 import com.getapi.user.repository.UserProfileRepository;
 import com.getapi.user.repository.UserRepository;
@@ -32,6 +33,20 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(SecurityException.class)
     public ResponseEntity<String> handleSecurityException(SecurityException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DataNotFoundException.class)
+    public ModelAndView handleDataNotFoundException(DataNotFoundException e, HttpServletRequest request) {
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("application/json")) {
+            ModelAndView mav = new ModelAndView();
+            mav.setStatus(HttpStatus.NOT_FOUND);
+            return mav;
+        }
+        ModelAndView mav = new ModelAndView("error");
+        mav.addObject("status", 404);
+        mav.setStatus(HttpStatus.NOT_FOUND);
+        return mav;
     }
 
     @ExceptionHandler(Exception.class)

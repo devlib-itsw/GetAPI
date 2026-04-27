@@ -6,6 +6,31 @@
 	<th:block layout:fragment="metatags">
 		<meta name="description" content="GetAPI 개발자 API 등록 페이지">
 	</th:block>
+	<th:block layout:fragment="style">
+		<style>
+			@media (max-width: 640px) {
+				.slug-prefix {
+					display: none;
+				}
+				.slug-input {
+					border-radius: var(--radius) !important;
+				}
+				.form-actions {
+					flex-direction: column-reverse;
+				}
+				.form-actions .btn {
+					width: 100%;
+					justify-content: center;
+				}
+				.step-indicator {
+					gap: 0.5rem;
+				}
+				.step-indicator span {
+					font-size: 0.8125rem;
+				}
+			}
+		</style>
+	</th:block>
 </head>
 
 <body>
@@ -73,11 +98,11 @@
 							<div class="space-y-2">
 								<label class="label">API 고유 문자열 (URL Slug)</label>
 								<div class="flex flex-1 items-center">
-									<span
+									<span class="slug-prefix"
 										style="padding:0.5rem 0.75rem; border:1px solid var(--input); border-right:none; border-radius:var(--radius) 0 0 var(--radius); background:var(--muted); font-size:0.875rem; color:var(--muted-foreground); white-space:nowrap">
-										getapi.com/api/
+										getapi/
 									</span>
-									<input class="input" type="text" name="slug"
+									<input class="input slug-input" type="text" name="slug"
 										style="border-radius:0 var(--radius) var(--radius) 0"
 										placeholder="my-translation-api" pattern="[a-z0-9\-]*" maxlength="64">
 								</div>
@@ -147,7 +172,7 @@
 								<p>API 등록 시 50 포인트가 소모됩니다.</p>
 							</div>
 
-							<div class="flex items-center justify-end gap-3 border-t pt-6">
+							<div class="form-actions flex items-center justify-end gap-3 border-t pt-6">
 								<a href="javascript:history.back()" class="btn btn-outline">취소</a>
 								<button type="submit" class="btn btn-primary">다음: 서버 검증</button>
 							</div>

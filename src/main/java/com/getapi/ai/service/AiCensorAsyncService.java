@@ -85,11 +85,6 @@ public class AiCensorAsyncService {
         boolean censored = aiFilterService.check(text).isCensored();
         userProfileRepository.findById(profileId).ifPresent(profile -> {
             profile.setCensored(censored);
-            if (censored) {
-                profile.setNickname(null);
-                profile.setIntroduction(null);
-                profile.setWebUrl(null);
-            }
             log.info("[AI] UserProfile {} → isCensored={}", profileId, censored);
         });
     }

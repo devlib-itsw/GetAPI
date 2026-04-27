@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" layout:decorate="~{common/layout}">
 <head>
-  <title layout:fragment="title" th:text="|프로필 - ${profileUser.isCensored ? '검열됨' : (profileUser.nickname ?: profileUser.name)} - GetAPI|">프로필 - GetAPI</title>
+  <title layout:fragment="title" th:text="|프로필 - ${profileUser.isCensored ? profileUser.name : (profileUser.nickname ?: profileUser.name)} - GetAPI|">프로필 - GetAPI</title>
   <th:block layout:fragment="metatags">
-  	<meta name="description" th:content="|${profileUser.isCensored ? '검열됨' : (profileUser.nickname ?: profileUser.name)} 개발자 프로필|">
+  	<meta name="description" th:content="|${profileUser.isCensored ? profileUser.name : (profileUser.nickname ?: profileUser.name)} 개발자 프로필|">
   </th:block>
 </head>
 <body>
@@ -29,8 +29,8 @@
 					  style="width:5rem; height:5rem; border-radius:50%; object-fit:cover;" >
 				</div>
               <div>
-                <h1 style="font-size:1.5rem; font-weight:700; color:var(--foreground)" th:text="${profileUser.isCensored ? '검열됨' : (profileUser.nickname ?: profileUser.name)}"></h1>
-                <p style="margin-top:0.25rem; color:var(--muted-foreground)" th:text="${profileUser.isCensored ? '검열됨' : profileUser.introduction}"></p>
+                <h1 style="font-size:1.5rem; font-weight:700; color:var(--foreground)" th:text="${profileUser.isCensored ? profileUser.name : (profileUser.nickname ?: profileUser.name)}"></h1>
+                <p style="margin-top:0.25rem; color:var(--muted-foreground)" th:text="${profileUser.isCensored ? '' : profileUser.introduction}"></p>
                 <p style="margin-top:0.25rem; font-size:0.875rem; color:var(--muted-foreground)" th:text="${profileEmail}"></p>
                 <div style="margin-top:0.5rem; display:flex; flex-wrap:wrap; align-items:center; gap:1rem; font-size:0.875rem; color:var(--muted-foreground)">
 					<a th:if="${!profileUser.isCensored and profileUser.webUrl != null and !#strings.isEmpty(profileUser.webUrl)}"
@@ -39,7 +39,6 @@
 					<span th:text="${profileUser.webUrl}"></span>
                     <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                   </a>
-                  <span th:if="${profileUser.isCensored}" style="color:var(--muted-foreground)">검열됨</span>
                   <span class="flex items-center gap-1">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
                     <span th:text="${#temporals.format(joinDate, 'yyyy-MM-dd') + ' 가입'}"></span>

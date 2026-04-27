@@ -171,6 +171,11 @@ public class PostService {
 	    return post;
 	}
 
+	public Post findByUuidForOwner(UUID postUuid) {
+	    return this.postRepository.findByPostUuid(postUuid)
+	            .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. uuid=" + postUuid));
+	}
+
 	private Specification<Post> buildSpecification(String kw, List<String> filters) {
 	    return (p, query, cb) -> {
 

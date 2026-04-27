@@ -10,7 +10,7 @@ import lombok.Setter;
 
 //domain/SmsAuth.java
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
-@RedisHash(value = "smsAuth", timeToLive = 330) // 5분 30초 (SMS 전송 지연 버퍼 30초 포함)
+@RedisHash(value = "smsAuth", timeToLive = 600) // 10분
 public class SmsAuth {
  @Id
  private String token; // Redis Key

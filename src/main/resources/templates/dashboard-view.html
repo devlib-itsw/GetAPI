@@ -103,7 +103,7 @@
 								</div>
 								<div class="card-content space-y-4">
 									<div  style="overflow-y: hidden; min-height: 69px;"><label class="label text-muted">프록시 URI</label><code
-											class="code-block mt-1">https://getapi.com/<span th:text="${api.proxyUrl}"></span></code>
+											class="code-block mt-1">http://getapi/<span th:text="${api.proxyUrl}"></span></code>
 									</div>
 									<div><label class="label text-muted">호출당 포인트</label>
 										<p class="mt-1 font-medium text-foreground"><span th:text="${api.price}"></span>
@@ -194,33 +194,7 @@
 								<div class="card-content">
 									<textarea class="textarea" rows="18"
 										style="font-family:var(--font-mono); font-size:0.8125rem; line-height:1.7; tab-size:2"
-										id="md-editor"># Translation API
-
-## Endpoint
-`POST https://getapi.com/api/tr-abc123/translate`
-
-## Headers
-| Name | Value |
-|------|-------|
-| Authorization | Bearer YOUR_API_KEY |
-| Content-Type | application/json |
-
-## Parameters
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| text | string | Yes | 번역할 텍스트 |
-| source | string | No | 원본 언어 코드 (자동 감지) |
-| target | string | Yes | 번역 대상 언어 코드 |
-
-## Response
-```json
-{
-  "translated": "Hello, nice to meet you.",
-  "source": "ko",
-  "target": "en",
-  "confidence": 0.98
-}
-```</textarea>
+										id="md-editor"></textarea>
 								</div>
 							</div>
 						</div>
@@ -318,7 +292,7 @@
 										class="input" th:value="${api.name}"></div>
 								<div class="space-y-2"><label class="label">API 고유 문자열 (URL Slug)</label>
 									<div class="flex items-center gap-2"><span
-											class="text-sm text-muted">https://getapi.com/api/</span><input
+											class="text-sm text-muted">http://getapi/</span><input
 											id="setting-slug" class="input" th:value="${api.proxyUrl}" style="flex:1">
 									</div>
 								</div>

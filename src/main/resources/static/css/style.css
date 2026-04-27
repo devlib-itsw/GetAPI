@@ -2014,3 +2014,19 @@ tr:last-child td {
 .card:has(.custom-select-popover.open) {
   z-index: 9989;
 }
+
+/* ── Markdown Body ── */
+.md-body { line-height: 1.7; word-break: break-word; overflow-wrap: break-word; }
+.md-body h1, .md-body h2, .md-body h3, .md-body h4 { margin: 1.25em 0 0.5em; font-weight: 600; }
+.md-body p { margin: 0.75em 0; }
+.md-body ul, .md-body ol { padding-left: 1.5em; margin: 0.75em 0; }
+.md-body li { margin: 0.25em 0; }
+.md-body pre { overflow-x: auto; background: var(--muted); border-radius: 0.5rem; padding: 1rem; margin: 1em 0; }
+.md-body code { font-family: monospace; font-size: 0.875em; }
+.md-body pre code { background: none; padding: 0; }
+.md-body :not(pre) > code { background: var(--muted); padding: 0.15em 0.4em; border-radius: 0.25rem; }
+.md-body blockquote { border-left: 3px solid var(--border); margin: 1em 0; padding: 0.5em 1em; color: var(--muted-foreground); }
+.md-body table { border-collapse: collapse; width: 100%; overflow-x: auto; display: block; }
+.md-body th, .md-body td { border: 1px solid var(--border); padding: 0.5em 0.75em; }
+.md-body th { background: var(--muted); font-weight: 600; }
+.md-body img { max-width: 100%; }

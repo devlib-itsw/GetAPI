@@ -35,19 +35,19 @@ class Markdown{
 		try{
 			const url = this.file && this.file.startsWith('/') ? this.file : `/md/${this.file}`;
 			const response=await fetch(url);
-					
+
 			if(!response.ok) throw new Error("get file error");
-			
+
 			const markdownText=await response.text();
-			
-			marked.setOptions({
+
+			marked.use({
 				breaks: true,
 				gfm: true
 			});
-			
+
 			const container=document.querySelector("[data-tab-content='docs']>.card");
 			if(container){
-				container.innerHTML=marked.parse(markdownText);
+				container.innerHTML=`<div class="md-body">${marked.parse(markdownText)}</div>`;
 			}
 
 			if(window.Prism){

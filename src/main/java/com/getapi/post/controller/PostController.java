@@ -118,7 +118,6 @@ public class PostController {
 	}
 	
 	@GetMapping("/view/{postUuid}")
-	@PreAuthorize("isAuthenticated()")
 	public String viewPost(Model model,
 	                       @PathVariable("postUuid") UUID postUuid,
 	                       @AuthenticationPrincipal String sub,
@@ -150,7 +149,7 @@ public class PostController {
 	    } else {
 	        post = this.postService.findByUuid(postUuid);
 	    }
-	    
+
 	    List<PostComment> postComments = this.postCommentService.getPostCommentsByPost(post);
 	    List<Like> likes = this.likeService.findLikesByPost(post);
 
@@ -161,7 +160,8 @@ public class PostController {
 
 	    boolean liked = false;
 
-	    Users user = this.userService.getProviderId(sub);
+	    Users user = (sub != null && !"anonymousUser".equals(sub))
+	            ? this.userService.getProviderId(sub) : null;
 
 	    if (user != null) {
 	        liked = likes.stream()
@@ -187,11 +187,13 @@ public class PostController {
 	    Users user = this.userService.getProviderId(sub);
 	    if (user == null) return ResponseEntity.status(401).build();
 	    try {
-	        Post post = this.postService.findByUuid(postUuid);
+	        Post post = this.postService.findByUuidForOwner(postUuid);
 	        this.postService.update(post, body.get("title"), body.get("content"), user);
 	        return ResponseEntity.ok().build();
 	    } catch (SecurityException e) {
 	        return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.status(404).body(Map.of("message", e.getMessage()));
 	    }
 	}
 
