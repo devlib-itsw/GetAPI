@@ -19,11 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 @RestController
 @RequiredArgsConstructor
@@ -80,28 +83,24 @@ public class ProxyController {
         // 1. API Key 인증
         String apiKey = request.getHeader("X-GetAPI-Key");
         if (apiKey == null || apiKey.isBlank()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("X-GetAPI-Key 헤더가 필요합니다.".getBytes());
+            return errorResponse(HttpStatus.UNAUTHORIZED, "X-GetAPI-Key 헤더가 필요합니다.");
         }
 
         Optional<ApiAuth> authOpt = apiAuthRepository.findByApiKey(apiKey);
         if (authOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("유효하지 않은 API Key입니다.".getBytes());
+            return errorResponse(HttpStatus.UNAUTHORIZED, "유효하지 않은 API Key입니다.");
         }
 
         ApiAuth apiAuth = authOpt.get();
         if (apiAuth.getExpiredDate() != null && apiAuth.getExpiredDate().isBefore(LocalDate.now())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("만료된 API Key입니다.".getBytes());
+            return errorResponse(HttpStatus.UNAUTHORIZED, "만료된 API Key입니다.");
         }
 
         // 2. 서명 검증
         String timestamp = request.getHeader("X-GetAPI-Timestamp");
         String signature = request.getHeader("X-GetAPI-Signature");
         if (timestamp == null || signature == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("서명 헤더가 필요합니다.".getBytes());
+            return errorResponse(HttpStatus.UNAUTHORIZED, "서명 헤더가 필요합니다.");
         }
 
         byte[] body = request.getInputStream().readAllBytes();
@@ -109,8 +108,7 @@ public class ProxyController {
         try {
             SecureUtil.validateRequest(apiAuth.getSecretKey(), body, timestamp, signature);
         } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(e.getMessage().getBytes());
+            return errorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
 
         // 4. slug 추출
@@ -122,22 +120,19 @@ public class ProxyController {
         // 5. API 조회
         Optional<Api> apiOpt = apiRepository.findByProxyUrl(slug);
         if (apiOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("등록된 API를 찾을 수 없습니다.".getBytes());
+            return errorResponse(HttpStatus.NOT_FOUND, "등록된 API를 찾을 수 없습니다.");
         }
 
         Api api = apiOpt.get();
         if (api.isCensored()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("검열된 API입니다.".getBytes());
+            return errorResponse(HttpStatus.FORBIDDEN, "검열된 API입니다.");
         }
 
         // 6. 포인트 차감
         Users user = apiAuth.getUser();
         long price = api.getPrice();
         if (user.getPoint() < price) {
-            return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
-                    .body("포인트가 부족합니다.".getBytes());
+            return errorResponse(HttpStatus.PAYMENT_REQUIRED, "포인트가 부족합니다.");
          }
         user.setPoint(user.getPoint() - price);
         userRepository.save(user);
@@ -148,8 +143,7 @@ public class ProxyController {
         URI targetUri = URI.create(targetUrl);
         String scheme = targetUri.getScheme();
         if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body("http 또는 https 프로토콜만 허용됩니다.".getBytes());
+            return errorResponse(HttpStatus.BAD_GATEWAY, "http 또는 https 프로토콜만 허용됩니다.");
         }
 
         // 8. HttpRequest 빌드 — 메서드 · 헤더 · 바디 그대로 전달
@@ -175,8 +169,7 @@ public class ProxyController {
         try {
             upstream = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
         } catch (IOException | InterruptedException e) {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body("업스트림 연결 실패".getBytes());
+            return errorResponse(HttpStatus.BAD_GATEWAY, "업스트림 연결 실패");
         }
         long responseTimeMs = System.currentTimeMillis() - startTime;
 
@@ -191,8 +184,21 @@ public class ProxyController {
             }
         });
 
-        // 11. HATEOAS _links 주입
+        // 11. Java HttpClient 가 자동으로 Accept-Encoding: gzip 추가 → upstream이 gzip 응답 가능.
+        //     BodyHandlers.ofByteArray()는 압축 해제를 하지 않으므로 직접 해제.
         byte[] responseBody = upstream.body();
+        String contentEncoding = upstream.headers().firstValue("content-encoding").orElse("");
+        if ("gzip".equalsIgnoreCase(contentEncoding)) {
+            try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(responseBody))) {
+                responseBody = gzis.readAllBytes();
+                responseHeaders.remove("Content-Encoding");
+                responseHeaders.remove("Content-Length");
+            } catch (IOException ignored) {
+                // 해제 실패 시 원본 유지
+            }
+        }
+
+        // 12. HATEOAS _links 주입
         String contentType = upstream.headers().firstValue("content-type").orElse("");
         if (api.isHateoasEnabled()
                 && contentType.contains("application/json")
@@ -219,5 +225,13 @@ public class ProxyController {
         return ResponseEntity.status(upstream.statusCode())
                 .headers(responseHeaders)
                 .body(responseBody);
+    }
+
+    private ResponseEntity<byte[]> errorResponse(HttpStatus status, String message) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.valueOf("text/plain;charset=UTF-8"));
+        return ResponseEntity.status(status)
+                .headers(headers)
+                .body(message.getBytes(StandardCharsets.UTF_8));
     }
 }
