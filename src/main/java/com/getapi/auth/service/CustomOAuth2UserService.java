@@ -29,6 +29,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		Users user = userRepository.findByProviderId(sub);
 
 		if (user != null) {
+			if (user.getProfileDeletedAt() != null) {
+				user.setProfileDeletedAt(null);
+				userRepository.save(user);
+			}
 			List<GrantedAuthority> authorities = List.of(
 				new SimpleGrantedAuthority(user.getRole())
 			);
