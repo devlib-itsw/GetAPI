@@ -145,3 +145,6 @@ X-GetAPI-Signature: HMAC_SHA256_SIGNATURE
 ## 관련 레포지토리
 
 - [GetAPI_Censored_Ai](https://github.com/devlib-itsw/GetAPI_Censored_Ai) — 한국어 혐오표현 감지 AI 서버
+
+---
+Team DevLib · 팀장 [노정원 (njwon)](https://njw.kro.kr)
